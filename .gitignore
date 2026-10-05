@@ -1,7 +1,32 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-.env
-.venv/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Virtual Environments
 venv/
 env/
+.venv/
+ENV/
+
+# Environment Variables & Keys
+.env
+.env.local
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Generated
 .DS_Store
+Thumbs.db
+
+# Logs & Temp files
+*.log

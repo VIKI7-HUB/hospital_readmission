@@ -1,0 +1,67 @@
+{
+    "race_clean": {
+        "baseline": {
+            "demographic_parity_ratio": 0.5210731903755159,
+            "equalized_odds_tpr_ratio": 0.45454545454545453,
+            "equalized_odds_tpr_diff": 0.36000000000000004
+        },
+        "mitigated": {
+            "demographic_parity_ratio": 0.44123977615152815,
+            "equalized_odds_tpr_ratio": 0.8254807692307693,
+            "equalized_odds_tpr_diff": 0.10570762958648805
+        },
+        "improvement_deltas": {
+            "tpr_disparity_reduction_absolute": 0.254292370413512,
+            "equalized_odds_ratio_gain": 0.37093531468531477
+        },
+        "group_thresholds": {
+            "Caucasian": 0.5,
+            "AfricanAmerican": 0.49,
+            "Hispanic": 0.54,
+            "Other/Missing": 0.43000000000000005,
+            "Other": 0.49,
+            "Asian": 0.37
+        }
+    },
+    "age_group": {
+        "baseline": {
+            "demographic_parity_ratio": 0.5952752023477952,
+            "equalized_odds_tpr_ratio": 0.7731064397731066,
+            "equalized_odds_tpr_diff": 0.17132779037540935
+        },
+        "mitigated": {
+            "demographic_parity_ratio": 0.4022129745593211,
+            "equalized_odds_tpr_ratio": 0.9838557886758839,
+            "equalized_odds_tpr_diff": 0.009579223879324528
+        },
+        "improvement_deltas": {
+            "tpr_disparity_reduction_absolute": 0.16174856649608482,
+            "equalized_odds_ratio_gain": 0.2107493489027773
+        },
+        "group_thresholds": {
+            "60+ Years": 0.5,
+            "30-60 Years": 0.5,
+            "<30 Years": 0.61
+        }
+    },
+    "gender_clean": {
+        "baseline": {
+            "demographic_parity_ratio": 0.9424166153899864,
+            "equalized_odds_tpr_ratio": 0.9474455827183905,
+            "equalized_odds_tpr_diff": 0.031993286695736756
+        },
+        "mitigated": {
+            "demographic_parity_ratio": 0.8980468690661975,
+            "equalized_odds_tpr_ratio": 0.9706751939609981,
+            "equalized_odds_tpr_diff": 0.01754870282648935
+        },
+        "improvement_deltas": {
+            "tpr_disparity_reduction_absolute": 0.014444583869247407,
+            "equalized_odds_ratio_gain": 0.023229611242607584
+        },
+        "group_thresholds": {
+            "Female": 0.51,
+            "Male": 0.49
+        }
+    }
+}

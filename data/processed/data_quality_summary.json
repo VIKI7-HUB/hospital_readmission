@@ -1,0 +1,140 @@
+{
+    "total_raw_encounters": 101766,
+    "total_clean_encounters": 101766,
+    "target_distribution": {
+        "negative_count (no readmit or >30d)": 90409,
+        "positive_count (early readmit <30d)": 11357,
+        "prevalence_percentage": 11.159915885462727
+    },
+    "missing_value_audit": {
+        "race": {
+            "missing_count": 2273,
+            "missing_percentage": 2.23,
+            "action_taken": "Imputed as explicit category"
+        },
+        "weight": {
+            "missing_count": 98569,
+            "missing_percentage": 96.86,
+            "action_taken": "Dropped"
+        },
+        "payer_code": {
+            "missing_count": 40256,
+            "missing_percentage": 39.56,
+            "action_taken": "Imputed as explicit category"
+        },
+        "medical_specialty": {
+            "missing_count": 49949,
+            "missing_percentage": 49.08,
+            "action_taken": "Imputed as explicit category"
+        },
+        "diag_1": {
+            "missing_count": 21,
+            "missing_percentage": 0.02,
+            "action_taken": "Mapped to category/imputed"
+        },
+        "diag_2": {
+            "missing_count": 358,
+            "missing_percentage": 0.35,
+            "action_taken": "Mapped to category/imputed"
+        },
+        "diag_3": {
+            "missing_count": 1423,
+            "missing_percentage": 1.4,
+            "action_taken": "Mapped to category/imputed"
+        },
+        "max_glu_serum": {
+            "missing_count": 96420,
+            "missing_percentage": 94.75,
+            "action_taken": "Mapped to category/imputed"
+        },
+        "A1Cresult": {
+            "missing_count": 84748,
+            "missing_percentage": 83.28,
+            "action_taken": "Mapped to category/imputed"
+        }
+    },
+    "outlier_winsorization_caps": {
+        "number_outpatient": {
+            "raw_max": 42.0,
+            "99th_percentile_cap": 5.0,
+            "post_cap_max": 5.0
+        },
+        "number_emergency": {
+            "raw_max": 76.0,
+            "99th_percentile_cap": 3.0,
+            "post_cap_max": 3.0
+        },
+        "number_inpatient": {
+            "raw_max": 21.0,
+            "99th_percentile_cap": 6.0,
+            "post_cap_max": 6.0
+        },
+        "total_visits": {
+            "raw_max": 80.0,
+            "99th_percentile_cap": 10.0,
+            "post_cap_max": 10.0
+        }
+    },
+    "feature_engineering": {
+        "numerical_features": [
+            "time_in_hospital",
+            "num_lab_procedures",
+            "num_procedures",
+            "num_medications",
+            "number_outpatient",
+            "number_emergency",
+            "number_inpatient",
+            "number_diagnoses",
+            "total_visits",
+            "lab_intensity_per_day",
+            "num_med_changes",
+            "num_active_meds"
+        ],
+        "categorical_features": [
+            "race_clean",
+            "gender_clean",
+            "age",
+            "admission_type_id",
+            "discharge_disposition_id",
+            "admission_source_id",
+            "payer_code",
+            "medical_specialty",
+            "diag_1_cat",
+            "diag_2_cat",
+            "diag_3_cat",
+            "max_glu_serum",
+            "A1Cresult",
+            "change",
+            "diabetesMed",
+            "metformin",
+            "repaglinide",
+            "nateglinide",
+            "chlorpropamide",
+            "glimepiride",
+            "acetohexamide",
+            "glipizide",
+            "glimepiride-pioglitazone",
+            "metformin-rosiglitazone",
+            "metformin-pioglitazone",
+            "glyburide",
+            "tolbutamide",
+            "pioglitazone",
+            "rosiglitazone",
+            "acarbose",
+            "miglitol",
+            "troglitazone",
+            "tolazamide",
+            "insulin",
+            "glyburide-metformin"
+        ],
+        "total_feature_count": 47
+    },
+    "excluded_features_rationale": {
+        "encounter_id": "Administrative encounter identifier; prevents memorization",
+        "patient_nbr": "Unique patient identifier; prevents data leakage",
+        "weight": "Dropped due to 96.86% missingness across clinical encounters",
+        "readmitted": "Original multi-class string; converted into binary target readmitted_30d",
+        "examide": "Zero variance (all records constant \"No\")",
+        "citogliptin": "Zero variance (all records constant \"No\")"
+    }
+}
