@@ -1,18 +1,22 @@
 import os
+import sys
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
 import json
 import joblib
 import numpy as np
 import pandas as pd
 from sklearn.metrics import recall_score, precision_score, accuracy_score, roc_auc_score
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-MODELS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "models")
-FAIRNESS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fairness_governance")
+DATA_DIR = os.path.join(BASE_DIR, "data")
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+FAIRNESS_DIR = os.path.join(BASE_DIR, "fairness_governance")
 
-def evaluate_subgroup_metrics(y_true, y_prob, group_labels, threshold=0.5):
+def evaluate_subgroup_metrics(y_true, y_prob, group_labels, threshold=0.130):
     """
     Computes performance metrics and selection rates across demographic subgroups.
-    Clinical Rationale: Ensures predictive equity across Age, Gender, and Race protected classes.
+    Ensures predictive equity across Age, Gender, and Race protected classes.
     """
     df_eval = pd.DataFrame({
         'y_true': y_true.values if hasattr(y_true, 'values') else y_true,
@@ -30,7 +34,6 @@ def evaluate_subgroup_metrics(y_true, y_prob, group_labels, threshold=0.5):
         pos_rate = float(g_df['y_true'].mean())
         sel_rate = float(g_df['y_pred'].mean())
         
-        # Avoid zero division issues
         if g_df['y_true'].sum() > 0:
             rec = float(recall_score(g_df['y_true'], g_df['y_pred'], zero_division=0))
         else:
@@ -45,7 +48,7 @@ def evaluate_subgroup_metrics(y_true, y_prob, group_labels, threshold=0.5):
         
         try:
             auc = float(roc_auc_score(g_df['y_true'], g_df['y_prob'])) if g_df['y_true'].nunique() > 1 else np.nan
-        except:
+        except Exception:
             auc = np.nan
             
         subgroup_stats.append({
@@ -90,7 +93,7 @@ def calculate_fairness_summary(subgroup_df):
         'Disparate Impact Compliant (DPR >= 0.8)': bool(dpr >= 0.8)
     }
 
-def apply_fairness_aware_mitigation(y_true, y_prob, group_labels, target_tpr=None):
+def apply_fairness_aware_mitigation(y_true, y_prob, group_labels, base_thresh=0.130, target_tpr=None):
     """
     Stretch Goal: Group-specific post-processing threshold optimizer to achieve Equal Opportunity / Equalized Odds.
     Adjusts classification thresholds per demographic subgroup so that True Positive Rates (Recall) align across groups.
@@ -101,13 +104,14 @@ def apply_fairness_aware_mitigation(y_true, y_prob, group_labels, target_tpr=Non
         'group': group_labels.values if hasattr(group_labels, 'values') else group_labels
     }).reset_index(drop=True)
     
-    # Calculate group-specific optimal thresholds
     groups = df_eval['group'].unique()
     group_thresholds = {}
     
     # Global target recall baseline
-    global_pred = (y_prob >= 0.5).astype(int)
-    global_target_tpr = recall_score(df_eval['y_true'], global_pred) if target_tpr is None else target_tpr
+    global_pred = (y_prob >= base_thresh).astype(int)
+    global_target_tpr = recall_score(df_eval['y_true'], global_pred, zero_division=0) if target_tpr is None else target_tpr
+    
+    search_thresholds = np.linspace(max(0.04, base_thresh - 0.08), min(0.35, base_thresh + 0.08), 81)
     
     for g in groups:
         g_mask = df_eval['group'] == g
@@ -115,33 +119,31 @@ def apply_fairness_aware_mitigation(y_true, y_prob, group_labels, target_tpr=Non
         g_y_prob = df_eval.loc[g_mask, 'y_prob']
         
         if len(g_y_true) < 30 or g_y_true.sum() == 0:
-            group_thresholds[g] = 0.5
+            group_thresholds[g] = round(base_thresh, 3)
             continue
             
-        # Grid search threshold to match target TPR
-        best_t = 0.5
+        best_t = base_thresh
         best_diff = float('inf')
-        for t in np.linspace(0.1, 0.9, 81):
+        for t in search_thresholds:
             pred_t = (g_y_prob >= t).astype(int)
             tpr_t = recall_score(g_y_true, pred_t, zero_division=0)
             diff = abs(tpr_t - global_target_tpr)
             if diff < best_diff:
                 best_diff = diff
                 best_t = t
-        group_thresholds[g] = best_t
+        group_thresholds[g] = round(float(best_t), 3)
         
-    # Apply group thresholds
     mitigated_preds = np.zeros(len(df_eval), dtype=int)
     for i, row in df_eval.iterrows():
         g = row['group']
-        t = group_thresholds.get(g, 0.5)
+        t = group_thresholds.get(g, base_thresh)
         mitigated_preds[i] = int(row['y_prob'] >= t)
         
     return mitigated_preds, group_thresholds
 
 def run_comprehensive_fairness_audit():
     """
-    Executes full fairness audit across Age, Gender, and Race for trained models.
+    Executes full fairness audit across Age, Gender, and Race for calibrated models.
     Quantifies disparity metrics and measures before/after improvement for stretch goal mitigation (KPI 3 & 4).
     """
     os.makedirs(FAIRNESS_DIR, exist_ok=True)
@@ -154,25 +156,27 @@ def run_comprehensive_fairness_audit():
     y_test = artifacts['y_test']
     sens_test = artifacts['sens_test']
     test_probs = artifacts['test_probs']
+    selected_model_name = artifacts.get('selected_model_name', 'Calibrated Ensemble')
     
-    # Focus primary governance audit on best performing model (XGBoost)
-    model_name = 'XGBoost' if 'XGBoost' in test_probs else list(test_probs.keys())[0]
+    model_name = selected_model_name if selected_model_name in test_probs else ('XGBoost' if 'XGBoost' in test_probs else list(test_probs.keys())[0])
     y_prob = test_probs[model_name]
+    
+    base_thresh = float(artifacts.get('optimal_thresholds', {}).get(model_name, 0.130))
+    print(f"\n[*] Running Fairness & Governance Audit for '{model_name}' (Baseline Threshold: {base_thresh:.3f})...")
     
     audit_results = {}
     improvement_summary = {}
     
-    print(f"\n[*] Running Fairness & Governance Audit for {model_name}...")
-    
     for attr in ['race_clean', 'age_group', 'gender_clean']:
         group_series = sens_test[attr]
-        subgroup_df = evaluate_subgroup_metrics(y_test, y_prob, group_series)
+        subgroup_df = evaluate_subgroup_metrics(y_test, y_prob, group_series, threshold=base_thresh)
         fairness_summary = calculate_fairness_summary(subgroup_df)
         
         # Mitigation stretch goal
-        mitigated_preds, group_thresholds = apply_fairness_aware_mitigation(y_test, y_prob, group_series)
+        mitigated_preds, group_thresholds = apply_fairness_aware_mitigation(
+            y_test, y_prob, group_series, base_thresh=base_thresh
+        )
         
-        # Recalculate post mitigation stats using custom preds
         mit_df_eval = pd.DataFrame({
             'y_true': y_test.values if hasattr(y_test, 'values') else y_test,
             'y_pred': mitigated_preds,
@@ -188,14 +192,13 @@ def run_comprehensive_fairness_audit():
             mit_subgroup_list.append({
                 'Subgroup': str(g_name),
                 'Sample Size': count,
-                'Mitigated Threshold': float(group_thresholds.get(g_name, 0.5)),
+                'Mitigated Threshold': float(group_thresholds.get(g_name, base_thresh)),
                 'Mitigated Selection Rate': sel_rate,
                 'Mitigated Recall (TPR)': rec,
                 'Mitigated Precision': prec
             })
         mit_subgroup_df = pd.DataFrame(mit_subgroup_list)
         
-        # Calculate mitigated disparity
         mit_valid = mit_subgroup_df[mit_subgroup_df['Sample Size'] >= 30]
         mit_min_sel = float(mit_valid['Mitigated Selection Rate'].min())
         mit_max_sel = float(mit_valid['Mitigated Selection Rate'].max())
@@ -206,7 +209,6 @@ def run_comprehensive_fairness_audit():
         mit_tpr_ratio = mit_min_tpr / max(mit_max_tpr, 1e-6)
         mit_tpr_diff = mit_max_tpr - mit_min_tpr
         
-        # Measure improvement deltas
         base_tpr_diff = fairness_summary['Equalized Odds Difference (Max - Min TPR)']
         tpr_diff_reduction = base_tpr_diff - mit_tpr_diff
         
@@ -228,9 +230,11 @@ def run_comprehensive_fairness_audit():
             'group_thresholds': {str(k): float(v) for k, v in group_thresholds.items()}
         }
         
-        # Save CSV reports
-        subgroup_csv = os.path.join(FAIRNESS_DIR, f"fairness_bias_analysis_{attr}.csv")
-        subgroup_df.to_csv(subgroup_csv, index=False)
+        # Save both naming conventions for compatibility
+        subgroup_csv1 = os.path.join(FAIRNESS_DIR, f"{attr}_fairness_audit.csv")
+        subgroup_csv2 = os.path.join(FAIRNESS_DIR, f"fairness_bias_analysis_{attr}.csv")
+        subgroup_df.to_csv(subgroup_csv1, index=False)
+        subgroup_df.to_csv(subgroup_csv2, index=False)
         
         mit_csv = os.path.join(FAIRNESS_DIR, f"fairness_mitigated_{attr}.csv")
         mit_subgroup_df.to_csv(mit_csv, index=False)
@@ -247,7 +251,6 @@ def run_comprehensive_fairness_audit():
         print(f"    - Baseline Equalized Odds (TPR) Diff: {base_tpr_diff:.4f}")
         print(f"    - Mitigated Equalized Odds (TPR) Diff: {mit_tpr_diff:.4f} (Disparity Reduction: {tpr_diff_reduction*100:.2f}%)")
         
-    # Save improvement summary JSON
     improvement_json_path = os.path.join(FAIRNESS_DIR, "mitigation_improvement_summary.json")
     with open(improvement_json_path, 'w') as f:
         json.dump(improvement_summary, f, indent=4)

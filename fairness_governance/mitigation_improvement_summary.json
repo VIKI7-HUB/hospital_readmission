@@ -1,67 +1,68 @@
 {
     "race_clean": {
         "baseline": {
-            "demographic_parity_ratio": 0.5210731903755159,
-            "equalized_odds_tpr_ratio": 0.45454545454545453,
-            "equalized_odds_tpr_diff": 0.36000000000000004
+            "demographic_parity_ratio": 0.598875738119182,
+            "equalized_odds_tpr_ratio": 0.811965811965812,
+            "equalized_odds_tpr_diff": 0.11282051282051281
         },
         "mitigated": {
-            "demographic_parity_ratio": 0.44123977615152815,
-            "equalized_odds_tpr_ratio": 0.8254807692307693,
-            "equalized_odds_tpr_diff": 0.10570762958648805
+            "demographic_parity_ratio": 0.6937838423218541,
+            "equalized_odds_tpr_ratio": 0.9448332647179908,
+            "equalized_odds_tpr_diff": 0.03089337175792517
         },
         "improvement_deltas": {
-            "tpr_disparity_reduction_absolute": 0.254292370413512,
-            "equalized_odds_ratio_gain": 0.37093531468531477
+            "tpr_disparity_reduction_absolute": 0.08192714106258764,
+            "equalized_odds_ratio_gain": 0.13286745275217882
         },
         "group_thresholds": {
-            "Caucasian": 0.5,
-            "AfricanAmerican": 0.49,
-            "Hispanic": 0.54,
-            "Other/Missing": 0.43000000000000005,
-            "Other": 0.49,
-            "Asian": 0.37
+            "Caucasian": 0.132,
+            "AfricanAmerican": 0.122,
+            "Other": 0.102,
+            "Asian": 0.098,
+            "Other/Missing": 0.116,
+            "Hispanic": 0.14
         }
     },
     "age_group": {
         "baseline": {
-            "demographic_parity_ratio": 0.5952752023477952,
-            "equalized_odds_tpr_ratio": 0.7731064397731066,
-            "equalized_odds_tpr_diff": 0.17132779037540935
+            "demographic_parity_ratio": 0.6983895131301643,
+            "equalized_odds_tpr_ratio": 0.7881835323695788,
+            "equalized_odds_tpr_diff": 0.138001638001638
         },
         "mitigated": {
-            "demographic_parity_ratio": 0.4022129745593211,
-            "equalized_odds_tpr_ratio": 0.9838557886758839,
-            "equalized_odds_tpr_diff": 0.009579223879324528
+            "demographic_parity_ratio": 0.49319912066818844,
+            "equalized_odds_tpr_ratio": 0.9885439763488544,
+            "equalized_odds_tpr_diff": 0.006145567827810838
         },
         "improvement_deltas": {
-            "tpr_disparity_reduction_absolute": 0.16174856649608482,
-            "equalized_odds_ratio_gain": 0.2107493489027773
+            "tpr_disparity_reduction_absolute": 0.13185607017382717,
+            "equalized_odds_ratio_gain": 0.20036044397927555
         },
         "group_thresholds": {
-            "60+ Years": 0.5,
-            "30-60 Years": 0.5,
-            "<30 Years": 0.61
+            "<30 Years": 0.192,
+            "30-60 Years": 0.122,
+            "60+ Years": 0.13
         }
     },
     "gender_clean": {
         "baseline": {
-            "demographic_parity_ratio": 0.9424166153899864,
-            "equalized_odds_tpr_ratio": 0.9474455827183905,
-            "equalized_odds_tpr_diff": 0.031993286695736756
+            "demographic_parity_ratio": 0.8767702807090418,
+            "equalized_odds_tpr_ratio": 0.9221634324372441,
+            "equalized_odds_tpr_diff": 0.04306789077583828
         },
         "mitigated": {
-            "demographic_parity_ratio": 0.8980468690661975,
-            "equalized_odds_tpr_ratio": 0.9706751939609981,
-            "equalized_odds_tpr_diff": 0.01754870282648935
+            "demographic_parity_ratio": 0.9757951559187266,
+            "equalized_odds_tpr_ratio": 0.9964845675606079,
+            "equalized_odds_tpr_diff": 0.001882658891209199
         },
         "improvement_deltas": {
-            "tpr_disparity_reduction_absolute": 0.014444583869247407,
-            "equalized_odds_ratio_gain": 0.023229611242607584
+            "tpr_disparity_reduction_absolute": 0.04118523188462908,
+            "equalized_odds_ratio_gain": 0.0743211351233638
         },
         "group_thresholds": {
-            "Female": 0.51,
-            "Male": 0.49
+            "Female": 0.132,
+            "Male": 0.124,
+            "Other/Unknown": 0.13
         }
     }
 }
