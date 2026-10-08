@@ -22,8 +22,6 @@ def _get_groq_key():
                         return line.strip().split("=", 1)[1].strip("\"'")
     return key or ""
 
-GROQ_API_KEY = _get_groq_key()
-
 FEATURE_DISPLAY_NAMES = {
     'time_in_hospital': 'Extended Hospital Stay Duration',
     'num_lab_procedures': 'High Frequency of Diagnostic Lab Tests',
@@ -304,7 +302,7 @@ def generate_groq_clinical_decision_points(patient_dict, prob, verdict_status, a
     explaining why the patient should or should not be discharged based on authentic EHR details.
     Includes 8-second timeout and robust deterministic fallback.
     """
-    key = api_key or GROQ_API_KEY
+    key = api_key or _get_groq_key()
     if not key:
         return _fallback_clinical_points(patient_dict, prob, verdict_status)
         

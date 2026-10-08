@@ -167,7 +167,46 @@ Open your browser at **`http://localhost:8501`** to access the live clinical por
 
 ---
 
-## 7. Ethical Governance & Regulatory Alignment
+## 7. Vercel + Render Research Demo
+
+The repository also includes a separate static web frontend and read-only FastAPI service for split hosting:
+
+- `frontend/` — Vite/React interface for Vercel.
+- `backend/` — model scoring and cohort API for Render.
+- `render.yaml` — Render Blueprint for the API service.
+
+### Deploy the API to Render
+
+1. Create a Blueprint from this repository in Render and select the branch to deploy.
+2. Render reads `render.yaml`, installs `requirements-render.txt`, and starts the API at the assigned `$PORT`.
+3. Wait for the `/api/health` check to report healthy. The service loads the checked-in trained model and cohort artifacts; it does not train models at deploy time.
+
+### Deploy the frontend to Vercel
+
+1. Import the same repository in Vercel and set the project root directory to `frontend`.
+2. Use Vite's detected build settings (`npm run build`, output directory `dist`).
+3. Set `VITE_API_BASE_URL` to the Render service URL, such as `https://hospital-readmission-api.onrender.com`, then deploy.
+
+### Run both services locally
+
+```bash
+pip install -r requirements-render.txt
+uvicorn backend.main:app --reload --port 8000
+```
+
+In a second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The local frontend uses `http://localhost:8000` unless `VITE_API_BASE_URL` is set. Copy `frontend/.env.example` to `frontend/.env.local` to configure another API URL.
+
+This split-hosted version is a **public research demonstration** built on historical, de-identified data. It is not validated for clinical use, does not connect to an EHR, and does not save scenario inputs. Do not submit identifiable patient information or use its scores to make patient-care decisions.
+
+## 8. Ethical Governance & Regulatory Alignment
 
 - **CMS Hospital Readmissions Reduction Program (HRRP):** Aligned with Section 3025 of the Affordable Care Act.
 - **EEOC Four-Fifths Rule Compliance:** Gender Demographic Parity Ratio (94.24%) exceeds the federal 80% threshold.
@@ -175,6 +214,6 @@ Open your browser at **`http://localhost:8501`** to access the live clinical por
 
 ---
 
-## 8. License
+## 9. License
 
 Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more details.
