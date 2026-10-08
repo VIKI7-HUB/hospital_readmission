@@ -177,18 +177,22 @@ def get_worklist(
         filtered = filtered.loc[filtered["prob"] < 0.12]
     if age_group != "all":
         filtered = filtered.loc[filtered["age_group"].astype(str) == age_group]
-    if search.strip():
+    page_num = page if isinstance(page, int) else 1
+    page_len = page_size if isinstance(page_size, int) else 25
+    search_query = str(search).strip() if isinstance(search, str) else ""
+    if search_query:
         filtered = filtered.loc[
-            filtered["enc_id"].astype(str).str.contains(search.strip(), case=False, regex=False)
+            filtered["enc_id"].astype(str).str.contains(search_query, case=False, regex=False)
         ]
 
     # Sort encounters by saved demo risk score, highest probability first
     filtered = filtered.sort_values(by=["prob", "idx"], ascending=[False, True])
 
     total = len(filtered)
-    start = (page - 1) * page_size
-    page_rows = filtered.iloc[start : start + page_size]
+    start = (page_num - 1) * page_len
+    page_rows = filtered.iloc[start : start + page_len]
     all_records = records
+
     return {
         "results": [_public_record(row) for _, row in page_rows.iterrows()],
         "page": page,
