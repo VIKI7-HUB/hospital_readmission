@@ -12,3 +12,6 @@ seaborn>=0.12.0
 ucimlrepo>=0.0.3
 groq>=0.9.0
 python-pptx>=1.0.0
+catboost>=1.2.0
+optuna>=3.0.0
+pyarrow>=14.0.0

@@ -49,23 +49,26 @@ The official **Hackfest 2026 Screening Round Idea Presentation** (strictly adher
 
 ## 3. Key Model Performance & Fairness Benchmarks
 
-### Predictive Model Comparison (Held-Out Test Cohort $N=20,354$)
+### Predictive Model Comparison (Held-Out Test Cohort $N=19,870$; 0% Patient Leakage)
 
-| Model Architecture | AUC-ROC | Recall (Sensitivity) | Precision | Specificity | Brier Score Loss |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Logistic Regression (Balanced)** | 0.6558 | 58.18% | 15.20% | 63.42% | 0.2078 |
-| **Random Forest (Balanced Subsample)** | 0.6775 | 50.81% | 17.43% | 73.49% | 0.1698 |
-| **XGBoost Classifier (scale_pos_weight)** | **0.6896** | **59.45%** | **16.40%** | **66.84%** | **0.1772** |
+| Model Architecture | Threshold ($\tau^*$) | AUC-ROC | PR-AUC | Recall (Sensitivity) | Precision | Brier Score Loss |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Logistic Regression (Calibrated)** | 0.125 | 0.6508 | 0.1941 | 50.33% | 18.01% | 0.0978 |
+| **Random Forest (Calibrated)** | 0.135 | 0.6590 | 0.1932 | 49.14% | 18.50% | 0.0976 |
+| **XGBoost (Optuna Tuned)** | 0.130 | 0.6625 | 0.2064 | 53.20% | 18.64% | 0.0971 |
+| **LightGBM (Optuna Tuned)** | 0.130 | 0.6628 | 0.2078 | 53.16% | 18.23% | 0.0971 |
+| **CatBoost (Optuna Tuned)** | 0.125 | 0.6622 | 0.2050 | **55.02%** | 18.19% | 0.0972 |
+| **Calibrated Ensemble (Champion)** | **0.130** | **0.6640** | **0.2081** | **53.38%** | **18.54%** | **0.0971** |
 
-> **Clinical Decision Rationale:** In discharge triage, a **False Negative** (discharging a patient who will experience acute decompensation and readmission) is orders of magnitude more catastrophic than a **False Positive** (providing a high-touch post-discharge phone call or pharmacist review). Hence, **XGBoost with class-imbalance weighting (`scale_pos_weight=7.96`)** was selected for achieving the highest Sensitivity (59.45%) and discriminative AUC (0.6896).
+> **Clinical Decision Rationale:** In discharge triage, a **False Negative** (discharging a patient who will experience acute decompensation and readmission) is orders of magnitude more catastrophic than a **False Positive** (providing a high-touch post-discharge phone call or pharmacist review). Hence, the **Calibrated Soft-Voting Ensemble (blending XGBoost, LightGBM, and CatBoost with Platt scaling)** was selected for achieving the highest discriminative power (AUC 0.6640, PR-AUC 0.2081), robust Sensitivity (53.38%), and state-of-the-art calibration (Brier score 0.0971).
 
 ### Algorithmic Fairness & Disparity Mitigation (Stretch Goal)
 
 | Protected Demographic | Baseline Disparity (Base Model) | Mitigated Disparity (Fairness-Aware) | Disparity Reduction | Compliance Status |
-| :--- | :---: | :---: | :---: | :---: |
-| **Age TPR Disparity** | 17.13% difference | **0.96% difference** | **-16.17% delta** | **Equitable Across Generations** |
-| **Race TPR Disparity** | 36.00% difference | **10.57% difference** | **-25.43% delta** | **Substantial Equity Gain** |
-| **Gender Demographic Parity** | 94.24% DPR | **94.24% DPR** | Parity preserved | **Complies with EEOC 4/5ths Rule (>80%)** |
+| :--- | :---: | :---: | :---: | :--- |
+| **Age TPR Disparity** | 13.80% difference | **0.61% difference** | **-13.19% delta** | **Equitable Across Generations** |
+| **Race TPR Disparity** | 11.28% difference | **3.09% difference** | **-8.19% delta** | **Equitable Across Racial Groups** |
+| **Gender Demographic Parity** | 87.68% DPR | **87.68% DPR** | Parity preserved | **Complies with EEOC 4/5ths Rule (>80%)** |
 
 ---
 
@@ -154,7 +157,7 @@ pip install -r requirements.txt
 ```bash
 python run_pipeline.py
 ```
-*Executes data quality audits, trains all 3 architectures, verifies KPI compliance, and audits demographic parity.*
+*Executes leak-free data engineering, trains all 6 architectures (LR, RF, XGBoost, LightGBM, CatBoost, Calibrated Ensemble), optimizes clinical thresholds, precomputes worklist artifacts, and audits demographic parity.*
 
 ### 4. Launch the Clinical Decision Support Application
 ```bash
