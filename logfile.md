@@ -162,3 +162,32 @@
 - **Visual Inspection via PowerPoint COM Rendering**:
   - Exported all 6 slides to PNG images in `D:\hackfest\slide_images\Slide1.JPG` through `Slide6.JPG`.
   - Verified each slide visually for contrast, typography, hierarchy, balance, and alignment.
+### GitHub Repository Push & Professionalization
+- **Remote Repository Configured**: `https://github.com/VIKI7-HUB/hospital_readmission.git`
+- **Pushed Branch**: `main`
+- **Security & Hygiene**:
+  - Replaced hardcoded Groq API key in source code with environment variable + local `.env` loader.
+  - Confirmed `.env` is ignored via `.gitignore` and provided `.env.example`.
+  - Compressed evaluation artifacts from 250MB to 7.18MB and training data to 8.76MB, well within GitHub's 100MB file limit.
+  - Removed all obsolete/legacy Cybershield files.
+  - Added MIT License, executive README with badges and Mermaid architecture diagrams, and complete KPI compliance matrix.
+  - Pushed official 6-slide PowerPoint deck (`Hackfest_2026_Screening_Presentation.pptx`) and slide preview images.
+
+### [2026-10-08 12:10] End-to-End System Optimization (Leakage Elimination, Polished UI, Performance Caching)
+- **Part 1: Model Accuracy & Leak-Free Patient-Grouped Cross-Validation**:
+  - Eliminated data leakage across repeated patient encounters by implementing `StratifiedGroupKFold` on `patient_nbr` (0% overlap between train and test).
+  - Excluded 2,423 terminal/hospice encounters (discharge disposition IDs 11, 13, 14, 19, 20, 21).
+  - Engineered clinical categories, comorbidity counts, cross-diagnosis diabetes indicators, interaction features, and 5-fold cross-fitted target encoding for high-cardinality features.
+  - Integrated LightGBM and CatBoost, tuned models with Optuna, built soft-voting ensemble (35% XGB, 35% LGBM, 30% CatBoost), and calibrated probabilities via Platt scaling (Brier score dropped to 0.0971).
+  - Re-audited fairness: Age TPR disparity reduced to 0.61%, Race TPR disparity to 3.09%, Gender DPR preserved at 87.68%.
+- **Part 2: Animated, Polished Clinical UI**:
+  - Injected CSS keyframe animations (320ms view fade-and-slide, high-risk pulsing glow badges, smooth hover lifts).
+  - Animated Plotly radial gauge needle with 600ms cubic-in-out transitions.
+  - Integrated streaming Groq clinical decision reasoning (`st.write_stream`) with shimmer skeleton loading.
+  - Added interactive clinical order toast confirmations and `@media (prefers-reduced-motion)` accessibility support.
+- **Part 3: Latency & Runtime Performance Optimization**:
+  - Precomputed worklist cache (`worklist_precomputed.joblib`) cutting queue load time by 76.4% (from 50.64 ms down to 11.97 ms).
+  - Applied `@st.fragment` to Bedside Risk Calculator, eliminating full app reruns on slider adjustments (latency down to 26.59 ms).
+  - Paginated worklist to 25 items per page and converted tabular store to Parquet.
+  - Generated comprehensive before/after report in `docs/improvement_report.md`.
+
