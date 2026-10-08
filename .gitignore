@@ -19,6 +19,7 @@ ENV/
 # Environment Variables & Keys
 .env
 .env.local
+supabase/.temp/
 
 # IDEs & Editors
 .vscode/

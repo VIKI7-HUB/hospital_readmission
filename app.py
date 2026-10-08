@@ -903,7 +903,7 @@ elif app_mode == "Bedside Risk Calculator":
                 a1c_idx = a1c_options.index(current_a1c) if current_a1c in a1c_options else 3
                 a1c = st.selectbox("A1C Glycemic Level", a1c_options, index=a1c_idx)
                 
-                diag_options = ['Circulatory', 'Respiratory', 'Digestive', 'Diabetes', 'Injury', 'Musculoskeletal', 'Genitourinary', 'Neoplasms', 'Other']
+                diag_options = ['Circulatory', 'Respiratory', 'Digestive', 'Diabetes', 'Injury', 'Musculoskeletal', 'Genitourinary', 'Neoplasms', 'Other', 'Other/External']
                 current_diag = str(pt_row.get('diag_1_cat', 'Circulatory'))
                 diag_idx = diag_options.index(current_diag) if current_diag in diag_options else 0
                 diag1 = st.selectbox("Primary ICD-9 Category", diag_options, index=diag_idx)

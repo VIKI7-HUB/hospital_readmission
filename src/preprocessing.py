@@ -164,19 +164,41 @@ def engineer_features(df_in):
     
     # 1. Demographic mappings
     if 'age' in df.columns:
-        df['age_group'] = df['age'].apply(group_age)
-        df['age_midpoint'] = df['age'].map(AGE_MIDPOINT_MAP).fillna(65.0)
+        if 'age_group' not in df.columns:
+            df['age_group'] = df['age'].apply(group_age)
+        if 'age_midpoint' not in df.columns:
+            df['age_midpoint'] = df['age'].map(AGE_MIDPOINT_MAP).fillna(65.0)
     else:
-        df['age_group'] = '60+ Years'
-        df['age_midpoint'] = 65.0
+        if 'age_group' not in df.columns:
+            df['age_group'] = '60+ Years'
+        if 'age_midpoint' not in df.columns:
+            df['age_midpoint'] = 65.0
         
-    df['race_clean'] = df['race'].fillna('Other/Missing') if 'race' in df.columns else 'Other/Missing'
-    df['gender_clean'] = df['gender'].apply(lambda x: x if x in ['Male', 'Female'] else 'Other/Unknown') if 'gender' in df.columns else 'Other/Unknown'
+    if 'race' in df.columns:
+        df['race_clean'] = df['race'].fillna('Other/Missing')
+    elif 'race_clean' not in df.columns:
+        df['race_clean'] = 'Other/Missing'
+        
+    if 'gender' in df.columns:
+        df['gender_clean'] = df['gender'].apply(lambda x: x if x in ['Male', 'Female'] else 'Other/Unknown')
+    elif 'gender_clean' not in df.columns:
+        df['gender_clean'] = 'Other/Unknown'
     
     # 2. Administrative clinical categorization
-    df['admission_type_cat'] = df['admission_type_id'].apply(map_admission_type) if 'admission_type_id' in df.columns else 'Emergency_Urgent'
-    df['discharge_disp_cat'] = df['discharge_disposition_id'].apply(map_discharge_disposition) if 'discharge_disposition_id' in df.columns else 'Home'
-    df['admission_source_cat'] = df['admission_source_id'].apply(map_admission_source) if 'admission_source_id' in df.columns else 'Emergency_Room'
+    if 'admission_type_id' in df.columns:
+        df['admission_type_cat'] = df['admission_type_id'].apply(map_admission_type)
+    elif 'admission_type_cat' not in df.columns:
+        df['admission_type_cat'] = 'Emergency_Urgent'
+        
+    if 'discharge_disposition_id' in df.columns:
+        df['discharge_disp_cat'] = df['discharge_disposition_id'].apply(map_discharge_disposition)
+    elif 'discharge_disp_cat' not in df.columns:
+        df['discharge_disp_cat'] = 'Home'
+        
+    if 'admission_source_id' in df.columns:
+        df['admission_source_cat'] = df['admission_source_id'].apply(map_admission_source)
+    elif 'admission_source_cat' not in df.columns:
+        df['admission_source_cat'] = 'Emergency_Room'
     
     # 3. Numeric conversions & healthcare utilization
     for col in ['number_outpatient', 'number_emergency', 'number_inpatient', 'time_in_hospital',
@@ -193,24 +215,45 @@ def engineer_features(df_in):
     
     # 4. Medication changes and active med counts
     med_cols_present = [c for c in MEDICATION_COLS if c in df.columns]
-    df['num_med_changes'] = df.apply(lambda r: count_medication_adjustments(r, med_cols_present), axis=1)
-    df['num_active_meds'] = df.apply(lambda r: count_active_medications(r, med_cols_present), axis=1)
+    if 'num_med_changes' not in df.columns or len(med_cols_present) > 0:
+        df['num_med_changes'] = df.apply(lambda r: count_medication_adjustments(r, med_cols_present), axis=1)
+    if 'num_active_meds' not in df.columns or len(med_cols_present) > 0:
+        df['num_active_meds'] = df.apply(lambda r: count_active_medications(r, med_cols_present), axis=1)
     
     # 5. ICD-9 Diagnoses & Comorbidity Engineering
-    df['diag_1_cat'] = df['diag_1'].apply(map_icd9_to_category) if 'diag_1' in df.columns else 'Circulatory'
-    df['diag_2_cat'] = df['diag_2'].apply(map_icd9_to_category) if 'diag_2' in df.columns else 'Other'
-    df['diag_3_cat'] = df['diag_3'].apply(map_icd9_to_category) if 'diag_3' in df.columns else 'Other'
+    if 'diag_1' in df.columns:
+        df['diag_1_cat'] = df['diag_1'].apply(map_icd9_to_category)
+    elif 'diag_1_cat' not in df.columns:
+        df['diag_1_cat'] = 'Circulatory'
+        
+    if 'diag_2' in df.columns:
+        df['diag_2_cat'] = df['diag_2'].apply(map_icd9_to_category)
+    elif 'diag_2_cat' not in df.columns:
+        df['diag_2_cat'] = 'Other'
+        
+    if 'diag_3' in df.columns:
+        df['diag_3_cat'] = df['diag_3'].apply(map_icd9_to_category)
+    elif 'diag_3_cat' not in df.columns:
+        df['diag_3_cat'] = 'Other'
     
     # Cross-diagnosis diabetes indicator
-    d1 = df['diag_1'] if 'diag_1' in df.columns else pd.Series([np.nan]*len(df))
-    d2 = df['diag_2'] if 'diag_2' in df.columns else pd.Series([np.nan]*len(df))
-    d3 = df['diag_3'] if 'diag_3' in df.columns else pd.Series([np.nan]*len(df))
-    
-    has_dm = []
-    for v1, v2, v3 in zip(d1, d2, d3):
-        is_dm = int(check_is_diabetes_code(v1) or check_is_diabetes_code(v2) or check_is_diabetes_code(v3))
-        has_dm.append(is_dm)
-    df['has_diabetes_diag'] = has_dm
+    if any(c in df.columns for c in ['diag_1', 'diag_2', 'diag_3']):
+        d1 = df['diag_1'] if 'diag_1' in df.columns else pd.Series([np.nan]*len(df))
+        d2 = df['diag_2'] if 'diag_2' in df.columns else pd.Series([np.nan]*len(df))
+        d3 = df['diag_3'] if 'diag_3' in df.columns else pd.Series([np.nan]*len(df))
+        has_dm = []
+        for v1, v2, v3 in zip(d1, d2, d3):
+            is_dm = int(check_is_diabetes_code(v1) or check_is_diabetes_code(v2) or check_is_diabetes_code(v3))
+            has_dm.append(is_dm)
+        df['has_diabetes_diag'] = has_dm
+    else:
+        existing_has_dm = df['has_diabetes_diag'] if 'has_diabetes_diag' in df.columns else 0
+        df['has_diabetes_diag'] = (
+            (df['diag_1_cat'] == 'Diabetes') | 
+            (df['diag_2_cat'] == 'Diabetes') | 
+            (df['diag_3_cat'] == 'Diabetes') | 
+            (existing_has_dm == 1)
+        ).astype(int)
     
     # Comorbidity count across organ systems
     high_risk_systems = {'Circulatory', 'Respiratory', 'Digestive', 'Diabetes', 'Genitourinary', 'Musculoskeletal', 'Neoplasms'}
@@ -224,8 +267,12 @@ def engineer_features(df_in):
     df['inpatient_x_stay'] = df['number_inpatient'] * df['time_in_hospital']
     df['age_x_polypharmacy'] = df['age_midpoint'] * df['polypharmacy']
     
-    a1c_series = df['A1Cresult'] if 'A1Cresult' in df.columns else pd.Series(['None']*len(df))
-    df['a1c_high'] = a1c_series.isin(['>8', '>7']).astype(int)
+    if 'A1Cresult' in df.columns:
+        df['A1Cresult'] = df['A1Cresult'].replace({'None': 'Missing', 'none': 'Missing', 'nan': 'Missing', '': 'Missing'}).fillna('Missing').astype(str)
+    else:
+        df['A1Cresult'] = 'Missing'
+        
+    df['a1c_high'] = df['A1Cresult'].isin(['>8', '>7']).astype(int)
     df['a1c_x_med_change'] = df['a1c_high'] * df['num_med_changes']
     df['er_x_inpatient'] = df['number_emergency'] * df['number_inpatient']
     

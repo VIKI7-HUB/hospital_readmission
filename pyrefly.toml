@@ -1,0 +1,7 @@
+search-path = ["."]
+disable-search-path-heuristics = true
+python-interpreter-path = "D:/hackfest/.venv311/Scripts/python.exe"
+python-version = "3.11.11"
+python-platform = "win32"
+site-package-path = ["D:/hackfest/.venv311/Lib/site-packages"]
+ignore-missing-imports = ["fastapi", "fastapi.*"]
