@@ -39,6 +39,7 @@ DIAGNOSIS_CATEGORIES = (
     "Genitourinary",
     "Neoplasms",
     "Other",
+    "Other/External",
 )
 
 
@@ -106,7 +107,7 @@ class PredictionRequest(BaseModel):
     num_medications: int = Field(ge=1, le=50)
     number_inpatient: int = Field(ge=0, le=10)
     number_emergency: int = Field(ge=0, le=10)
-    A1Cresult: Literal[">8", ">7", "Norm", "None"]
+    A1Cresult: Literal[">8", ">7", "Norm", "None", "Missing"]
     diag_1_cat: Literal[
         "Circulatory",
         "Respiratory",
@@ -117,6 +118,7 @@ class PredictionRequest(BaseModel):
         "Genitourinary",
         "Neoplasms",
         "Other",
+        "Other/External",
     ]
 
 
@@ -130,8 +132,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -169,6 +171,9 @@ def get_worklist(
             filtered["enc_id"].astype(str).str.contains(search.strip(), case=False, regex=False)
         ]
 
+    # Sort encounters by saved demo risk score, highest probability first
+    filtered = filtered.sort_values(by=["prob", "idx"], ascending=[False, True])
+
     total = len(filtered)
     start = (page - 1) * page_size
     page_rows = filtered.iloc[start : start + page_size]
@@ -197,27 +202,64 @@ def get_encounter(enc_id: str) -> dict:
 def predict(request: PredictionRequest) -> dict:
     encounter = _find_encounter(request.enc_id)
     patient = encounter["row_dict"].copy()
-    patient.update(
+    assets = load_assets()
+
+    orig_stay = int(encounter["stay"])
+    orig_meds = int(encounter["meds"])
+    orig_inpatient = int(encounter["inpatient"])
+    orig_er = int(encounter["er"])
+    orig_a1c = str(encounter["a1c"])
+    orig_diag = str(encounter["diag"])
+
+    # Normalize A1C test indicators: "None" and "Missing" both indicate unmeasured test
+    requested_a1c = "Missing" if request.A1Cresult in ["None", "Missing"] else request.A1Cresult
+    normalized_orig_a1c = "Missing" if orig_a1c in ["None", "Missing"] else orig_a1c
+
+    is_unchanged = (
+        request.time_in_hospital == orig_stay
+        and request.num_medications == orig_meds
+        and request.number_inpatient == orig_inpatient
+        and request.number_emergency == orig_er
+        and requested_a1c == normalized_orig_a1c
+        and request.diag_1_cat == orig_diag
+    )
+
+    if is_unchanged:
+        probability = float(encounter["prob"])
+        tier = str(encounter["tier"])
+        _, color, guidance = get_clinical_risk_tier(probability)
+        engineered = pd.DataFrame([patient])
+    else:
+        patient.update(
+            {
+                "time_in_hospital": request.time_in_hospital,
+                "num_medications": request.num_medications,
+                "number_inpatient": request.number_inpatient,
+                "number_emergency": request.number_emergency,
+                "A1Cresult": requested_a1c,
+                "diag_1_cat": request.diag_1_cat,
+            }
+        )
+        engineered = engineer_features(pd.DataFrame([patient]))
+        engineered.loc[:, "diag_1_cat"] = request.diag_1_cat
+        transformed = assets["preprocessor"].transform(engineered)
+        probability = float(assets["model"].predict_proba(transformed)[0, 1])
+        tier, color, guidance = get_clinical_risk_tier(probability)
+
+    patient_for_interventions = patient.copy()
+    patient_for_interventions.update(
         {
             "time_in_hospital": request.time_in_hospital,
             "num_medications": request.num_medications,
             "number_inpatient": request.number_inpatient,
             "number_emergency": request.number_emergency,
-            "A1Cresult": request.A1Cresult,
+            "A1Cresult": requested_a1c,
+            "diag_1_cat": request.diag_1_cat,
         }
     )
+    interventions = recommend_clinical_interventions(patient_for_interventions, probability)
 
-    engineered = engineer_features(pd.DataFrame([patient]))
-    # The original Streamlit calculator exposed this selector after feature engineering;
-    # applying it here keeps the diagnosis control effective for the web calculator.
-    engineered.loc[:, "diag_1_cat"] = request.diag_1_cat
-
-    assets = load_assets()
     transformed = assets["preprocessor"].transform(engineered)
-    probability = float(assets["model"].predict_proba(transformed)[0, 1])
-    tier, color, guidance = get_clinical_risk_tier(probability)
-    interventions = recommend_clinical_interventions(patient, probability)
-
     model = assets["model"]
     importances = getattr(model, "feature_importances_", None)
     if importances is None and hasattr(model, "base_model"):
@@ -238,6 +280,9 @@ def predict(request: PredictionRequest) -> dict:
         "enc_id": request.enc_id,
         "probability": probability,
         "tier": tier,
+        "original_tier": str(encounter["tier"]),
+        "original_probability": float(encounter["prob"]),
+        "is_unchanged": is_unchanged,
         "color": color,
         "guidance": guidance,
         "interventions": interventions,

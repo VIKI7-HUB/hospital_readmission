@@ -167,44 +167,50 @@ Open your browser at **`http://localhost:8501`** to access the live clinical por
 
 ---
 
-## 7. Vercel + Render Research Demo
+## 7. Vercel + Supabase + Render Research Demo
 
-The repository also includes a separate static web frontend and read-only FastAPI service for split hosting:
+The web version uses three services:
 
-- `frontend/` — Vite/React interface for Vercel.
-- `backend/` — model scoring and cohort API for Render.
-- `render.yaml` — Render Blueprint for the API service.
+- `frontend/` — responsive Vite/React interface hosted on Vercel.
+- `supabase/` — public read-only Postgres tables and the `clinicalai-api` Edge Function. The migration loads the repository's 500-row de-identified demo cohort and governance summaries.
+- `backend/` — Python model scoring API hosted on Render. Supabase forwards only prediction requests to this service because the trained Python model and its dependencies do not run inside the Edge Function runtime.
 
-### Deploy the API to Render
+### Set up Supabase (free plan)
 
-1. Create a Blueprint from this repository in Render and select the branch to deploy.
-2. Render reads `render.yaml`, installs `requirements-render.txt`, and starts the API at the assigned `$PORT`.
-3. Wait for the `/api/health` check to report healthy. The service loads the checked-in trained model and cohort artifacts; it does not train models at deploy time.
+1. Create a Supabase project on the Free plan and install the Supabase CLI.
+2. From the repository root, link the project and apply the migration:
+
+   ```bash
+   supabase login
+   supabase link --project-ref YOUR_PROJECT_REF
+   supabase db push
+   ```
+
+   The migration creates the two read-only public tables and seeds the demonstration records, benchmarks, fairness summaries, and aggregate counts. Row-level security is enabled; browser clients receive `SELECT` access only.
+3. Deploy the API function and point it at the Render model service:
+
+   ```bash
+   supabase functions deploy clinicalai-api
+   supabase secrets set MODEL_API_URL=https://hospital-readmission-api-ig1c.onrender.com
+   ```
+
+   Supabase supplies its project URL and legacy anonymous key to the function at runtime. No service-role key belongs in the frontend.
+
+### Deploy the Python model service to Render
+
+1. Create a Blueprint from this repository and select the deployment branch.
+2. Render reads `render.yaml`, installs `requirements-render.txt`, and starts the scoring API. Wait for `/api/health` to report healthy.
+3. The current Render service URL is `https://hospital-readmission-api-ig1c.onrender.com`; use the URL assigned by Render if it changes.
 
 ### Deploy the frontend to Vercel
 
-1. Import the same repository in Vercel and set the project root directory to `frontend`.
-2. Use Vite's detected build settings (`npm run build`, output directory `dist`).
-3. Set `VITE_API_BASE_URL` to the Render service URL, such as `https://hospital-readmission-api.onrender.com`, then deploy.
+1. Import the repository in Vercel and set the project root to `frontend`.
+2. Use `npm run build` and `dist` as the output directory.
+3. Set `VITE_SUPABASE_URL` to the Supabase project URL and `VITE_SUPABASE_PUBLISHABLE_KEY` to that project's publishable key, then deploy.
 
-### Run both services locally
+Copy `frontend/.env.example` to `frontend/.env.local` for local development. The app calls the Supabase Edge Function at `/functions/v1/clinicalai-api`; `VITE_API_BASE_URL` is only an optional fallback for the legacy local FastAPI server.
 
-```bash
-pip install -r requirements-render.txt
-uvicorn backend.main:app --reload --port 8000
-```
-
-In a second terminal:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-The local frontend uses `http://localhost:8000` unless `VITE_API_BASE_URL` is set. Copy `frontend/.env.example` to `frontend/.env.local` to configure another API URL.
-
-This split-hosted version is a **public research demonstration** built on historical, de-identified data. It is not validated for clinical use, does not connect to an EHR, and does not save scenario inputs. Do not submit identifiable patient information or use its scores to make patient-care decisions.
+This is a **public research demonstration** using historical, de-identified data. It is not validated for clinical use, does not connect to an EHR, and does not save scenario inputs. Do not submit identifiable patient information or use its scores to make patient-care decisions.
 
 ## 8. Ethical Governance & Regulatory Alignment
 

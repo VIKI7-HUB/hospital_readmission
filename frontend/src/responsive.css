@@ -449,6 +449,146 @@
   }
 }
 
+/* Replace the wide worklist table with readable cards on phones. */
+@media (max-width: 760px) {
+  .table-wrap {
+    overflow: visible;
+  }
+
+  .table-wrap table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .table-wrap thead {
+    display: none;
+  }
+
+  .table-wrap tbody {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .table-wrap tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px 12px;
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid #e8edf4;
+    border-radius: 9px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(24, 45, 78, 0.04);
+  }
+
+  .table-wrap tbody td {
+    min-width: 0;
+    padding: 3px 0;
+    border: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .table-wrap tbody td::before {
+    display: block;
+    margin-bottom: 3px;
+    color: #8b98a9;
+    content: attr(data-label);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.35px;
+    text-transform: uppercase;
+  }
+
+  .table-wrap tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .table-wrap tbody td:nth-child(8) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .table-wrap tbody td:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .table-wrap tbody td:nth-child(7) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .table-wrap tbody td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .table-wrap tbody td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .table-wrap tbody td:nth-child(5) {
+    grid-column: 1;
+    grid-row: 4;
+  }
+
+  .table-wrap tbody td:nth-child(6) {
+    grid-column: 2;
+    grid-row: 4;
+  }
+
+  .table-wrap tbody td strong {
+    font-size: 11px;
+  }
+
+  .table-wrap tbody td small {
+    font-size: 9px;
+  }
+
+  .score-cell {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .text-button {
+    min-height: 36px;
+    padding: 5px 0 5px 8px;
+  }
+
+  .empty-state {
+    padding: 28px 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .table-wrap tbody tr {
+    gap: 7px;
+    padding: 9px;
+  }
+
+  .table-wrap tbody td {
+    font-size: 10px;
+  }
+
+  .table-wrap tbody td::before {
+    font-size: 7px;
+  }
+
+  .risk-badge {
+    font-size: 7px;
+    padding: 4px 6px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
