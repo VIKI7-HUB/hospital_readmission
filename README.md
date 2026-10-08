@@ -191,7 +191,7 @@ The web version uses three services:
 
    ```bash
    supabase functions deploy clinicalai-api
-   supabase secrets set MODEL_API_URL=https://hospital-readmission-8lq2.onrender.com
+   supabase secrets set MODEL_API_URL=https://hospital-readmission-api-ig1c.onrender.com
    ```
 
    Supabase supplies its project URL and legacy anonymous key to the function at runtime. No service-role key belongs in the frontend.
@@ -200,7 +200,8 @@ The web version uses three services:
 
 1. Create a Blueprint from this repository and select the deployment branch.
 2. Render reads `render.yaml`, installs `requirements-render.txt`, and starts the scoring API. Wait for `/api/health` to report healthy.
-3. The current Render service URL is `https://hospital-readmission-8lq2.onrender.com`; use the URL assigned by Render if it changes.
+3. The current Render service URL is `https://hospital-readmission-api-ig1c.onrender.com`; use the URL assigned by Render if it changes.
+
 
 
 ### Deploy the frontend to Vercel
