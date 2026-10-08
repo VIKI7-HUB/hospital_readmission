@@ -137,6 +137,17 @@ app.add_middleware(
 )
 
 
+@app.get("/")
+def root() -> dict:
+    return {
+        "status": "online",
+        "service": "clinicalai-api",
+        "message": "ClinicalAI Hospital Readmission API is running.",
+        "docs_url": "/docs",
+        "health_check": "/api/health",
+    }
+
+
 @app.get("/api/health")
 def health() -> dict:
     assets = load_assets()

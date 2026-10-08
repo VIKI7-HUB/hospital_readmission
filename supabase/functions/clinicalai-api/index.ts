@@ -4,7 +4,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
-const DEFAULT_MODEL_API_URL = "https://hospital-readmission-api-ig1c.onrender.com";
+const DEFAULT_MODEL_API_URL = "https://hospital-readmission-8lq2.onrender.com";
 
 function getModelApiUrl(): string {
   const configured = Deno.env.get("MODEL_API_URL");
