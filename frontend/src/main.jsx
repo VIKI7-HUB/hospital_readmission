@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
+import "./responsive.css";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
 const AGE_GROUPS = ["All ages", "<30 Years", "30-60 Years", "60+ Years"];
@@ -256,6 +257,18 @@ function App() {
         </>}
       </div>
     </main>
+
+    <nav className="mobile-nav" aria-label="Mobile navigation">
+      <button className={view === "worklist" ? "active" : ""} aria-label="Discharge worklist" aria-current={view === "worklist" ? "page" : undefined} onClick={() => changeView("worklist")}>
+        <Icon>▤</Icon><span>Worklist</span>
+      </button>
+      <button className={view === "calculator" ? "active" : ""} aria-label="Risk calculator" aria-current={view === "calculator" ? "page" : undefined} onClick={() => changeView("calculator")}>
+        <Icon>⌁</Icon><span>Calculator</span>
+      </button>
+      <button className={view === "governance" ? "active" : ""} aria-label="Model governance" aria-current={view === "governance" ? "page" : undefined} onClick={() => changeView("governance")}>
+        <Icon>◫</Icon><span>Governance</span>
+      </button>
+    </nav>
 
     {reviewRecord && <div className="modal-backdrop" role="presentation" onClick={() => setReviewRecord(null)}><section className="review-modal" role="dialog" aria-modal="true" aria-labelledby="review-title" onClick={(e) => e.stopPropagation()}><button className="modal-close" aria-label="Close review" onClick={() => setReviewRecord(null)}>×</button><div className="modal-eyebrow">HISTORICAL COHORT ENCOUNTER</div><div className="modal-title"><div><h2 id="review-title">{reviewRecord.enc_id}</h2><p>{reviewRecord.age} · {reviewRecord.gender} · {reviewRecord.race}</p></div><RiskBadge tier={reviewRecord.tier} /></div><div className="review-score"><span>Saved model score</span><strong>{prettyPercent(reviewRecord.prob)}</strong></div><div className="review-facts"><span><small>Length of stay</small><strong>{reviewRecord.stay} days</strong></span><span><small>Medications</small><strong>{reviewRecord.meds} active</strong></span><span><small>A1C result</small><strong>{reviewRecord.a1c}</strong></span><span><small>Primary group</small><strong>{reviewRecord.diag}</strong></span></div><div className="modal-section-title">Care bundle preview</div>{reviewLoading && <div className="loading-line"><span className="spinner" /> Loading encounter suggestions</div>}{reviewPrediction && <div className="intervention-list">{reviewPrediction.interventions.map((item, index) => <div className="intervention-item" key={index}><span className="intervention-check">✓</span><div><strong>{item.Recommendation}</strong><small>{item.Rationale}</small></div></div>)}</div>}<Notice compact>Preview only. No EHR connection or care order is available in this demo.</Notice><button className="secondary-button" onClick={() => { setSelectedId(reviewRecord.enc_id); setView("calculator"); setReviewRecord(null); }}>Adjust scenario in calculator <span>→</span></button></section></div>}
   </div>;
