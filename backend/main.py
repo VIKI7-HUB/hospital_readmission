@@ -1,0 +1,256 @@
+"""Read-only API for the ClinicalAI research demo."""
+
+from __future__ import annotations
+
+import json
+import os
+from functools import lru_cache
+from pathlib import Path
+from typing import Literal
+
+import joblib
+import numpy as np
+import pandas as pd
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+PROCESSED_DIR = BASE_DIR / "data" / "processed"
+MODELS_DIR = BASE_DIR / "models"
+FAIRNESS_DIR = BASE_DIR / "fairness_governance"
+
+# These class definitions are needed to load the saved calibrated ensemble.
+import src.models  # noqa: F401,E402
+from src.explainability import (  # noqa: E402
+    clean_feature_label,
+    get_clinical_risk_tier,
+    recommend_clinical_interventions,
+)
+from src.preprocessing import engineer_features  # noqa: E402
+
+DIAGNOSIS_CATEGORIES = (
+    "Circulatory",
+    "Respiratory",
+    "Digestive",
+    "Diabetes",
+    "Injury",
+    "Musculoskeletal",
+    "Genitourinary",
+    "Neoplasms",
+    "Other",
+)
+
+
+@lru_cache(maxsize=1)
+def load_assets() -> dict:
+    """Load the already-trained artifacts once per service process."""
+    required = {
+        "model": MODELS_DIR / "production_model.joblib",
+        "preprocessor": PROCESSED_DIR / "preprocessor.joblib",
+        "worklist": PROCESSED_DIR / "worklist_precomputed.joblib",
+        "benchmarks": MODELS_DIR / "model_comparison_results.csv",
+        "fairness": FAIRNESS_DIR / "mitigation_improvement_summary.json",
+    }
+    missing = [str(path.relative_to(BASE_DIR)) for path in required.values() if not path.is_file()]
+    if missing:
+        raise RuntimeError("Required model artifacts are missing: " + ", ".join(missing))
+
+    worklist = joblib.load(required["worklist"]).reset_index(drop=True)
+    benchmarks = pd.read_csv(required["benchmarks"]).replace({np.nan: None})
+    with required["fairness"].open(encoding="utf-8") as file:
+        fairness = json.load(file)
+
+    return {
+        "model": joblib.load(required["model"]),
+        "preprocessor": joblib.load(required["preprocessor"]),
+        "worklist": worklist,
+        "benchmarks": benchmarks.to_dict(orient="records"),
+        "fairness": fairness,
+    }
+
+
+def _public_record(row: pd.Series) -> dict:
+    return {
+        "idx": int(row["idx"]),
+        "enc_id": str(row["enc_id"]),
+        "age": str(row["age"]),
+        "age_group": str(row["age_group"]),
+        "gender": str(row["gender"]),
+        "race": str(row["race"]),
+        "stay": int(row["stay"]),
+        "meds": int(row["meds"]),
+        "inpatient": int(row["inpatient"]),
+        "er": int(row["er"]),
+        "a1c": str(row["a1c"]),
+        "diag": str(row["diag"]),
+        "prob": float(row["prob"]),
+        "tier": str(row["tier"]),
+        "resources": [str(item) for item in row["resources"]],
+        "top_factors": [str(item) for item in row["top_factors"]],
+        "actual": int(row["actual"]),
+    }
+
+
+def _find_encounter(enc_id: str) -> pd.Series:
+    worklist = load_assets()["worklist"]
+    match = worklist.loc[worklist["enc_id"].astype(str) == enc_id]
+    if match.empty:
+        raise HTTPException(status_code=404, detail="Encounter not found in the demo cohort")
+    return match.iloc[0]
+
+
+class PredictionRequest(BaseModel):
+    enc_id: str = Field(pattern=r"^ENC-\d+$")
+    time_in_hospital: int = Field(ge=1, le=14)
+    num_medications: int = Field(ge=1, le=50)
+    number_inpatient: int = Field(ge=0, le=10)
+    number_emergency: int = Field(ge=0, le=10)
+    A1Cresult: Literal[">8", ">7", "Norm", "None"]
+    diag_1_cat: Literal[
+        "Circulatory",
+        "Respiratory",
+        "Digestive",
+        "Diabetes",
+        "Injury",
+        "Musculoskeletal",
+        "Genitourinary",
+        "Neoplasms",
+        "Other",
+    ]
+
+
+app = FastAPI(
+    title="ClinicalAI Research Demo API",
+    version="1.0.0",
+    description="Read-only scoring and cohort endpoints for a de-identified research demo.",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type"],
+)
+
+
+@app.get("/api/health")
+def health() -> dict:
+    assets = load_assets()
+    return {
+        "status": "ok",
+        "service": "clinicalai-api",
+        "cohort_size": len(assets["worklist"]),
+        "model": "calibrated ensemble",
+    }
+
+
+@app.get("/api/worklist")
+def get_worklist(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=25, ge=1, le=500),
+    tier: Literal["all", "high", "moderate", "low"] = "all",
+    age_group: str = "all",
+    search: str = Query(default="", max_length=80),
+) -> dict:
+    records = load_assets()["worklist"]
+    filtered = records
+    if tier == "high":
+        filtered = filtered.loc[filtered["prob"] >= 0.20]
+    elif tier == "moderate":
+        filtered = filtered.loc[(filtered["prob"] >= 0.12) & (filtered["prob"] < 0.20)]
+    elif tier == "low":
+        filtered = filtered.loc[filtered["prob"] < 0.12]
+    if age_group != "all":
+        filtered = filtered.loc[filtered["age_group"].astype(str) == age_group]
+    if search.strip():
+        filtered = filtered.loc[
+            filtered["enc_id"].astype(str).str.contains(search.strip(), case=False, regex=False)
+        ]
+
+    total = len(filtered)
+    start = (page - 1) * page_size
+    page_rows = filtered.iloc[start : start + page_size]
+    all_records = records
+    return {
+        "results": [_public_record(row) for _, row in page_rows.iterrows()],
+        "page": page,
+        "page_size": page_size,
+        "total": total,
+        "pages": max(1, (total + page_size - 1) // page_size),
+        "summary": {
+            "cohort_size": len(all_records),
+            "high_risk": int((all_records["prob"] >= 0.20).sum()),
+            "polypharmacy": int((all_records["meds"] >= 10).sum()),
+            "readmissions": int((all_records["actual"] == 1).sum()),
+        },
+    }
+
+
+@app.get("/api/encounters/{enc_id}")
+def get_encounter(enc_id: str) -> dict:
+    return {"encounter": _public_record(_find_encounter(enc_id))}
+
+
+@app.post("/api/predict")
+def predict(request: PredictionRequest) -> dict:
+    encounter = _find_encounter(request.enc_id)
+    patient = encounter["row_dict"].copy()
+    patient.update(
+        {
+            "time_in_hospital": request.time_in_hospital,
+            "num_medications": request.num_medications,
+            "number_inpatient": request.number_inpatient,
+            "number_emergency": request.number_emergency,
+            "A1Cresult": request.A1Cresult,
+        }
+    )
+
+    engineered = engineer_features(pd.DataFrame([patient]))
+    # The original Streamlit calculator exposed this selector after feature engineering;
+    # applying it here keeps the diagnosis control effective for the web calculator.
+    engineered.loc[:, "diag_1_cat"] = request.diag_1_cat
+
+    assets = load_assets()
+    transformed = assets["preprocessor"].transform(engineered)
+    probability = float(assets["model"].predict_proba(transformed)[0, 1])
+    tier, color, guidance = get_clinical_risk_tier(probability)
+    interventions = recommend_clinical_interventions(patient, probability)
+
+    model = assets["model"]
+    importances = getattr(model, "feature_importances_", None)
+    if importances is None and hasattr(model, "base_model"):
+        importances = getattr(model.base_model, "feature_importances_", None)
+    impacts = []
+    if importances is not None:
+        values = transformed.toarray()[0] if hasattr(transformed, "toarray") else np.asarray(transformed)[0]
+        feature_names = assets["preprocessor"].get_feature_names_out()
+        scored = values * np.asarray(importances)
+        top_indices = np.argsort(np.abs(scored))[::-1][:6]
+        impacts = [
+            {"feature": clean_feature_label(str(feature_names[index])), "impact": float(scored[index])}
+            for index in top_indices
+            if abs(float(scored[index])) > 1e-4
+        ]
+
+    return {
+        "enc_id": request.enc_id,
+        "probability": probability,
+        "tier": tier,
+        "color": color,
+        "guidance": guidance,
+        "interventions": interventions,
+        "top_factors": impacts,
+        "notice": "Research demonstration only; not validated for clinical use.",
+    }
+
+
+@app.get("/api/governance")
+def get_governance() -> dict:
+    assets = load_assets()
+    return {
+        "models": assets["benchmarks"],
+        "fairness": assets["fairness"],
+        "selected_model": "Calibrated Ensemble",
+    }

@@ -1,6 +1,8 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+node_modules/
+dist/
 *$py.class
 
 # Distribution / packaging
