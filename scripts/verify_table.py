@@ -1,11 +1,13 @@
+import json
 import os
 import time
-import json
+
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 ARTIFACTS_DIR = r"C:\Users\vivek\.gemini\antigravity-ide\brain\59789402-409c-445e-b359-36125997a491"
 SCREENSHOT_DIR = os.path.join(ARTIFACTS_DIR, "screenshots")
@@ -118,7 +120,7 @@ try:
                 table_card = driver.find_element(By.CSS_SELECTOR, '.table-section-card')
                 card_shot_name = f"card_{mode}_{w}x{h}.png"
                 table_card.screenshot(os.path.join(SCREENSHOT_DIR, card_shot_name))
-            except Exception as e:
+            except WebDriverException:
                 pass
 
             any_overlap = any(c["flagsOverlapRisk"] for c in overlap_check)

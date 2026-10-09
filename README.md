@@ -49,9 +49,9 @@ The official **Hackfest 2026 Screening Round Idea Presentation** (strictly adher
 
 ## 3. Key Model Performance & Fairness Benchmarks
 
-### Predictive Model Comparison (Held-Out Test Cohort $N=19,870$; 0% Patient Leakage)
+### Predictive Model Comparison (Held-Out Test Cohort N = 19,870; 0% Patient Leakage)
 
-| Model Architecture | Threshold ($\tau^*$) | AUC-ROC | PR-AUC | Accuracy | Recall (Sensitivity) | Precision | F1-Score | Brier Score Loss |
+| Model Architecture | Threshold (tau) | AUC-ROC | PR-AUC | Accuracy | Recall (Sensitivity) | Precision | F1-Score | Brier Score Loss |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Logistic Regression (Calibrated)** | 0.120 | 0.6468 | 0.1877 | 68.24% | 49.98% | 17.93% | 0.2639 | 0.0982 |
 | **Random Forest (Calibrated)** | 0.130 | 0.6467 | 0.1881 | 66.75% | 51.66% | 17.50% | 0.2614 | 0.0980 |
@@ -60,15 +60,17 @@ The official **Hackfest 2026 Screening Round Idea Presentation** (strictly adher
 | **CatBoost (Calibrated)** | 0.120 | 0.6525 | 0.1981 | 64.37% | 57.84% | 17.61% | 0.2700 | 0.0976 |
 | **Calibrated Ensemble (Champion)** | **0.120** | **0.6530** | **0.1975** | **63.97%** | **57.62%** | **17.38%** | **0.2670** | **0.0976** |
 
-> **Clinical Decision Rationale:** In discharge triage, a **False Negative** (discharging a patient who will experience acute decompensation and readmission) is orders of magnitude more catastrophic than a **False Positive** (providing a high-touch post-discharge phone call or pharmacist review). Hence, the **Calibrated Soft-Voting Ensemble (blending XGBoost, LightGBM, and CatBoost with Platt scaling)** was selected at optimal cutoff $\tau^* = 0.120$ for achieving the highest discriminative power (AUC 0.6530, PR-AUC 0.1975), robust Sensitivity (57.62%), and state-of-the-art calibration (Brier score 0.0976).
+> **Clinical Decision Rationale:** In discharge triage, a **False Negative** (discharging a patient who will experience acute decompensation and readmission) is orders of magnitude more catastrophic than a **False Positive** (providing a high-touch post-discharge phone call or pharmacist review). Hence, the **Calibrated Soft-Voting Ensemble (blending XGBoost, LightGBM, and CatBoost with Platt scaling)** was selected at cutoff tau = 0.120 for achieving the highest discriminative power (AUC 0.6530, PR-AUC 0.1975), robust Sensitivity (57.62%), and state-of-the-art calibration (Brier score 0.0976).
 
-### Algorithmic Fairness & Disparity Mitigation (Stretch Goal)
+### Demographic Fairness Audits (Analysis Only, Not Deployed; Deployed Cutoff: 12.0%)
 
-| Protected Demographic | Baseline Disparity (Base Model) | Mitigated Disparity (Fairness-Aware) | Disparity Delta | Compliance Status |
-| :--- | :---: | :---: | :---: | :--- |
-| **Gender Demographic Parity** | 3.70 pp difference | **3.33 pp difference** | **-10.0% reduction** | **Complies with EEOC 4/5ths Rule (>80% DPR)** |
-| **Race TPR Disparity** | 20.52 pp difference | **21.54 pp difference** | Within 95% Wilson CI | **Audited across 6 racial groups** |
-| **Age TPR Disparity** | 14.46 pp difference | **15.31 pp difference** | Within 95% Wilson CI | **Audited across age brackets** |
+The deployed clinical system applies a uniform 12.0% threshold across all patients without demographic adjustments. Group-specific threshold adjustments were evaluated solely as an offline exploratory analysis.
+
+| Demographic Dimension | Evaluated Groups (Test Set N = 19,870) | Deployed Sensitivity (TPR) Range | Headline Disparity Gap (95% CI) | Status / Notes |
+| :--- | :--- | :---: | :---: | :--- |
+| **Gender / Sex** | Female (n=10,615), Male (n=9,254) | 55.80% - 59.13% | 3.32 pp [-1.0 pp to 7.4 pp] | Both groups >=100 readmissions; difference not statistically significant |
+| **Race / Ethnicity** | Caucasian (n=14,874), African American (n=3,716) | 53.69% - 58.67% | 4.98 pp [-0.4 pp to 10.4 pp] | Subgroups with <100 readmissions (Asian, Hispanic, Other) flagged as underpowered |
+| **Age Brackets** | 30-60 Years (n=6,131), 60+ Years (n=13,227) | 54.39% - 58.32% | 3.93 pp [-0.9 pp to 8.6 pp] | <30 Years cohort (n=512, 66 readmissions) flagged as small sample |
 
 ---
 
@@ -77,7 +79,8 @@ The official **Hackfest 2026 Screening Round Idea Presentation** (strictly adher
 ```mermaid
 flowchart LR
     A["Inpatient EHR Intake<br/>101,766 Encounters"] --> B["Data Pipeline<br/>Winsorization & Preprocessing<br/>(Fit on Train Split Only)"]
-    B --> C["Predictive Modeling Engine<br/>Calibrated Ensemble (&tau;* = 0.120)"]
+    B --> C["Predictive Modeling Engine<br/>Calibrated Ensemble (tau = 0.120)"]
+    B --> C
     C --> D["Explainability Layer<br/>Tree Feature Attribution & Guidance"]
     D --> E["Clinical CDS Dashboard<br/>React 18 + Vite (Port 5173)<br/>FastAPI Backend (Port 8000)"]
     E --> F["Actionable Post-Acute Bundles<br/>PharmD, Telehealth & Care Coordination"]
@@ -87,18 +90,18 @@ flowchart LR
 
 1. **Data Ingestion & Preprocessing Tier (`src/preprocessing.py`):**
    - 99th-percentile Winsorization capping extreme utilization outliers.
-   - Clinical feature derivation: `polypharmacy` ($\ge 10$ meds), `total_visits`, `high_prior_utilization`, `num_med_changes`.
-   - Leakage-free Scikit-Learn Pipeline combining `OneHotEncoder` and `RobustScaler` fit strictly on the training partition ($N=69,538$).
+   - Clinical feature derivation: `polypharmacy` (>=10 distinct medications during stay; 79% of sample), `total_visits`, `high_prior_utilization`, `num_med_changes`.
+   - Leakage-free Scikit-Learn Pipeline combining `OneHotEncoder` and `StandardScaler` fit strictly on the training partition (N = 69,538 encounters, 48,973 patients).
 2. **Predictive Modeling & Fairness Tier (`src/models.py`, `src/fairness.py`):**
    - Calibrated gradient boosting using LightGBM, XGBoost, and CatBoost with Platt sigmoid scaling.
-   - Fairlearn disparity audit engine verifying Equalized Odds, Demographic Parity Ratios, and Wilson 95% score intervals.
+   - Disparity audit engine verifying Equal Opportunity (TPR) with bootstrap 95% confidence intervals on the untouched test holdout.
 3. **Explainability Layer (`src/explainability.py`):**
-   - Directional feature attribution identifying patient-specific risk drivers.
-   - Deterministic clinical rationale rules synthesizing key stabilization and follow-up dimensions without external GenAI/LLM black boxes.
+   - Directional feature attribution identifying patient-specific risk drivers (units: per 1 SD for continuous numeric, versus reference category for categorical).
+   - Observational note that discharge to SNF/rehab is an observational marker of higher clinical acuity.
 4. **Clinical Decision Support UI (`frontend/` + `backend/`):**
    - **View 1: Discharge Readiness Worklist:** High-density queue with risk tier filtering, ID search, pagination, and patient review drawer.
-   - **View 2: Bedside Risk Calculator:** Real-time scenario simulation adjusting stay duration, active meds, and A1C in real-time.
-   - **View 3: Clinical Governance & Benchmarks:** Multi-model benchmark comparisons and audited demographic disparity reduction metrics.
+   - **View 2: Bedside Risk Calculator:** Real-time scenario simulation adjusting stay duration, medications, and A1C in real-time.
+   - **View 3: Clinical Governance & Benchmarks:** 10-section artifact-driven audit report.
 
 ---
 
@@ -141,6 +144,8 @@ hospital_readmission/
 
 ---
 
+---
+
 ## 6. Installation & Quickstart
 
 ### Prerequisites
@@ -154,7 +159,17 @@ git clone https://github.com/VIKI7-HUB/hospital_readmission.git
 cd hospital_readmission
 ```
 
-### 2. Install Dependencies
+### 2. Dataset Source & Placement
+The project uses the **Diabetes 130-US Hospitals (1999–2008)** dataset from the UCI Machine Learning Repository (Strack et al., 2014).
+- Place raw files in `data/raw/`:
+  - `data/raw/diabetic_data.csv`
+  - `data/raw/IDS_mapping.csv`
+- If not present, acquire them automatically via:
+  ```bash
+  python src/download_data.py
+  ```
+
+### 3. Install Dependencies
 ```bash
 # Python backend and pipeline dependencies
 pip install -r requirements.txt
@@ -163,19 +178,27 @@ pip install -r requirements.txt
 npm --prefix frontend install
 ```
 
-### 3. Run Automated Tests
-```bash
-python -m pytest -v
-```
-*Validates 16 automated tests covering API endpoints, 0% patient leakage assertions, sklearn metric consistency, and Wilson score confidence intervals.*
+### 4. Model Artifacts & Regeneration
+All required model artifacts, preprocessor pipelines, and governance summaries are precomputed and included in the repository:
+- `models/calibrated_ensemble.joblib`
+- `models/pipeline_preprocessor.joblib`
+- `models/hba1c_validation_experiment.json`
+- `data/processed/worklist_precomputed.joblib`
+- `fairness_governance/governance_full_artifacts.json`
 
-### 4. Run the End-to-End Pipeline (Optional - Pre-trained Artifacts Included)
+To regenerate all model artifacts, re-run training, and reproduce all benchmarks from scratch:
 ```bash
 python run_pipeline.py
 ```
-*Executes leak-free data engineering, trains all 6 architectures (LR, RF, XGBoost, LightGBM, CatBoost, Calibrated Ensemble), optimizes clinical thresholds ($\tau^* = 0.120$), precomputes worklist artifacts, and audits demographic parity.*
+*Executes leak-free data engineering, trains all 6 architectures (LR, RF, XGBoost, LightGBM, CatBoost, Calibrated Ensemble), optimizes clinical threshold (tau = 0.120), precomputes worklist artifacts, and audits demographic parity.*
 
-### 5. Launch the Application
+### 5. Run Automated Tests
+```bash
+python -m pytest -v
+```
+*Validates 19 automated tests covering API endpoints, live scoring parity against offline test holdout (< 1e-6 diff), 0% patient leakage assertions, sklearn metric consistency, and Wilson score confidence intervals.*
+
+### 6. Launch the Application
 ```bash
 # Terminal 1: Start the FastAPI Backend
 uvicorn backend.main:app --host 0.0.0.0 --port 8000
@@ -184,6 +207,8 @@ uvicorn backend.main:app --host 0.0.0.0 --port 8000
 npm --prefix frontend run dev
 ```
 Open your browser at **`http://localhost:5173`** to access the live clinical decision support portal.
+
+*(Note: `app.py` is an archived legacy Streamlit prototype kept for historical reference. The primary production application is the FastAPI + React system.)*
 
 
 ## 7. Vercel + Supabase + Render Research Demo

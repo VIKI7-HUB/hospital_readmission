@@ -318,121 +318,121 @@
         {
             "raw_feature": "num_lab_procedures",
             "display_name": "Diagnostic Laboratory Procedures Performed",
-            "ensemble_importance": 308.8314,
+            "ensemble_importance": 308.8312,
             "rf_importance": 0.0869,
-            "xgb_importance": 0.0169
+            "xgb_importance": 0.0162
         },
         {
             "raw_feature": "num_medications",
             "display_name": "Total Inpatient Medications Administered",
             "ensemble_importance": 249.9175,
             "rf_importance": 0.0885,
-            "xgb_importance": 0.0176
+            "xgb_importance": 0.0174
         },
         {
             "raw_feature": "time_in_hospital",
             "display_name": "Hospital Length of Stay (Days)",
-            "ensemble_importance": 172.8782,
+            "ensemble_importance": 172.8783,
             "rf_importance": 0.0697,
-            "xgb_importance": 0.0181
+            "xgb_importance": 0.0183
         },
         {
             "raw_feature": "number_inpatient",
             "display_name": "Prior Inpatient Hospitalizations (Past 12 Mo)",
-            "ensemble_importance": 117.2185,
+            "ensemble_importance": 117.2232,
             "rf_importance": 0.2817,
-            "xgb_importance": 0.1629
+            "xgb_importance": 0.1773
         },
         {
             "raw_feature": "number_outpatient",
             "display_name": "Prior Outpatient Encounters",
-            "ensemble_importance": 70.319,
+            "ensemble_importance": 70.3189,
             "rf_importance": 0.0328,
-            "xgb_importance": 0.0144
+            "xgb_importance": 0.014
         },
         {
             "raw_feature": "number_emergency",
             "display_name": "Prior Emergency Department Visits",
-            "ensemble_importance": 64.5289,
+            "ensemble_importance": 64.5281,
             "rf_importance": 0.0565,
-            "xgb_importance": 0.0317
+            "xgb_importance": 0.0293
         },
         {
             "raw_feature": "diag_1_group_Diabetes",
             "display_name": "Primary Diagnosis: Diabetes Mellitus with Complications",
-            "ensemble_importance": 36.9297,
+            "ensemble_importance": 36.929,
             "rf_importance": 0.0116,
-            "xgb_importance": 0.0195
+            "xgb_importance": 0.0175
         },
         {
             "raw_feature": "gender_clean_Female",
             "display_name": "Sex / Gender: Female",
-            "ensemble_importance": 36.3511,
+            "ensemble_importance": 36.351,
             "rf_importance": 0.0117,
-            "xgb_importance": 0.014
+            "xgb_importance": 0.0138
         },
         {
             "raw_feature": "discharge_destination_Facility_Rehab",
             "display_name": "Discharge Destination: Skilled Nursing / Rehab Facility",
-            "ensemble_importance": 32.7624,
+            "ensemble_importance": 32.7485,
             "rf_importance": 0.065,
-            "xgb_importance": 0.1499
+            "xgb_importance": 0.108
         },
         {
             "raw_feature": "diag_1_group_Respiratory",
             "display_name": "Primary Diagnosis: Respiratory (COPD / Pneumonia)",
-            "ensemble_importance": 32.7425,
+            "ensemble_importance": 32.7423,
             "rf_importance": 0.0118,
-            "xgb_importance": 0.0214
+            "xgb_importance": 0.0206
         },
         {
             "raw_feature": "insulin_regimen_No",
             "display_name": "Insulin Protocol: Not Prescribed",
-            "ensemble_importance": 29.9312,
+            "ensemble_importance": 29.9304,
             "rf_importance": 0.0147,
-            "xgb_importance": 0.0213
+            "xgb_importance": 0.0189
         },
         {
             "raw_feature": "diag_1_group_Genitourinary",
             "display_name": "Primary Diagnosis: Genitourinary / Renal Disease",
-            "ensemble_importance": 28.1963,
+            "ensemble_importance": 28.1961,
             "rf_importance": 0.0085,
-            "xgb_importance": 0.0162
+            "xgb_importance": 0.0158
         },
         {
             "raw_feature": "age_group_60+ Years",
             "display_name": "Age Demographic: Older Adult (60+ Years)",
-            "ensemble_importance": 28.1256,
+            "ensemble_importance": 28.1263,
             "rf_importance": 0.0173,
-            "xgb_importance": 0.0299
+            "xgb_importance": 0.0321
         },
         {
             "raw_feature": "insulin_regimen_Down",
             "display_name": "Insulin Protocol: Dosage De-escalated During Stay",
-            "ensemble_importance": 27.5455,
+            "ensemble_importance": 27.5448,
             "rf_importance": 0.0097,
-            "xgb_importance": 0.0152
+            "xgb_importance": 0.0131
         },
         {
             "raw_feature": "diag_1_group_Other/External",
             "display_name": "Primary Diagnosis: External Factors",
-            "ensemble_importance": 27.0249,
+            "ensemble_importance": 27.0248,
             "rf_importance": 0.0061,
-            "xgb_importance": 0.0182
+            "xgb_importance": 0.0178
         },
         {
             "raw_feature": "age_group_30-60 Years",
             "display_name": "Age Demographic: Middle Adult (30-60 Years)",
-            "ensemble_importance": 25.7888,
+            "ensemble_importance": 25.7886,
             "rf_importance": 0.0137,
-            "xgb_importance": 0.0174
+            "xgb_importance": 0.0166
         },
         {
             "raw_feature": "diag_1_group_Circulatory",
             "display_name": "Primary Diagnosis: Circulatory (CVD / CHF / CAD)",
-            "ensemble_importance": 25.5802,
+            "ensemble_importance": 25.5795,
             "rf_importance": 0.012,
-            "xgb_importance": 0.0234
+            "xgb_importance": 0.0212
         },
         {
             "raw_feature": "race_clean_Caucasian",
@@ -444,142 +444,142 @@
         {
             "raw_feature": "insulin_regimen_Up",
             "display_name": "Insulin Protocol: Dosage Escalated During Stay",
-            "ensemble_importance": 24.2929,
+            "ensemble_importance": 24.2925,
             "rf_importance": 0.0087,
-            "xgb_importance": 0.0163
+            "xgb_importance": 0.0149
         },
         {
             "raw_feature": "discharge_destination_Home",
             "display_name": "Discharge Destination: Home / Self-Care",
-            "ensemble_importance": 24.2288,
+            "ensemble_importance": 24.2427,
             "rf_importance": 0.0567,
-            "xgb_importance": 0.0901
+            "xgb_importance": 0.1318
         },
         {
             "raw_feature": "diag_1_group_Other",
             "display_name": "Primary Diagnosis: Other Specialized Conditions",
-            "ensemble_importance": 23.0941,
+            "ensemble_importance": 23.0947,
             "rf_importance": 0.008,
-            "xgb_importance": 0.0114
+            "xgb_importance": 0.0133
         },
         {
             "raw_feature": "medication_change_Ch",
             "display_name": "Medication Change: Inpatient Dose / Drug Adjustment Made",
-            "ensemble_importance": 22.2941,
+            "ensemble_importance": 22.2939,
             "rf_importance": 0.0091,
-            "xgb_importance": 0.0141
+            "xgb_importance": 0.0134
         },
         {
             "raw_feature": "race_clean_AfricanAmerican",
             "display_name": "Race Demographic: African American",
-            "ensemble_importance": 20.9978,
+            "ensemble_importance": 20.9977,
             "rf_importance": 0.0112,
-            "xgb_importance": 0.0159
+            "xgb_importance": 0.0154
         },
         {
             "raw_feature": "gender_clean_Male",
             "display_name": "Sex / Gender: Male",
-            "ensemble_importance": 19.0305,
+            "ensemble_importance": 19.0301,
             "rf_importance": 0.0123,
-            "xgb_importance": 0.0135
+            "xgb_importance": 0.0123
         },
         {
             "raw_feature": "diag_1_group_Musculoskeletal",
             "display_name": "Primary Diagnosis: Musculoskeletal System",
-            "ensemble_importance": 18.918,
+            "ensemble_importance": 18.9171,
             "rf_importance": 0.0123,
-            "xgb_importance": 0.0347
+            "xgb_importance": 0.032
         },
         {
             "raw_feature": "insulin_regimen_Steady",
             "display_name": "Insulin Protocol: Maintained on Steady Regimen",
-            "ensemble_importance": 18.8446,
+            "ensemble_importance": 18.8448,
             "rf_importance": 0.0101,
-            "xgb_importance": 0.0141
+            "xgb_importance": 0.0147
         },
         {
             "raw_feature": "diag_1_group_Injury",
             "display_name": "Primary Diagnosis: Acute Trauma / Injury",
-            "ensemble_importance": 17.06,
+            "ensemble_importance": 17.0605,
             "rf_importance": 0.007,
-            "xgb_importance": 0.012
+            "xgb_importance": 0.0132
         },
         {
             "raw_feature": "diag_1_group_Digestive",
             "display_name": "Primary Diagnosis: Digestive Disease",
-            "ensemble_importance": 16.5226,
+            "ensemble_importance": 16.5218,
             "rf_importance": 0.0069,
-            "xgb_importance": 0.0167
+            "xgb_importance": 0.0142
         },
         {
             "raw_feature": "age_group_<30 Years",
             "display_name": "Age Demographic: Younger Adult (<30 Years)",
-            "ensemble_importance": 15.7453,
+            "ensemble_importance": 15.7451,
             "rf_importance": 0.0055,
-            "xgb_importance": 0.0155
+            "xgb_importance": 0.015
         },
         {
             "raw_feature": "race_clean_Other/Unknown",
             "display_name": "Race Demographic: Other / Unspecified",
-            "ensemble_importance": 14.5572,
+            "ensemble_importance": 14.5564,
             "rf_importance": 0.006,
-            "xgb_importance": 0.0171
+            "xgb_importance": 0.0147
         },
         {
             "raw_feature": "race_clean_Hispanic",
             "display_name": "Race Demographic: Hispanic",
-            "ensemble_importance": 14.5428,
+            "ensemble_importance": 14.5419,
             "rf_importance": 0.0057,
-            "xgb_importance": 0.016
+            "xgb_importance": 0.0135
         },
         {
             "raw_feature": "diag_1_group_Neoplasms",
             "display_name": "Primary Diagnosis: Oncology / Neoplasms",
-            "ensemble_importance": 12.5766,
+            "ensemble_importance": 12.5767,
             "rf_importance": 0.0051,
-            "xgb_importance": 0.0155
+            "xgb_importance": 0.0157
         },
         {
             "raw_feature": "race_clean_Asian",
             "display_name": "Race Demographic: Asian",
-            "ensemble_importance": 8.8238,
+            "ensemble_importance": 8.8242,
             "rf_importance": 0.0027,
-            "xgb_importance": 0.0133
+            "xgb_importance": 0.0146
         },
         {
             "raw_feature": "medication_change_No",
             "display_name": "Medication Change: No Medication Adjustments Made",
-            "ensemble_importance": 7.4869,
+            "ensemble_importance": 7.4857,
             "rf_importance": 0.0088,
-            "xgb_importance": 0.017
+            "xgb_importance": 0.0133
         },
         {
             "raw_feature": "discharge_destination_Other_Unknown",
             "display_name": "Discharge Destination: Other Clinical Pathway",
-            "ensemble_importance": 6.756,
+            "ensemble_importance": 6.7595,
             "rf_importance": 0.0068,
-            "xgb_importance": 0.0117
+            "xgb_importance": 0.0222
         },
         {
             "raw_feature": "discharge_destination_Left_AMA",
             "display_name": "Discharge Destination: Left Against Medical Advice",
-            "ensemble_importance": 6.4411,
+            "ensemble_importance": 6.4406,
             "rf_importance": 0.0026,
-            "xgb_importance": 0.0137
+            "xgb_importance": 0.0123
         },
         {
             "raw_feature": "race_clean_Other",
             "display_name": "Race Clean Other",
-            "ensemble_importance": 2.4428,
+            "ensemble_importance": 2.4432,
             "rf_importance": 0.0044,
-            "xgb_importance": 0.0142
+            "xgb_importance": 0.0152
         },
         {
             "raw_feature": "diag_1_group_Missing",
             "display_name": "Diag 1 Group Missing",
-            "ensemble_importance": 0.0198,
+            "ensemble_importance": 0.0202,
             "rf_importance": 0.0003,
-            "xgb_importance": 0.0046
+            "xgb_importance": 0.0057
         },
         {
             "raw_feature": "gender_clean_Other/Unknown",

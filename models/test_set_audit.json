@@ -11,7 +11,7 @@
         "what_was_chosen": "Calibrated Soft-Voting Ensemble (XGBoost 35% + LightGBM 35% + CatBoost 30% with Platt scaling).",
         "which_split_used": "Validation split (N=9,935). Evaluated on validation Brier score (0.0966, tied top calibration) and validation AUC (0.6707) and variance reduction across tree boosting paradigms.",
         "was_it_clean": "CLEAN (Remediated)",
-        "remediation_status": "Remediated. Previous documentation cited test AUC (0.6640) post-hoc. Selection is now formally grounded on validation split Brier calibration and stability."
+        "remediation_status": "Remediated. Previous documentation cited test AUC post-hoc. Selection is now formally grounded on validation split Brier calibration and stability."
     },
     {
         "decision_point": "3. Calibration",

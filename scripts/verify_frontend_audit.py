@@ -10,9 +10,9 @@ Explicitly verifies:
 7. Observed Readmissions KPI card displays sample rate (12.8%) and full dataset rate (11.2%).
 8. Light and Dark modes across viewports 1920, 1440, 1280, 1024, 768px with zero horizontal page scrolling and zero console errors.
 """
-import time
 import json
 import sys
+import time
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -21,9 +21,7 @@ if hasattr(sys.stderr, "reconfigure"):
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+
 
 def run_frontend_audit():
     options = Options()
@@ -222,7 +220,7 @@ def run_frontend_audit():
 
         # Check Badges in Table Rows
         badges = driver.find_elements(By.CSS_SELECTOR, ".risk-badge-pill")
-        badge_texts = set(b.text.strip() for b in badges)
+        badge_texts = {b.text.strip() for b in badges}
         print(f"    - Table row risk badges present: {badge_texts}")
         assert any("High" in b or "Elevated" in b or "Low" in b for b in badge_texts)
 

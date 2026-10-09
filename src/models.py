@@ -381,8 +381,8 @@ def train_and_benchmark_models():
         "selected_unified_threshold": final_selected_threshold,
         "threshold_justification": final_threshold_rationale,
         "model_selection_rationale": (
-            "Differences in AUC between candidates are modest (0.6508 to 0.6640 across single learners vs. ensemble). "
-            "The soft-voting ensemble was chosen mainly for calibration (Brier score 0.097) and variance reduction across validation splits "
+            "Differences in AUC between candidates are modest (0.6467 to 0.6530 across single learners vs. ensemble). "
+            "The soft-voting ensemble was chosen mainly for calibration (Brier score 0.0976) and variance reduction across validation splits "
             "rather than standalone discriminatory superiority."
         )
     }

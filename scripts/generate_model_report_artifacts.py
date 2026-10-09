@@ -1,8 +1,10 @@
 import json
 import os
 import sys
+
 import joblib
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,7 +25,6 @@ from sklearn.metrics import (
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
-import src.models
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 PROCESSED_DIR = os.path.join(BASE_DIR, "data", "processed")
 DOCS_DIR = os.path.join(BASE_DIR, "docs")
@@ -33,9 +34,7 @@ def main():
     split_data = joblib.load(os.path.join(PROCESSED_DIR, "train_val_test_data.joblib"))
     eval_artifacts = joblib.load(os.path.join(MODELS_DIR, "evaluation_artifacts.joblib"))
 
-    y_val = split_data['y_val']
     y_test = split_data['y_test']
-    val_probs = eval_artifacts['val_probs']
     test_probs = eval_artifacts['test_probs']
     chosen_thresholds = eval_artifacts['chosen_thresholds']
 
@@ -68,7 +67,6 @@ def main():
 
     for name in model_names:
         p_te = test_probs[name]
-        p_va = val_probs[name]
         auc_roc = float(roc_auc_score(y_test, p_te))
         pr_auc = float(average_precision_score(y_test, p_te))
         brier = float(brier_score_loss(y_test, p_te))
@@ -137,7 +135,7 @@ def main():
 
     df_metrics_all.to_csv(os.path.join(MODELS_DIR, "test_metrics_benchmarks.csv"), index=False)
     with open(os.path.join(MODELS_DIR, "test_metrics_benchmarks.json"), "w") as f:
-        json.dump(metrics_all_payload := {
+        json.dump({
             'common_operating_point': metrics_common,
             'validation_tuned_operating_points': metrics_tuned
         }, f, indent=4)

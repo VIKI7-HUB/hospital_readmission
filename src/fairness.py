@@ -1,20 +1,19 @@
 import json
 import os
+import sys
 
 import joblib
 import numpy as np
 import pandas as pd
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.metrics import (
+    brier_score_loss,
     confusion_matrix,
     precision_score,
     recall_score,
     roc_auc_score,
-    brier_score_loss,
 )
 from xgboost import XGBClassifier
-
-import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
@@ -134,7 +133,6 @@ def run_comprehensive_fairness_audit():
     X_test = preprocessor.transform(X_test_raw)
     
     # Selected production model: Calibrated Ensemble
-    ens_model = eval_artifacts['trained_models']['Calibrated Ensemble']
     p_val_ens = eval_artifacts['val_probs']['Calibrated Ensemble']
     p_test_ens = eval_artifacts['test_probs']['Calibrated Ensemble']
     

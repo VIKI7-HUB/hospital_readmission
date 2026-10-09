@@ -106,7 +106,10 @@ def test_model_report_and_benchmark_artifacts_integrity():
     Verifies that all required model benchmark and audit artifacts are created,
     contain expected columns, and docs/model_report.md exists.
     """
-    import os, json, pandas as pd
+    import json
+    import os
+
+    import pandas as pd
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     models_dir = os.path.join(base_dir, "models")
     docs_dir = os.path.join(base_dir, "docs")

@@ -3,17 +3,17 @@ Verification Script: Compare every number displayed on Governance and Worklist p
 against the saved, ground-truth artifacts.
 """
 
+import io
 import json
 import sys
 from pathlib import Path
+
 import joblib
-import pandas as pd
-import numpy as np
 
 if sys.stdout.encoding != 'utf-8':
     try:
         sys.stdout.reconfigure(encoding='utf-8')
-    except Exception:
+    except (AttributeError, io.UnsupportedOperation):
         pass
 
 WORKSPACE = Path(__file__).resolve().parent.parent
@@ -39,16 +39,6 @@ def main():
         sys.exit(1)
 
     worklist_df = joblib.load(worklist_file)
-
-    # 3. Load Validation Tier Artifact
-    tier_file = WORKSPACE / "models" / "tier_validation_test.json"
-    tier_data = json.loads(tier_file.read_text(encoding="utf-8")) if tier_file.exists() else []
-
-    # 4. Load HbA1c Experiment Artifact
-    hba1c_file = WORKSPACE / "models" / "hba1c_validation_experiment.json"
-    hba1c_data = json.loads(hba1c_file.read_text(encoding="utf-8")) if hba1c_file.exists() else {}
-
-    errors = []
 
     # ---------------------------------------------------------
     # CHECK 1: Worklist Page KPIs and Counts
@@ -191,7 +181,7 @@ def main():
     # ---------------------------------------------------------
     print("\n[CHECK 8] Auditing Fairness Audits & Small Group Flags...")
     fairness = gov["fairness"]["demographic_audits"]
-    for dim_key, dim_data in fairness.items():
+    for dim_data in fairness.values():
         print(f"  • Dimension '{dim_data['attribute']}': headline gap = {dim_data['headline_gap_point_pp']:.2f}% (CI: {dim_data['headline_gap_ci_str']})")
         for sg in dim_data["subgroups"]:
             print(f"      - {sg['subgroup']}: n={sg['sample_size_n']}, k={sg['readmitted_cases_k']}, TPR={sg['unmitigated_tpr_pct']}%, small_sample={sg['is_small_sample']}")

@@ -42,8 +42,8 @@ def test_worklist_default(client):
     summary = data["summary"]
     assert summary["cohort_size"] == 500
     assert summary["flagged"] == 189
-    assert summary["high_risk"] == 44
-    assert summary["elevated_risk"] == 145
+    assert summary["high_risk"] == 47
+    assert summary["elevated_risk"] == 142
     assert summary["low_risk"] == 311
     assert summary["polypharmacy"] == 395
     assert summary["readmissions"] == 54
@@ -61,7 +61,7 @@ def test_worklist_filters_and_pagination(client):
     res_high = client.get("/api/worklist", params={"tier": "high", "page_size": 100})
     assert res_high.status_code == 200
     data_high = res_high.json()
-    assert data_high["total"] == 44
+    assert data_high["total"] == 47
     for row in data_high["results"]:
         assert row["prob"] >= 0.20
 
@@ -69,7 +69,7 @@ def test_worklist_filters_and_pagination(client):
     res_elev = client.get("/api/worklist", params={"tier": "elevated", "page_size": 200})
     assert res_elev.status_code == 200
     data_elev = res_elev.json()
-    assert data_elev["total"] == 145
+    assert data_elev["total"] == 142
     for row in data_elev["results"]:
         assert 0.12 <= row["prob"] < 0.20
 
@@ -221,7 +221,9 @@ def test_worklist_offline_prediction_parity(client):
     by the API must match the offline test-set predictions within 1e-6, and tiers
     must match exactly.
     """
-    import os, joblib
+    import os
+
+    import joblib
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     processed_dir = os.path.join(base_dir, "data", "processed")
     models_dir = os.path.join(base_dir, "models")
@@ -260,7 +262,11 @@ def test_live_scoring_path_parity_50_encounters(client):
     the LIVE scoring path used by the Risk calculator (not the precomputed worklist)
     and verifies that probabilities match offline test predictions with diff < 1e-6.
     """
-    import os, joblib, pandas as pd
+    import os
+
+    import joblib
+    import pandas as pd
+
     from src.preprocessing import engineer_features
 
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

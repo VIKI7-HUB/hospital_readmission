@@ -1,3 +1,10 @@
+"""
+LEGACY PROTOTYPE NOTICE:
+This Streamlit dashboard (app.py) is an archived legacy prototype preserved for historical reference.
+The active, production clinical decision support platform is the FastAPI REST backend (backend/main.py)
+paired with the React 18 + Vite frontend (frontend/src/main.jsx).
+"""
+
 import os
 import sys
 import time
@@ -700,15 +707,15 @@ if artifacts is not None:
         </div>
         <div class="status-card-row">
             <span class="status-row-label">Sensitivity (Recall)</span>
-            <span class="status-row-value" style="color: #2563EB;">53.38%</span>
+            <span class="status-row-value" style="color: #2563EB;">57.62%</span>
         </div>
         <div class="status-card-row">
             <span class="status-row-label">AUC-ROC</span>
-            <span class="status-row-value">0.6640</span>
+            <span class="status-row-value">0.6530</span>
         </div>
         <div class="status-card-row">
             <span class="status-row-label">Brier Score</span>
-            <span class="status-row-value" style="color: #10B981;">0.0971</span>
+            <span class="status-row-value" style="color: #10B981;">0.0976</span>
         </div>
     </div>
     

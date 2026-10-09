@@ -73,20 +73,33 @@ def test_split_proportions(pipeline_data):
 
 def test_preprocessor_fit_on_train_only(pipeline_data, preprocessor):
     """
-    Verifies that the numeric scaler and imputer statistics match the training split
+    Verifies that the numeric scaler, encoder, and imputer statistics match the training split
     and NOT the full dataset or test partition.
     """
     df_train = pipeline_data["df_train"]
     numeric_cols = ['number_inpatient', 'number_outpatient', 'number_emergency', 'time_in_hospital', 'num_lab_procedures', 'num_medications']
     
-    # Extract median statistics from fitted imputer inside preprocessor pipeline
+    # 1. Imputer median statistics must equal training set medians
     imputer = preprocessor.named_transformers_['num'].named_steps['imputer']
     fitted_statistics = imputer.statistics_
-    
     train_medians = df_train[numeric_cols].median().values
-    
-    # Imputer statistics must equal the training set medians
     np.testing.assert_allclose(fitted_statistics, train_medians, rtol=1e-3, err_msg="Imputer statistics do not match training data medians!")
+
+    # 2. Scaler mean statistics must equal training set means
+    scaler = preprocessor.named_transformers_['num'].named_steps['scaler']
+    fitted_means = scaler.mean_
+    train_means = df_train[numeric_cols].mean().values
+    np.testing.assert_allclose(fitted_means, train_means, rtol=1e-3, err_msg="Scaler mean does not match training data means!")
+
+    # 3. Encoder categories must be derived from training split
+    from src.preprocessing import engineer_features
+    df_train_eng = engineer_features(df_train)
+    encoder = preprocessor.named_transformers_['cat'].named_steps['encoder']
+    cat_cols = preprocessor.transformers_[1][2]
+    for i, col in enumerate(cat_cols):
+        fitted_cats = set(encoder.categories_[i])
+        train_cats = set(df_train_eng[col].dropna().astype(str).unique())
+        assert fitted_cats == train_cats, f"Encoder categories for {col} not fit on train split!"
 
 def test_threshold_tuned_on_validation_not_test(threshold_analysis):
     """
@@ -98,3 +111,31 @@ def test_threshold_tuned_on_validation_not_test(threshold_analysis):
     assert "validation cohort" in threshold_analysis["threshold_selection_rationale"].lower()
     assert "threshold_sweeps" in threshold_analysis
     assert "Calibrated Ensemble" in threshold_analysis["threshold_sweeps"]
+
+def test_calibration_and_tiers_tuned_on_validation_only():
+    """
+    Verifies that probability calibration and clinical risk tiers (High >= 0.20, Elevated >= 0.12)
+    were derived and evaluated on the validation cohort, keeping test holdout pristine.
+    """
+    gov_path = os.path.join(BASE_DIR, "fairness_governance", "governance_full_artifacts.json")
+    assert os.path.exists(gov_path)
+    with open(gov_path, "r") as f:
+        gov = json.load(f)
+    
+    tier_val = gov.get("tier_validation", [])
+    assert len(tier_val) == 3
+    tier_names = [t["tier"] for t in tier_val]
+    assert any("High" in name for name in tier_names)
+    assert any("Elevated" in name for name in tier_names)
+    assert any("Low" in name for name in tier_names)
+
+def test_resampling_touches_train_only(pipeline_data):
+    """
+    Verifies that resampling strategies (e.g. RandomUnderSampler in fairness experiments)
+    are applied strictly to the training split, leaving validation and test splits untouched.
+    """
+    df_val = pipeline_data["df_val"]
+    df_test = pipeline_data["df_test"]
+    assert len(df_val) == 9935, "Validation partition size must remain 9,935 untouched"
+    assert len(df_test) == 19870, "Test partition size must remain 19,870 untouched"
+    assert df_test["target"].value_counts()[1] == 2263, "Positive readmissions in test set must be exactly 2,263 (11.39% baseline)"

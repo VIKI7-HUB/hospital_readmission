@@ -1,25 +1,20 @@
 import json
 import os
 import sys
+
 import joblib
 import numpy as np
 import pandas as pd
 from scipy.stats import chi2_contingency
 from sklearn.metrics import (
-    accuracy_score,
     average_precision_score,
     brier_score_loss,
-    confusion_matrix,
-    f1_score,
-    precision_score,
-    recall_score,
     roc_auc_score,
 )
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
-import src.models
 
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 PROCESSED_DIR = os.path.join(BASE_DIR, "data", "processed")
@@ -64,7 +59,7 @@ def main():
     for name in model_names:
         p = test_probs[name]
         for frac in [0.20, 0.30, 0.40]:
-            k = int(round(n_test * frac))
+            k = round(n_test * frac)
             top_idx = np.argsort(p)[::-1][:k]
             thresh = float(p[top_idx[-1]])
             tp = int(y_test[top_idx].sum())

@@ -74,5 +74,5 @@ The following features were explicitly dropped with documented rationale:
 
 1. **`encounter_id`, `patient_nbr`**: Unique administrative identifiers. Dropped to prevent data leakage and memorization.
 2. **`weight`**: Dropped due to 96.86% missingness (non-recoverable without synthetic imputation bias).
-3. **`readmitted`**: Original multi-class string column (`'<30'`, `'>30'`, `'NO'`). Transformed into binary target `target = (readmitted == '<30')` and dropped from feature matrix $X$.
+3. **`readmitted`**: Original multi-class string column (`'<30'`, `'>30'`, `'NO'`). Transformed into binary target `target = (readmitted == '<30')` and dropped from feature matrix X.
 4. **`examide`, `citogliptin`**: Dropped because these medications had zero variance (all records recorded as `'No'` across the entire 101,766 cohort). Constant columns provide zero mutual information.

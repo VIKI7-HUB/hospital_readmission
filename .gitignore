@@ -37,3 +37,6 @@ catboost_info/
 scratch/
 .pytest_cache/
 .ruff_cache/
+*.zip
+*.tar.gz
+*.tmp

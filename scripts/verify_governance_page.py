@@ -31,9 +31,9 @@ Validates all requirements specified in the user request:
    - No unlabelled "45%" tick next to cohort average.
 6. Light and Dark mode, zero console errors.
 """
+import json
 import sys
 import time
-import json
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -43,8 +43,7 @@ if hasattr(sys.stderr, "reconfigure"):
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+
 
 def verify_governance():
     options = Options()
