@@ -1,7 +1,7 @@
-subgroup,sample_size_n,baseline_tpr_pct,ensemble_tpr_pct,ensemble_fpr_pct,ensemble_precision_pct,ci_95_str
-AfricanAmerican,3716,52.71,53.69,34.86,15.89,48.8%–58.5%
-Asian,124,46.15,38.46,24.32,15.62,17.7%–64.5%
-Caucasian,14874,58.56,58.67,36.16,17.65,56.3%–61.0%
-Hispanic,405,66.67,60.0,26.94,21.77,45.5%–73.0%
-Other,308,60.0,60.0,26.15,16.85,40.7%–76.6%
-Other/Unknown,443,53.85,53.85,24.26,17.65,38.6%–68.4%
+subgroup,sample_size_n,readmitted_cases_k,is_small_sample,unmitigated_tpr_pct,unmitigated_fpr_pct,unmitigated_precision_pct,unmitigated_ci_95_str,mitigated_tpr_pct,mitigated_fpr_pct,mitigated_precision_pct,mitigated_ci_95_str,headline_eligible
+AfricanAmerican,3716,406,False,53.69,34.86,15.89,48.8%–58.5%,53.69,34.86,15.89,48.8%–58.5%,True
+Asian,124,13,True,38.46,24.32,15.62,17.7%–64.5%,38.46,24.32,15.62,17.7%–64.5%,False
+Caucasian,14874,1735,False,58.67,36.16,17.65,56.3%–61.0%,57.93,35.72,17.64,55.6%–60.2%,True
+Hispanic,405,45,True,60.0,26.94,21.77,45.5%–73.0%,60.0,26.94,21.77,45.5%–73.0%,False
+Other,308,25,True,60.0,26.15,16.85,40.7%–76.6%,60.0,26.15,16.85,40.7%–76.6%,False
+Other/Unknown,443,39,True,53.85,24.26,17.65,38.6%–68.4%,53.85,24.26,17.65,38.6%–68.4%,False

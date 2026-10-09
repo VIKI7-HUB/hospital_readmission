@@ -1,0 +1,1608 @@
+{
+    "models_common_cutoff": [
+        {
+            "Model": "Logistic Regression",
+            "Cutoff": 0.12,
+            "AUC-ROC": 0.6468,
+            "Accuracy": 0.6824,
+            "Precision": 0.1793,
+            "Recall": 0.4998,
+            "F1-Score": 0.2639,
+            "Flag Rate (%)": 31.75,
+            "Brier Score": 0.0982,
+            "Training Time (s)": 0.11,
+            "TP": 1131,
+            "FP": 5178,
+            "TN": 12429,
+            "FN": 1132,
+            "Optimized For": "Rapid baseline, log-odds clinical interpretability, and odds ratio evaluation."
+        },
+        {
+            "Model": "Random Forest",
+            "Cutoff": 0.12,
+            "AUC-ROC": 0.6467,
+            "Accuracy": 0.6362,
+            "Precision": 0.1691,
+            "Recall": 0.5608,
+            "F1-Score": 0.2599,
+            "Flag Rate (%)": 37.76,
+            "Brier Score": 0.098,
+            "Training Time (s)": 1.32,
+            "TP": 1269,
+            "FP": 6234,
+            "TN": 11373,
+            "FN": 994,
+            "Optimized For": "Bagged ensemble robust to noise and complex non-linear feature interactions."
+        },
+        {
+            "Model": "XGBoost",
+            "Cutoff": 0.12,
+            "AUC-ROC": 0.6514,
+            "Accuracy": 0.6412,
+            "Precision": 0.1731,
+            "Recall": 0.5696,
+            "F1-Score": 0.2656,
+            "Flag Rate (%)": 37.47,
+            "Brier Score": 0.0977,
+            "Training Time (s)": 0.53,
+            "TP": 1289,
+            "FP": 6156,
+            "TN": 11451,
+            "FN": 974,
+            "Optimized For": "Gradient boosted decision trees optimized for discriminatory rank-order AUC and precision."
+        },
+        {
+            "Model": "LightGBM",
+            "Cutoff": 0.12,
+            "AUC-ROC": 0.6512,
+            "Accuracy": 0.6376,
+            "Precision": 0.1707,
+            "Recall": 0.5656,
+            "F1-Score": 0.2623,
+            "Flag Rate (%)": 37.73,
+            "Brier Score": 0.0977,
+            "Training Time (s)": 0.35,
+            "TP": 1280,
+            "FP": 6217,
+            "TN": 11390,
+            "FN": 983,
+            "Optimized For": "Histogram-based fast tree growth with leaf-wise splitting and high memory efficiency."
+        },
+        {
+            "Model": "CatBoost",
+            "Cutoff": 0.12,
+            "AUC-ROC": 0.6525,
+            "Accuracy": 0.6437,
+            "Precision": 0.1761,
+            "Recall": 0.5784,
+            "F1-Score": 0.27,
+            "Flag Rate (%)": 37.42,
+            "Brier Score": 0.0976,
+            "Training Time (s)": 2.01,
+            "TP": 1309,
+            "FP": 6126,
+            "TN": 11481,
+            "FN": 954,
+            "Optimized For": "Ordered boosting with minimal target leakage and native handling of clinical categorical features."
+        },
+        {
+            "Model": "Calibrated Ensemble",
+            "Cutoff": 0.12,
+            "AUC-ROC": 0.653,
+            "Accuracy": 0.6397,
+            "Precision": 0.1738,
+            "Recall": 0.5762,
+            "F1-Score": 0.267,
+            "Flag Rate (%)": 37.77,
+            "Brier Score": 0.0976,
+            "Training Time (s)": 0.0,
+            "TP": 1304,
+            "FP": 6201,
+            "TN": 11406,
+            "FN": 959,
+            "Optimized For": "Soft-voting blend with Platt calibration, optimized for Brier score calibration and variance reduction."
+        }
+    ],
+    "models_tuned_cutoff": [
+        {
+            "Model": "Logistic Regression",
+            "Cutoff": 0.12,
+            "AUC-ROC": 0.6468,
+            "Accuracy": 0.6824,
+            "Precision": 0.1793,
+            "Recall": 0.4998,
+            "F1-Score": 0.2639,
+            "Flag Rate (%)": 31.75,
+            "Brier Score": 0.0982,
+            "Training Time (s)": 0.11,
+            "TP": 1131,
+            "FP": 5178,
+            "TN": 12429,
+            "FN": 1132,
+            "Optimized For": "Rapid baseline, log-odds clinical interpretability, and odds ratio evaluation."
+        },
+        {
+            "Model": "Random Forest",
+            "Cutoff": 0.13,
+            "AUC-ROC": 0.6467,
+            "Accuracy": 0.6675,
+            "Precision": 0.175,
+            "Recall": 0.5166,
+            "F1-Score": 0.2614,
+            "Flag Rate (%)": 33.62,
+            "Brier Score": 0.098,
+            "Training Time (s)": 1.32,
+            "TP": 1169,
+            "FP": 5512,
+            "TN": 12095,
+            "FN": 1094,
+            "Optimized For": "Bagged ensemble robust to noise and complex non-linear feature interactions."
+        },
+        {
+            "Model": "XGBoost",
+            "Cutoff": 0.12,
+            "AUC-ROC": 0.6514,
+            "Accuracy": 0.6412,
+            "Precision": 0.1731,
+            "Recall": 0.5696,
+            "F1-Score": 0.2656,
+            "Flag Rate (%)": 37.47,
+            "Brier Score": 0.0977,
+            "Training Time (s)": 0.53,
+            "TP": 1289,
+            "FP": 6156,
+            "TN": 11451,
+            "FN": 974,
+            "Optimized For": "Gradient boosted decision trees optimized for discriminatory rank-order AUC and precision."
+        },
+        {
+            "Model": "LightGBM",
+            "Cutoff": 0.12,
+            "AUC-ROC": 0.6512,
+            "Accuracy": 0.6376,
+            "Precision": 0.1707,
+            "Recall": 0.5656,
+            "F1-Score": 0.2623,
+            "Flag Rate (%)": 37.73,
+            "Brier Score": 0.0977,
+            "Training Time (s)": 0.35,
+            "TP": 1280,
+            "FP": 6217,
+            "TN": 11390,
+            "FN": 983,
+            "Optimized For": "Histogram-based fast tree growth with leaf-wise splitting and high memory efficiency."
+        },
+        {
+            "Model": "CatBoost",
+            "Cutoff": 0.12,
+            "AUC-ROC": 0.6525,
+            "Accuracy": 0.6437,
+            "Precision": 0.1761,
+            "Recall": 0.5784,
+            "F1-Score": 0.27,
+            "Flag Rate (%)": 37.42,
+            "Brier Score": 0.0976,
+            "Training Time (s)": 2.01,
+            "TP": 1309,
+            "FP": 6126,
+            "TN": 11481,
+            "FN": 954,
+            "Optimized For": "Ordered boosting with minimal target leakage and native handling of clinical categorical features."
+        },
+        {
+            "Model": "Calibrated Ensemble",
+            "Cutoff": 0.12,
+            "AUC-ROC": 0.653,
+            "Accuracy": 0.6397,
+            "Precision": 0.1738,
+            "Recall": 0.5762,
+            "F1-Score": 0.267,
+            "Flag Rate (%)": 37.77,
+            "Brier Score": 0.0976,
+            "Training Time (s)": 0.0,
+            "TP": 1304,
+            "FP": 6201,
+            "TN": 11406,
+            "FN": 959,
+            "Optimized For": "Soft-voting blend with Platt calibration, optimized for Brier score calibration and variance reduction."
+        }
+    ],
+    "tier_validation": [
+        {
+            "tier": "Low (<12%)",
+            "n": 12365,
+            "pct_cohort": 62.2,
+            "observed_readmissions": 959,
+            "observed_rate_pct": 7.76,
+            "clinical_action": "Routine discharge summary and 30-day primary care appointment"
+        },
+        {
+            "tier": "Elevated (12\u201320%)",
+            "n": 5755,
+            "pct_cohort": 29.0,
+            "observed_readmissions": 881,
+            "observed_rate_pct": 15.31,
+            "clinical_action": "Enhanced transition planning, pharmacy consult, and 7\u201310 day follow-up"
+        },
+        {
+            "tier": "High (\u226520%)",
+            "n": 1750,
+            "pct_cohort": 8.8,
+            "observed_readmissions": 423,
+            "observed_rate_pct": 24.17,
+            "clinical_action": "Multidisciplinary care plan, 48-hour telehealth outreach, CDCES educator consult"
+        }
+    ],
+    "threshold_tradeoff": [
+        {
+            "cutoff": 0.05,
+            "tp": 2219,
+            "fp": 16202,
+            "tn": 1405,
+            "fn": 44,
+            "sensitivity": 98.1,
+            "specificity": 8.0,
+            "precision": 12.0,
+            "flag_rate": 92.7
+        },
+        {
+            "cutoff": 0.06,
+            "tp": 2109,
+            "fp": 14579,
+            "tn": 3028,
+            "fn": 154,
+            "sensitivity": 93.2,
+            "specificity": 17.2,
+            "precision": 12.6,
+            "flag_rate": 84.0
+        },
+        {
+            "cutoff": 0.07,
+            "tp": 1954,
+            "fp": 12554,
+            "tn": 5053,
+            "fn": 309,
+            "sensitivity": 86.3,
+            "specificity": 28.7,
+            "precision": 13.5,
+            "flag_rate": 73.0
+        },
+        {
+            "cutoff": 0.08,
+            "tp": 1805,
+            "fp": 10591,
+            "tn": 7016,
+            "fn": 458,
+            "sensitivity": 79.8,
+            "specificity": 39.8,
+            "precision": 14.6,
+            "flag_rate": 62.4
+        },
+        {
+            "cutoff": 0.09,
+            "tp": 1641,
+            "fp": 8972,
+            "tn": 8635,
+            "fn": 622,
+            "sensitivity": 72.5,
+            "specificity": 49.0,
+            "precision": 15.5,
+            "flag_rate": 53.4
+        },
+        {
+            "cutoff": 0.1,
+            "tp": 1507,
+            "fp": 7839,
+            "tn": 9768,
+            "fn": 756,
+            "sensitivity": 66.6,
+            "specificity": 55.5,
+            "precision": 16.1,
+            "flag_rate": 47.0
+        },
+        {
+            "cutoff": 0.11,
+            "tp": 1388,
+            "fp": 6922,
+            "tn": 10685,
+            "fn": 875,
+            "sensitivity": 61.3,
+            "specificity": 60.7,
+            "precision": 16.7,
+            "flag_rate": 41.8
+        },
+        {
+            "cutoff": 0.12,
+            "tp": 1304,
+            "fp": 6201,
+            "tn": 11406,
+            "fn": 959,
+            "sensitivity": 57.6,
+            "specificity": 64.8,
+            "precision": 17.4,
+            "flag_rate": 37.8
+        },
+        {
+            "cutoff": 0.13,
+            "tp": 1197,
+            "fp": 5473,
+            "tn": 12134,
+            "fn": 1066,
+            "sensitivity": 52.9,
+            "specificity": 68.9,
+            "precision": 17.9,
+            "flag_rate": 33.6
+        },
+        {
+            "cutoff": 0.14,
+            "tp": 1054,
+            "fp": 4634,
+            "tn": 12973,
+            "fn": 1209,
+            "sensitivity": 46.6,
+            "specificity": 73.7,
+            "precision": 18.5,
+            "flag_rate": 28.6
+        },
+        {
+            "cutoff": 0.15,
+            "tp": 913,
+            "fp": 3835,
+            "tn": 13772,
+            "fn": 1350,
+            "sensitivity": 40.3,
+            "specificity": 78.2,
+            "precision": 19.2,
+            "flag_rate": 23.9
+        },
+        {
+            "cutoff": 0.16,
+            "tp": 782,
+            "fp": 3104,
+            "tn": 14503,
+            "fn": 1481,
+            "sensitivity": 34.6,
+            "specificity": 82.4,
+            "precision": 20.1,
+            "flag_rate": 19.6
+        },
+        {
+            "cutoff": 0.17,
+            "tp": 664,
+            "fp": 2510,
+            "tn": 15097,
+            "fn": 1599,
+            "sensitivity": 29.3,
+            "specificity": 85.7,
+            "precision": 20.9,
+            "flag_rate": 16.0
+        },
+        {
+            "cutoff": 0.18,
+            "tp": 573,
+            "fp": 2025,
+            "tn": 15582,
+            "fn": 1690,
+            "sensitivity": 25.3,
+            "specificity": 88.5,
+            "precision": 22.1,
+            "flag_rate": 13.1
+        },
+        {
+            "cutoff": 0.19,
+            "tp": 493,
+            "fp": 1623,
+            "tn": 15984,
+            "fn": 1770,
+            "sensitivity": 21.8,
+            "specificity": 90.8,
+            "precision": 23.3,
+            "flag_rate": 10.6
+        },
+        {
+            "cutoff": 0.2,
+            "tp": 423,
+            "fp": 1327,
+            "tn": 16280,
+            "fn": 1840,
+            "sensitivity": 18.7,
+            "specificity": 92.5,
+            "precision": 24.2,
+            "flag_rate": 8.8
+        },
+        {
+            "cutoff": 0.21,
+            "tp": 359,
+            "fp": 1088,
+            "tn": 16519,
+            "fn": 1904,
+            "sensitivity": 15.9,
+            "specificity": 93.8,
+            "precision": 24.8,
+            "flag_rate": 7.3
+        },
+        {
+            "cutoff": 0.22,
+            "tp": 302,
+            "fp": 888,
+            "tn": 16719,
+            "fn": 1961,
+            "sensitivity": 13.3,
+            "specificity": 95.0,
+            "precision": 25.4,
+            "flag_rate": 6.0
+        },
+        {
+            "cutoff": 0.23,
+            "tp": 262,
+            "fp": 718,
+            "tn": 16889,
+            "fn": 2001,
+            "sensitivity": 11.6,
+            "specificity": 95.9,
+            "precision": 26.7,
+            "flag_rate": 4.9
+        },
+        {
+            "cutoff": 0.24,
+            "tp": 227,
+            "fp": 585,
+            "tn": 17022,
+            "fn": 2036,
+            "sensitivity": 10.0,
+            "specificity": 96.7,
+            "precision": 28.0,
+            "flag_rate": 4.1
+        },
+        {
+            "cutoff": 0.25,
+            "tp": 192,
+            "fp": 467,
+            "tn": 17140,
+            "fn": 2071,
+            "sensitivity": 8.5,
+            "specificity": 97.3,
+            "precision": 29.1,
+            "flag_rate": 3.3
+        },
+        {
+            "cutoff": 0.26,
+            "tp": 171,
+            "fp": 388,
+            "tn": 17219,
+            "fn": 2092,
+            "sensitivity": 7.6,
+            "specificity": 97.8,
+            "precision": 30.6,
+            "flag_rate": 2.8
+        },
+        {
+            "cutoff": 0.27,
+            "tp": 146,
+            "fp": 322,
+            "tn": 17285,
+            "fn": 2117,
+            "sensitivity": 6.5,
+            "specificity": 98.2,
+            "precision": 31.2,
+            "flag_rate": 2.4
+        },
+        {
+            "cutoff": 0.28,
+            "tp": 135,
+            "fp": 280,
+            "tn": 17327,
+            "fn": 2128,
+            "sensitivity": 6.0,
+            "specificity": 98.4,
+            "precision": 32.5,
+            "flag_rate": 2.1
+        },
+        {
+            "cutoff": 0.29,
+            "tp": 118,
+            "fp": 236,
+            "tn": 17371,
+            "fn": 2145,
+            "sensitivity": 5.2,
+            "specificity": 98.7,
+            "precision": 33.3,
+            "flag_rate": 1.8
+        },
+        {
+            "cutoff": 0.3,
+            "tp": 105,
+            "fp": 204,
+            "tn": 17403,
+            "fn": 2158,
+            "sensitivity": 4.6,
+            "specificity": 98.8,
+            "precision": 34.0,
+            "flag_rate": 1.6
+        },
+        {
+            "cutoff": 0.31,
+            "tp": 94,
+            "fp": 171,
+            "tn": 17436,
+            "fn": 2169,
+            "sensitivity": 4.2,
+            "specificity": 99.0,
+            "precision": 35.5,
+            "flag_rate": 1.3
+        },
+        {
+            "cutoff": 0.32,
+            "tp": 81,
+            "fp": 142,
+            "tn": 17465,
+            "fn": 2182,
+            "sensitivity": 3.6,
+            "specificity": 99.2,
+            "precision": 36.3,
+            "flag_rate": 1.1
+        },
+        {
+            "cutoff": 0.33,
+            "tp": 75,
+            "fp": 116,
+            "tn": 17491,
+            "fn": 2188,
+            "sensitivity": 3.3,
+            "specificity": 99.3,
+            "precision": 39.3,
+            "flag_rate": 1.0
+        },
+        {
+            "cutoff": 0.34,
+            "tp": 67,
+            "fp": 91,
+            "tn": 17516,
+            "fn": 2196,
+            "sensitivity": 3.0,
+            "specificity": 99.5,
+            "precision": 42.4,
+            "flag_rate": 0.8
+        },
+        {
+            "cutoff": 0.35,
+            "tp": 57,
+            "fp": 77,
+            "tn": 17530,
+            "fn": 2206,
+            "sensitivity": 2.5,
+            "specificity": 99.6,
+            "precision": 42.5,
+            "flag_rate": 0.7
+        }
+    ],
+    "feature_importance": {
+        "logistic_regression_odds_ratios": [
+            {
+                "raw_feature": "number_inpatient",
+                "display_name": "Prior Inpatient Hospitalizations (Past 12 Mo)",
+                "coefficient": 0.3735,
+                "odds_ratio": 1.4528,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "discharge_destination_Facility_Rehab",
+                "display_name": "Discharge Destination: Skilled Nursing / Rehab Facility",
+                "coefficient": 0.3,
+                "odds_ratio": 1.3499,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "discharge_destination_Home",
+                "display_name": "Discharge Destination: Home / Self-Care",
+                "coefficient": -0.2718,
+                "odds_ratio": 0.762,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "diag_1_group_Musculoskeletal",
+                "display_name": "Primary Diagnosis: Musculoskeletal System",
+                "coefficient": -0.224,
+                "odds_ratio": 0.7993,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "age_group_<30 Years",
+                "display_name": "Age Demographic: Younger Adult (<30 Years)",
+                "coefficient": -0.1799,
+                "odds_ratio": 0.8353,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "diag_1_group_Other/External",
+                "display_name": "Primary Diagnosis: External Factors",
+                "coefficient": 0.1688,
+                "odds_ratio": 1.1839,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "diag_1_group_Respiratory",
+                "display_name": "Primary Diagnosis: Respiratory (COPD / Pneumonia)",
+                "coefficient": -0.1549,
+                "odds_ratio": 0.8565,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "age_group_60+ Years",
+                "display_name": "Age Demographic: Older Adult (60+ Years)",
+                "coefficient": 0.1505,
+                "odds_ratio": 1.1624,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "race_clean_Other/Unknown",
+                "display_name": "Race Demographic: Other / Unspecified",
+                "coefficient": -0.1382,
+                "odds_ratio": 0.871,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "diag_1_group_Diabetes",
+                "display_name": "Primary Diagnosis: Diabetes Mellitus with Complications",
+                "coefficient": 0.1314,
+                "odds_ratio": 1.1405,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "insulin_regimen_No",
+                "display_name": "Insulin Protocol: Not Prescribed",
+                "coefficient": -0.1236,
+                "odds_ratio": 0.8838,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "insulin_regimen_Down",
+                "display_name": "Insulin Protocol: Dosage De-escalated During Stay",
+                "coefficient": 0.0928,
+                "odds_ratio": 1.0972,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "diag_1_group_Circulatory",
+                "display_name": "Primary Diagnosis: Circulatory (CVD / CHF / CAD)",
+                "coefficient": 0.0867,
+                "odds_ratio": 1.0906,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "number_emergency",
+                "display_name": "Prior Emergency Department Visits",
+                "coefficient": 0.0776,
+                "odds_ratio": 1.0807,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "race_clean_AfricanAmerican",
+                "display_name": "Race Demographic: African American",
+                "coefficient": 0.0743,
+                "odds_ratio": 1.0772,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "diag_1_group_Genitourinary",
+                "display_name": "Primary Diagnosis: Genitourinary / Renal Disease",
+                "coefficient": -0.0674,
+                "odds_ratio": 0.9348,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "discharge_destination_Other_Unknown",
+                "display_name": "Discharge Destination: Other Clinical Pathway",
+                "coefficient": -0.0556,
+                "odds_ratio": 0.9459,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "num_medications",
+                "display_name": "Total Inpatient Medications Administered",
+                "coefficient": 0.0549,
+                "odds_ratio": 1.0564,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "diag_1_group_Neoplasms",
+                "display_name": "Primary Diagnosis: Oncology / Neoplasms",
+                "coefficient": 0.0519,
+                "odds_ratio": 1.0532,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "diag_1_group_Digestive",
+                "display_name": "Primary Diagnosis: Digestive Disease",
+                "coefficient": -0.0448,
+                "odds_ratio": 0.9562,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "gender_clean_Female",
+                "display_name": "Sex / Gender: Female",
+                "coefficient": -0.0431,
+                "odds_ratio": 0.9578,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "medication_change_Ch",
+                "display_name": "Medication Change: Inpatient Dose / Drug Adjustment Made",
+                "coefficient": -0.0406,
+                "odds_ratio": 0.9602,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "race_clean_Caucasian",
+                "display_name": "Race Demographic: Caucasian",
+                "coefficient": 0.0398,
+                "odds_ratio": 1.0406,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "insulin_regimen_Up",
+                "display_name": "Insulin Protocol: Dosage Escalated During Stay",
+                "coefficient": 0.0384,
+                "odds_ratio": 1.0391,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "insulin_regimen_Steady",
+                "display_name": "Insulin Protocol: Maintained on Steady Regimen",
+                "coefficient": -0.0339,
+                "odds_ratio": 0.9667,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "time_in_hospital",
+                "display_name": "Hospital Length of Stay (Days)",
+                "coefficient": 0.032,
+                "odds_ratio": 1.0325,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "num_lab_procedures",
+                "display_name": "Diagnostic Laboratory Procedures Performed",
+                "coefficient": 0.0229,
+                "odds_ratio": 1.0232,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "diag_1_group_Missing",
+                "display_name": "Diag 1 Group Missing",
+                "coefficient": 0.0214,
+                "odds_ratio": 1.0216,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "gender_clean_Male",
+                "display_name": "Sex / Gender: Male",
+                "coefficient": 0.018,
+                "odds_ratio": 1.0182,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "medication_change_No",
+                "display_name": "Medication Change: No Medication Adjustments Made",
+                "coefficient": 0.0143,
+                "odds_ratio": 1.0144,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "diag_1_group_Other",
+                "display_name": "Primary Diagnosis: Other Specialized Conditions",
+                "coefficient": 0.0078,
+                "odds_ratio": 1.0078,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "race_clean_Other",
+                "display_name": "Race Clean Other",
+                "coefficient": -0.0054,
+                "odds_ratio": 0.9946,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "race_clean_Asian",
+                "display_name": "Race Demographic: Asian",
+                "coefficient": 0.0038,
+                "odds_ratio": 1.0038,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "number_outpatient",
+                "display_name": "Prior Outpatient Encounters",
+                "coefficient": 0.0033,
+                "odds_ratio": 1.0033,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "diag_1_group_Injury",
+                "display_name": "Primary Diagnosis: Acute Trauma / Injury",
+                "coefficient": -0.0033,
+                "odds_ratio": 0.9967,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "age_group_30-60 Years",
+                "display_name": "Age Demographic: Middle Adult (30-60 Years)",
+                "coefficient": 0.0032,
+                "odds_ratio": 1.0032,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "gender_clean_Other/Unknown",
+                "display_name": "Gender Clean Other/Unknown",
+                "coefficient": -0.0012,
+                "odds_ratio": 0.9988,
+                "direction": "Decreases Risk"
+            },
+            {
+                "raw_feature": "discharge_destination_Left_AMA",
+                "display_name": "Discharge Destination: Left Against Medical Advice",
+                "coefficient": 0.0011,
+                "odds_ratio": 1.0011,
+                "direction": "Increases Risk"
+            },
+            {
+                "raw_feature": "race_clean_Hispanic",
+                "display_name": "Race Demographic: Hispanic",
+                "coefficient": -0.0006,
+                "odds_ratio": 0.9994,
+                "direction": "Decreases Risk"
+            }
+        ],
+        "tree_feature_importances": [
+            {
+                "raw_feature": "num_lab_procedures",
+                "display_name": "Diagnostic Laboratory Procedures Performed",
+                "ensemble_importance": 308.8314,
+                "rf_importance": 0.0869,
+                "xgb_importance": 0.0169
+            },
+            {
+                "raw_feature": "num_medications",
+                "display_name": "Total Inpatient Medications Administered",
+                "ensemble_importance": 249.9175,
+                "rf_importance": 0.0885,
+                "xgb_importance": 0.0176
+            },
+            {
+                "raw_feature": "time_in_hospital",
+                "display_name": "Hospital Length of Stay (Days)",
+                "ensemble_importance": 172.8782,
+                "rf_importance": 0.0697,
+                "xgb_importance": 0.0181
+            },
+            {
+                "raw_feature": "number_inpatient",
+                "display_name": "Prior Inpatient Hospitalizations (Past 12 Mo)",
+                "ensemble_importance": 117.2185,
+                "rf_importance": 0.2817,
+                "xgb_importance": 0.1629
+            },
+            {
+                "raw_feature": "number_outpatient",
+                "display_name": "Prior Outpatient Encounters",
+                "ensemble_importance": 70.319,
+                "rf_importance": 0.0328,
+                "xgb_importance": 0.0144
+            },
+            {
+                "raw_feature": "number_emergency",
+                "display_name": "Prior Emergency Department Visits",
+                "ensemble_importance": 64.5289,
+                "rf_importance": 0.0565,
+                "xgb_importance": 0.0317
+            },
+            {
+                "raw_feature": "diag_1_group_Diabetes",
+                "display_name": "Primary Diagnosis: Diabetes Mellitus with Complications",
+                "ensemble_importance": 36.9297,
+                "rf_importance": 0.0116,
+                "xgb_importance": 0.0195
+            },
+            {
+                "raw_feature": "gender_clean_Female",
+                "display_name": "Sex / Gender: Female",
+                "ensemble_importance": 36.3511,
+                "rf_importance": 0.0117,
+                "xgb_importance": 0.014
+            },
+            {
+                "raw_feature": "discharge_destination_Facility_Rehab",
+                "display_name": "Discharge Destination: Skilled Nursing / Rehab Facility",
+                "ensemble_importance": 32.7624,
+                "rf_importance": 0.065,
+                "xgb_importance": 0.1499
+            },
+            {
+                "raw_feature": "diag_1_group_Respiratory",
+                "display_name": "Primary Diagnosis: Respiratory (COPD / Pneumonia)",
+                "ensemble_importance": 32.7425,
+                "rf_importance": 0.0118,
+                "xgb_importance": 0.0214
+            },
+            {
+                "raw_feature": "insulin_regimen_No",
+                "display_name": "Insulin Protocol: Not Prescribed",
+                "ensemble_importance": 29.9312,
+                "rf_importance": 0.0147,
+                "xgb_importance": 0.0213
+            },
+            {
+                "raw_feature": "diag_1_group_Genitourinary",
+                "display_name": "Primary Diagnosis: Genitourinary / Renal Disease",
+                "ensemble_importance": 28.1963,
+                "rf_importance": 0.0085,
+                "xgb_importance": 0.0162
+            },
+            {
+                "raw_feature": "age_group_60+ Years",
+                "display_name": "Age Demographic: Older Adult (60+ Years)",
+                "ensemble_importance": 28.1256,
+                "rf_importance": 0.0173,
+                "xgb_importance": 0.0299
+            },
+            {
+                "raw_feature": "insulin_regimen_Down",
+                "display_name": "Insulin Protocol: Dosage De-escalated During Stay",
+                "ensemble_importance": 27.5455,
+                "rf_importance": 0.0097,
+                "xgb_importance": 0.0152
+            },
+            {
+                "raw_feature": "diag_1_group_Other/External",
+                "display_name": "Primary Diagnosis: External Factors",
+                "ensemble_importance": 27.0249,
+                "rf_importance": 0.0061,
+                "xgb_importance": 0.0182
+            },
+            {
+                "raw_feature": "age_group_30-60 Years",
+                "display_name": "Age Demographic: Middle Adult (30-60 Years)",
+                "ensemble_importance": 25.7888,
+                "rf_importance": 0.0137,
+                "xgb_importance": 0.0174
+            },
+            {
+                "raw_feature": "diag_1_group_Circulatory",
+                "display_name": "Primary Diagnosis: Circulatory (CVD / CHF / CAD)",
+                "ensemble_importance": 25.5802,
+                "rf_importance": 0.012,
+                "xgb_importance": 0.0234
+            },
+            {
+                "raw_feature": "race_clean_Caucasian",
+                "display_name": "Race Demographic: Caucasian",
+                "ensemble_importance": 24.3192,
+                "rf_importance": 0.0118,
+                "xgb_importance": 0.0147
+            },
+            {
+                "raw_feature": "insulin_regimen_Up",
+                "display_name": "Insulin Protocol: Dosage Escalated During Stay",
+                "ensemble_importance": 24.2929,
+                "rf_importance": 0.0087,
+                "xgb_importance": 0.0163
+            },
+            {
+                "raw_feature": "discharge_destination_Home",
+                "display_name": "Discharge Destination: Home / Self-Care",
+                "ensemble_importance": 24.2288,
+                "rf_importance": 0.0567,
+                "xgb_importance": 0.0901
+            },
+            {
+                "raw_feature": "diag_1_group_Other",
+                "display_name": "Primary Diagnosis: Other Specialized Conditions",
+                "ensemble_importance": 23.0941,
+                "rf_importance": 0.008,
+                "xgb_importance": 0.0114
+            },
+            {
+                "raw_feature": "medication_change_Ch",
+                "display_name": "Medication Change: Inpatient Dose / Drug Adjustment Made",
+                "ensemble_importance": 22.2941,
+                "rf_importance": 0.0091,
+                "xgb_importance": 0.0141
+            },
+            {
+                "raw_feature": "race_clean_AfricanAmerican",
+                "display_name": "Race Demographic: African American",
+                "ensemble_importance": 20.9978,
+                "rf_importance": 0.0112,
+                "xgb_importance": 0.0159
+            },
+            {
+                "raw_feature": "gender_clean_Male",
+                "display_name": "Sex / Gender: Male",
+                "ensemble_importance": 19.0305,
+                "rf_importance": 0.0123,
+                "xgb_importance": 0.0135
+            },
+            {
+                "raw_feature": "diag_1_group_Musculoskeletal",
+                "display_name": "Primary Diagnosis: Musculoskeletal System",
+                "ensemble_importance": 18.918,
+                "rf_importance": 0.0123,
+                "xgb_importance": 0.0347
+            },
+            {
+                "raw_feature": "insulin_regimen_Steady",
+                "display_name": "Insulin Protocol: Maintained on Steady Regimen",
+                "ensemble_importance": 18.8446,
+                "rf_importance": 0.0101,
+                "xgb_importance": 0.0141
+            },
+            {
+                "raw_feature": "diag_1_group_Injury",
+                "display_name": "Primary Diagnosis: Acute Trauma / Injury",
+                "ensemble_importance": 17.06,
+                "rf_importance": 0.007,
+                "xgb_importance": 0.012
+            },
+            {
+                "raw_feature": "diag_1_group_Digestive",
+                "display_name": "Primary Diagnosis: Digestive Disease",
+                "ensemble_importance": 16.5226,
+                "rf_importance": 0.0069,
+                "xgb_importance": 0.0167
+            },
+            {
+                "raw_feature": "age_group_<30 Years",
+                "display_name": "Age Demographic: Younger Adult (<30 Years)",
+                "ensemble_importance": 15.7453,
+                "rf_importance": 0.0055,
+                "xgb_importance": 0.0155
+            },
+            {
+                "raw_feature": "race_clean_Other/Unknown",
+                "display_name": "Race Demographic: Other / Unspecified",
+                "ensemble_importance": 14.5572,
+                "rf_importance": 0.006,
+                "xgb_importance": 0.0171
+            },
+            {
+                "raw_feature": "race_clean_Hispanic",
+                "display_name": "Race Demographic: Hispanic",
+                "ensemble_importance": 14.5428,
+                "rf_importance": 0.0057,
+                "xgb_importance": 0.016
+            },
+            {
+                "raw_feature": "diag_1_group_Neoplasms",
+                "display_name": "Primary Diagnosis: Oncology / Neoplasms",
+                "ensemble_importance": 12.5766,
+                "rf_importance": 0.0051,
+                "xgb_importance": 0.0155
+            },
+            {
+                "raw_feature": "race_clean_Asian",
+                "display_name": "Race Demographic: Asian",
+                "ensemble_importance": 8.8238,
+                "rf_importance": 0.0027,
+                "xgb_importance": 0.0133
+            },
+            {
+                "raw_feature": "medication_change_No",
+                "display_name": "Medication Change: No Medication Adjustments Made",
+                "ensemble_importance": 7.4869,
+                "rf_importance": 0.0088,
+                "xgb_importance": 0.017
+            },
+            {
+                "raw_feature": "discharge_destination_Other_Unknown",
+                "display_name": "Discharge Destination: Other Clinical Pathway",
+                "ensemble_importance": 6.756,
+                "rf_importance": 0.0068,
+                "xgb_importance": 0.0117
+            },
+            {
+                "raw_feature": "discharge_destination_Left_AMA",
+                "display_name": "Discharge Destination: Left Against Medical Advice",
+                "ensemble_importance": 6.4411,
+                "rf_importance": 0.0026,
+                "xgb_importance": 0.0137
+            },
+            {
+                "raw_feature": "race_clean_Other",
+                "display_name": "Race Clean Other",
+                "ensemble_importance": 2.4428,
+                "rf_importance": 0.0044,
+                "xgb_importance": 0.0142
+            },
+            {
+                "raw_feature": "diag_1_group_Missing",
+                "display_name": "Diag 1 Group Missing",
+                "ensemble_importance": 0.0198,
+                "rf_importance": 0.0003,
+                "xgb_importance": 0.0046
+            },
+            {
+                "raw_feature": "gender_clean_Other/Unknown",
+                "display_name": "Gender Clean Other/Unknown",
+                "ensemble_importance": 0.0,
+                "rf_importance": 0.0,
+                "xgb_importance": 0.0
+            }
+        ],
+        "top_ensemble_drivers": [
+            "Diagnostic Laboratory Procedures Performed",
+            "Total Inpatient Medications Administered",
+            "Hospital Length of Stay (Days)",
+            "Prior Inpatient Hospitalizations (Past 12 Mo)",
+            "Prior Outpatient Encounters",
+            "Prior Emergency Department Visits",
+            "Primary Diagnosis: Diabetes Mellitus with Complications",
+            "Sex / Gender: Female",
+            "Discharge Destination: Skilled Nursing / Rehab Facility",
+            "Primary Diagnosis: Respiratory (COPD / Pneumonia)"
+        ]
+    },
+    "data_preprocessing": {
+        "data_quality": {
+            "total_raw_encounters": 101766,
+            "terminal_encounters_excluded": 2423,
+            "total_clean_encounters": 99343,
+            "unique_patients": 69990,
+            "target_distribution": {
+                "negative_count": 88029,
+                "positive_count": 11314,
+                "prevalence_percentage": 11.39
+            },
+            "split_strategy": "Patient-Grouped Stratified Split (70% Train, 10% Val, 20% Test; 0% leakage)",
+            "split_sizes": {
+                "train": {
+                    "encounters": 69538,
+                    "percentage": 70.0
+                },
+                "val": {
+                    "encounters": 9935,
+                    "percentage": 10.0
+                },
+                "test": {
+                    "encounters": 19870,
+                    "percentage": 20.0
+                }
+            },
+            "features_kept": [
+                "number_inpatient",
+                "number_outpatient",
+                "number_emergency",
+                "time_in_hospital",
+                "num_lab_procedures",
+                "num_medications",
+                "diag_1_group",
+                "discharge_destination",
+                "insulin_regimen",
+                "medication_change",
+                "age_group",
+                "gender_clean",
+                "race_clean"
+            ],
+            "features_excluded_count": 13,
+            "outlier_winsorization_caps": {
+                "number_inpatient": {
+                    "raw_max": 21.0,
+                    "cap_99th": 6.0,
+                    "post_cap_max": 6.0
+                },
+                "number_outpatient": {
+                    "raw_max": 42.0,
+                    "cap_99th": 5.0,
+                    "post_cap_max": 5.0
+                },
+                "number_emergency": {
+                    "raw_max": 76.0,
+                    "cap_99th": 3.0,
+                    "post_cap_max": 3.0
+                },
+                "time_in_hospital": {
+                    "raw_max": 14.0,
+                    "cap_99th": 14.0,
+                    "post_cap_max": 14.0
+                },
+                "num_lab_procedures": {
+                    "raw_max": 132.0,
+                    "cap_99th": 84.0,
+                    "post_cap_max": 84.0
+                },
+                "num_medications": {
+                    "raw_max": 81.0,
+                    "cap_99th": 43.0,
+                    "post_cap_max": 43.0
+                }
+            }
+        },
+        "feature_selection_rationale": [
+            {
+                "feature": "weight",
+                "category": "Clinical Measurement",
+                "missingness": "96.86%",
+                "reason": "High missingness across almost all participating clinical centers (>96% missing); unreliable across sites."
+            },
+            {
+                "feature": "payer_code",
+                "category": "Administrative / Billing",
+                "missingness": "39.56%",
+                "reason": "Billing artifact without direct pathophysiological relationship to acute readmission risk; high missingness."
+            },
+            {
+                "feature": "medical_specialty",
+                "category": "Administrative / Provider",
+                "missingness": "49.08%",
+                "reason": "High missingness and high cardinality (73 categories) causing severe risk of overfitting on sparse specialties."
+            },
+            {
+                "feature": "diag_2, diag_3",
+                "category": "Secondary Diagnoses",
+                "missingness": "0.35% - 1.40%",
+                "reason": "Excluded to maintain strict clinical parsimony around the principal admitting diagnosis (diag_1) and avoid multicollinearity."
+            },
+            {
+                "feature": "admission_type_id, admission_source_id",
+                "category": "Intake Administrative Channels",
+                "missingness": "0.00%",
+                "reason": "Intake channel categories provide redundant signals already captured by prior utilization counts and primary diagnosis."
+            },
+            {
+                "feature": "num_procedures",
+                "category": "Inpatient Utilization",
+                "missingness": "0.00%",
+                "reason": "Excluded to maintain parsimony; inpatient intervention intensity is already represented by time_in_hospital and num_lab_procedures."
+            },
+            {
+                "feature": "number_diagnoses",
+                "category": "Clinical Count",
+                "missingness": "0.00%",
+                "reason": "Redundant comorbidity signal that tracks closely with primary diagnosis category and length of stay."
+            },
+            {
+                "feature": "max_glu_serum, A1Cresult",
+                "category": "Laboratory Testing",
+                "missingness": "83.28% - 94.75%",
+                "reason": "Extreme unmeasured rate (>83-94% not ordered); testing frequency varies by admitting specialty rather than acute 30-day recidivism."
+            },
+            {
+                "feature": "diabetesMed",
+                "category": "Medication Flag",
+                "missingness": "0.00%",
+                "reason": "Highly redundant with insulin regimen and the medication-change (change) indicator."
+            },
+            {
+                "feature": "22 individual antidiabetic oral medications (metformin, glipizide, glyburide, pioglitazone, etc.)",
+                "category": "Specific Pharmacology",
+                "missingness": "0.00%",
+                "reason": "Extreme sparsity across individual chemical agents (many <0.1% usage), zero variance for examide/citoglipton, and therapeutic volatility is already captured by insulin and change."
+            },
+            {
+                "feature": "encounter_id",
+                "category": "Identifier",
+                "missingness": "0.00%",
+                "reason": "Administrative surrogate key; dropped to prevent memorization and data leakage."
+            },
+            {
+                "feature": "patient_nbr",
+                "category": "Cluster Key",
+                "missingness": "0.00%",
+                "reason": "Used exclusively for leak-free patient-grouped train/val/test splitting; removed from model input space."
+            },
+            {
+                "feature": "terminal_discharge_dispositions (IDs 11, 13, 14, 19, 20, 21)",
+                "category": "Clinical Exclusions",
+                "missingness": "0.00%",
+                "reason": "Patients discharged to hospice or who expired in hospital cannot experience 30-day readmissions; excluded to prevent target contamination."
+            }
+        ]
+    },
+    "fairness": {
+        "audit_metadata": {
+            "test_cohort_n": 19870,
+            "validation_cohort_n": 9935,
+            "deployed_model": "Calibrated Ensemble",
+            "deployed_threshold": 0.12,
+            "deployed_policy": "Single unified 12.0% threshold deployed across all encounters; group-based thresholds are not deployed.",
+            "data_provenance": "Published as de-identified by its source (UCI Machine Learning Repository, 130 US hospitals, 1999-2008). We did not independently verify de-identification.",
+            "known_limitations": [
+                "Modest discrimination (AUC ~0.65) reflecting historical EHR administrative data limitations.",
+                "Data from 1999-2008 and diabetic inpatient encounters only; lacks external or prospective validation.",
+                "Subgroups with <100 readmissions (Asian n=124, Hispanic n=405, Other n=308, <30 Years n=512) are too small to conclude statistical parity.",
+                "Fairness evaluated on three recorded demographic attributes only (race, sex, age); clinical comorbidities may correlate with demographic distributions."
+            ]
+        },
+        "unmitigated_vs_mitigated_side_by_side": {
+            "unmitigated_deployed": {
+                "model": "Calibrated Ensemble (Single 12% cutoff deployed)",
+                "cutoff_description": "Unified 12.0% threshold across all encounters (deployed in worklist & calculator)",
+                "recall_pct": 57.62,
+                "precision_pct": 17.38,
+                "flag_rate_pct": 37.77
+            },
+            "mitigated_analysis_only": {
+                "model": "Validation-Tuned Group Cutoffs (Analysis only, not deployed)",
+                "cutoff_description": "Caucasian: 12.1%, African American / Other: 12.0% (fit on validation only)",
+                "recall_pct": 57.05,
+                "precision_pct": 17.37,
+                "flag_rate_pct": 37.41,
+                "parity_tradeoff_note": "Mitigation raises the Caucasian threshold to 12.1% on validation to narrow disparity, which lowers Caucasian recall on test from 58.7% to 57.9% and lowers overall cohort recall from 57.62% to 57.05%. Group-specific cutoffs are NOT deployed in the active clinical workflow."
+            }
+        },
+        "demographic_audits": {
+            "race_clean": {
+                "attribute": "race_clean",
+                "headline_comparison": "Caucasian vs. African American (groups with \u2265100 readmissions)",
+                "headline_gap_point_pp": 4.98,
+                "headline_gap_ci_lower_pp": -0.44,
+                "headline_gap_ci_upper_pp": 10.36,
+                "headline_gap_ci_str": "[-0.4 pp \u2013 10.4 pp]",
+                "mitigated_gap_point_pp": 4.23,
+                "mitigated_gap_ci_str": "[-1.1 pp \u2013 9.6 pp]",
+                "status_assessment": "95% CI [-0.4 pp \u2013 10.4 pp] spans internal 5.0 pp threshold",
+                "subgroups": [
+                    {
+                        "subgroup": "AfricanAmerican",
+                        "sample_size_n": 3716,
+                        "readmitted_cases_k": 406,
+                        "is_small_sample": false,
+                        "unmitigated_tpr_pct": 53.69,
+                        "unmitigated_fpr_pct": 34.86,
+                        "unmitigated_precision_pct": 15.89,
+                        "unmitigated_ci_95_str": "48.8%\u201358.5%",
+                        "mitigated_tpr_pct": 53.69,
+                        "mitigated_fpr_pct": 34.86,
+                        "mitigated_precision_pct": 15.89,
+                        "mitigated_ci_95_str": "48.8%\u201358.5%",
+                        "headline_eligible": true
+                    },
+                    {
+                        "subgroup": "Asian",
+                        "sample_size_n": 124,
+                        "readmitted_cases_k": 13,
+                        "is_small_sample": true,
+                        "unmitigated_tpr_pct": 38.46,
+                        "unmitigated_fpr_pct": 24.32,
+                        "unmitigated_precision_pct": 15.62,
+                        "unmitigated_ci_95_str": "17.7%\u201364.5%",
+                        "mitigated_tpr_pct": 38.46,
+                        "mitigated_fpr_pct": 24.32,
+                        "mitigated_precision_pct": 15.62,
+                        "mitigated_ci_95_str": "17.7%\u201364.5%",
+                        "headline_eligible": false
+                    },
+                    {
+                        "subgroup": "Caucasian",
+                        "sample_size_n": 14874,
+                        "readmitted_cases_k": 1735,
+                        "is_small_sample": false,
+                        "unmitigated_tpr_pct": 58.67,
+                        "unmitigated_fpr_pct": 36.16,
+                        "unmitigated_precision_pct": 17.65,
+                        "unmitigated_ci_95_str": "56.3%\u201361.0%",
+                        "mitigated_tpr_pct": 57.93,
+                        "mitigated_fpr_pct": 35.72,
+                        "mitigated_precision_pct": 17.64,
+                        "mitigated_ci_95_str": "55.6%\u201360.2%",
+                        "headline_eligible": true
+                    },
+                    {
+                        "subgroup": "Hispanic",
+                        "sample_size_n": 405,
+                        "readmitted_cases_k": 45,
+                        "is_small_sample": true,
+                        "unmitigated_tpr_pct": 60.0,
+                        "unmitigated_fpr_pct": 26.94,
+                        "unmitigated_precision_pct": 21.77,
+                        "unmitigated_ci_95_str": "45.5%\u201373.0%",
+                        "mitigated_tpr_pct": 60.0,
+                        "mitigated_fpr_pct": 26.94,
+                        "mitigated_precision_pct": 21.77,
+                        "mitigated_ci_95_str": "45.5%\u201373.0%",
+                        "headline_eligible": false
+                    },
+                    {
+                        "subgroup": "Other",
+                        "sample_size_n": 308,
+                        "readmitted_cases_k": 25,
+                        "is_small_sample": true,
+                        "unmitigated_tpr_pct": 60.0,
+                        "unmitigated_fpr_pct": 26.15,
+                        "unmitigated_precision_pct": 16.85,
+                        "unmitigated_ci_95_str": "40.7%\u201376.6%",
+                        "mitigated_tpr_pct": 60.0,
+                        "mitigated_fpr_pct": 26.15,
+                        "mitigated_precision_pct": 16.85,
+                        "mitigated_ci_95_str": "40.7%\u201376.6%",
+                        "headline_eligible": false
+                    },
+                    {
+                        "subgroup": "Other/Unknown",
+                        "sample_size_n": 443,
+                        "readmitted_cases_k": 39,
+                        "is_small_sample": true,
+                        "unmitigated_tpr_pct": 53.85,
+                        "unmitigated_fpr_pct": 24.26,
+                        "unmitigated_precision_pct": 17.65,
+                        "unmitigated_ci_95_str": "38.6%\u201368.4%",
+                        "mitigated_tpr_pct": 53.85,
+                        "mitigated_fpr_pct": 24.26,
+                        "mitigated_precision_pct": 17.65,
+                        "mitigated_ci_95_str": "38.6%\u201368.4%",
+                        "headline_eligible": false
+                    }
+                ]
+            },
+            "gender_clean": {
+                "attribute": "gender_clean",
+                "headline_comparison": "Female vs. Male (groups with \u2265100 readmissions)",
+                "headline_gap_point_pp": 3.32,
+                "headline_gap_ci_lower_pp": -1.01,
+                "headline_gap_ci_upper_pp": 7.41,
+                "headline_gap_ci_str": "[-1.0 pp \u2013 7.4 pp]",
+                "mitigated_gap_point_pp": 3.32,
+                "mitigated_gap_ci_str": "[-1.0 pp \u2013 7.4 pp]",
+                "status_assessment": "Gap not distinguishable from zero (95% CI includes 0)",
+                "subgroups": [
+                    {
+                        "subgroup": "Female",
+                        "sample_size_n": 10615,
+                        "readmitted_cases_k": 1238,
+                        "is_small_sample": false,
+                        "unmitigated_tpr_pct": 59.13,
+                        "unmitigated_fpr_pct": 36.45,
+                        "unmitigated_precision_pct": 17.64,
+                        "unmitigated_ci_95_str": "56.4%\u201361.8%",
+                        "mitigated_tpr_pct": 58.48,
+                        "mitigated_fpr_pct": 36.13,
+                        "mitigated_precision_pct": 17.61,
+                        "mitigated_ci_95_str": "55.7%\u201361.2%",
+                        "headline_eligible": true
+                    },
+                    {
+                        "subgroup": "Male",
+                        "sample_size_n": 9254,
+                        "readmitted_cases_k": 1025,
+                        "is_small_sample": false,
+                        "unmitigated_tpr_pct": 55.8,
+                        "unmitigated_fpr_pct": 33.81,
+                        "unmitigated_precision_pct": 17.05,
+                        "unmitigated_ci_95_str": "52.7%\u201358.8%",
+                        "mitigated_tpr_pct": 55.32,
+                        "mitigated_fpr_pct": 33.47,
+                        "mitigated_precision_pct": 17.07,
+                        "mitigated_ci_95_str": "52.3%\u201358.3%",
+                        "headline_eligible": true
+                    },
+                    {
+                        "subgroup": "Other/Unknown",
+                        "sample_size_n": 1,
+                        "readmitted_cases_k": 0,
+                        "is_small_sample": true,
+                        "unmitigated_tpr_pct": 0.0,
+                        "unmitigated_fpr_pct": 0.0,
+                        "unmitigated_precision_pct": 0.0,
+                        "unmitigated_ci_95_str": "0.0%\u20130.0%",
+                        "mitigated_tpr_pct": 0.0,
+                        "mitigated_fpr_pct": 0.0,
+                        "mitigated_precision_pct": 0.0,
+                        "mitigated_ci_95_str": "0.0%\u20130.0%",
+                        "headline_eligible": false
+                    }
+                ]
+            },
+            "age_group": {
+                "attribute": "age_group",
+                "headline_comparison": "60+ Years vs. 30-60 Years (groups with \u2265100 readmissions)",
+                "headline_gap_point_pp": 3.93,
+                "headline_gap_ci_lower_pp": -0.91,
+                "headline_gap_ci_upper_pp": 8.63,
+                "headline_gap_ci_str": "[-0.9 pp \u2013 8.6 pp]",
+                "mitigated_gap_point_pp": 3.93,
+                "mitigated_gap_ci_str": "[-0.9 pp \u2013 8.6 pp]",
+                "status_assessment": "Gap not distinguishable from zero (95% CI includes 0)",
+                "subgroups": [
+                    {
+                        "subgroup": "30-60 Years",
+                        "sample_size_n": 6131,
+                        "readmitted_cases_k": 592,
+                        "is_small_sample": false,
+                        "unmitigated_tpr_pct": 54.39,
+                        "unmitigated_fpr_pct": 25.96,
+                        "unmitigated_precision_pct": 18.3,
+                        "unmitigated_ci_95_str": "50.4%\u201358.4%",
+                        "mitigated_tpr_pct": 53.89,
+                        "mitigated_fpr_pct": 25.78,
+                        "mitigated_precision_pct": 18.26,
+                        "mitigated_ci_95_str": "49.9%\u201357.9%",
+                        "headline_eligible": true
+                    },
+                    {
+                        "subgroup": "60+ Years",
+                        "sample_size_n": 13227,
+                        "readmitted_cases_k": 1605,
+                        "is_small_sample": false,
+                        "unmitigated_tpr_pct": 58.32,
+                        "unmitigated_fpr_pct": 40.17,
+                        "unmitigated_precision_pct": 16.7,
+                        "unmitigated_ci_95_str": "55.9%\u201360.7%",
+                        "mitigated_tpr_pct": 57.76,
+                        "mitigated_fpr_pct": 39.75,
+                        "mitigated_precision_pct": 16.71,
+                        "mitigated_ci_95_str": "55.3%\u201360.2%",
+                        "headline_eligible": true
+                    },
+                    {
+                        "subgroup": "<30 Years",
+                        "sample_size_n": 512,
+                        "readmitted_cases_k": 66,
+                        "is_small_sample": true,
+                        "unmitigated_tpr_pct": 69.7,
+                        "unmitigated_fpr_pct": 21.3,
+                        "unmitigated_precision_pct": 32.62,
+                        "unmitigated_ci_95_str": "57.8%\u201379.4%",
+                        "mitigated_tpr_pct": 68.18,
+                        "mitigated_fpr_pct": 21.3,
+                        "mitigated_precision_pct": 32.14,
+                        "mitigated_ci_95_str": "56.2%\u201378.2%",
+                        "headline_eligible": false
+                    }
+                ]
+            }
+        },
+        "training_strategies_comparison": [
+            {
+                "strategy_name": "Baseline Unweighted XGBoost",
+                "description": "Standard gradient booster without class weights",
+                "val_tuned_threshold": 0.14,
+                "auc_roc": 0.6521,
+                "brier_score": 0.0976,
+                "recall_pct": 43.53,
+                "precision_pct": 18.51,
+                "flag_rate_pct": 26.78,
+                "cauc_tpr_pct": 43.92,
+                "aa_tpr_pct": 41.38,
+                "race_gap_pp": 2.54
+            },
+            {
+                "strategy_name": "Class-Weighted XGBoost",
+                "description": "scale_pos_weight inverse class frequencies on train split",
+                "val_tuned_threshold": 0.55,
+                "auc_roc": 0.6517,
+                "brier_score": 0.2262,
+                "recall_pct": 45.51,
+                "precision_pct": 18.74,
+                "flag_rate_pct": 27.66,
+                "cauc_tpr_pct": 46.11,
+                "aa_tpr_pct": 43.6,
+                "race_gap_pp": 2.51
+            },
+            {
+                "strategy_name": "Resampling (RUS on Train)",
+                "description": "Random under-sampling applied strictly to training split",
+                "val_tuned_threshold": 0.54,
+                "auc_roc": 0.6494,
+                "brier_score": 0.2328,
+                "recall_pct": 51.17,
+                "precision_pct": 17.93,
+                "flag_rate_pct": 32.51,
+                "cauc_tpr_pct": 51.59,
+                "aa_tpr_pct": 48.52,
+                "race_gap_pp": 3.06
+            },
+            {
+                "strategy_name": "Calibrated Ensemble (Deployed)",
+                "description": "Platt-calibrated soft voting ensemble with unified 12% cutoff",
+                "val_tuned_threshold": 0.12,
+                "auc_roc": 0.653,
+                "brier_score": 0.0976,
+                "recall_pct": 57.62,
+                "precision_pct": 17.38,
+                "flag_rate_pct": 37.77,
+                "cauc_tpr_pct": 58.67,
+                "aa_tpr_pct": 53.69,
+                "race_gap_pp": 4.98
+            }
+        ]
+    },
+    "cohort_size": 19870
+}

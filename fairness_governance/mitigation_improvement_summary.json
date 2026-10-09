@@ -1,166 +1,308 @@
 {
-    "training_strategies_comparison": {
-        "baseline_unweighted": {
-            "description": "Standard unweighted training without class adjustment",
-            "auc_roc": 0.6521,
-            "recall": 57.53,
-            "race_tpr_gap_pp": 20.52
+    "audit_metadata": {
+        "test_cohort_n": 19870,
+        "validation_cohort_n": 9935,
+        "deployed_model": "Calibrated Ensemble",
+        "deployed_threshold": 0.12,
+        "deployed_policy": "Single unified 12.0% threshold deployed across all encounters; group-based thresholds are not deployed.",
+        "data_provenance": "Published as de-identified by its source (UCI Machine Learning Repository, 130 US hospitals, 1999-2008). We did not independently verify de-identification.",
+        "known_limitations": [
+            "Modest discrimination (AUC ~0.65) reflecting historical EHR administrative data limitations.",
+            "Data from 1999-2008 and diabetic inpatient encounters only; lacks external or prospective validation.",
+            "Subgroups with <100 readmissions (Asian n=124, Hispanic n=405, Other n=308, <30 Years n=512) are too small to conclude statistical parity.",
+            "Fairness evaluated on three recorded demographic attributes only (race, sex, age); clinical comorbidities may correlate with demographic distributions."
+        ]
+    },
+    "unmitigated_vs_mitigated_side_by_side": {
+        "unmitigated_deployed": {
+            "model": "Calibrated Ensemble (Single 12% cutoff deployed)",
+            "cutoff_description": "Unified 12.0% threshold across all encounters (deployed in worklist & calculator)",
+            "recall_pct": 57.62,
+            "precision_pct": 17.38,
+            "flag_rate_pct": 37.77
         },
-        "class_weighted": {
-            "description": "Cost-sensitive training with scale_pos_weight inverse class frequencies",
-            "auc_roc": 0.6517,
-            "recall": 99.91
-        },
-        "training_downsampling": {
-            "description": "Random under-sampling of majority class applied strictly to training split",
-            "auc_roc": 0.6494,
-            "recall": 99.96
-        },
-        "selected_calibrated_ensemble": {
-            "description": "Soft-voting ensemble of calibrated gradient boosters at unified threshold",
-            "auc_roc": 0.653,
-            "recall": 57.62,
-            "race_tpr_gap_pp": 21.54
+        "mitigated_analysis_only": {
+            "model": "Validation-Tuned Group Cutoffs (Analysis only, not deployed)",
+            "cutoff_description": "Caucasian: 12.1%, African American / Other: 12.0% (fit on validation only)",
+            "recall_pct": 57.05,
+            "precision_pct": 17.37,
+            "flag_rate_pct": 37.41,
+            "parity_tradeoff_note": "Mitigation raises the Caucasian threshold to 12.1% on validation to narrow disparity, which lowers Caucasian recall on test from 58.7% to 57.9% and lowers overall cohort recall from 57.62% to 57.05%. Group-specific cutoffs are NOT deployed in the active clinical workflow."
         }
     },
     "demographic_audits": {
         "race_clean": {
             "attribute": "race_clean",
-            "baseline_tpr_gap_pp": 20.52,
-            "mitigated_tpr_gap_pp": 21.54,
-            "gap_reduction_pct": -5.0,
-            "reduction_badge": "Gap reduced -5% vs. unmitigated model (20.52 pp \u2192 21.54 pp)",
+            "headline_comparison": "Caucasian vs. African American (groups with \u2265100 readmissions)",
+            "headline_gap_point_pp": 4.98,
+            "headline_gap_ci_lower_pp": -0.44,
+            "headline_gap_ci_upper_pp": 10.36,
+            "headline_gap_ci_str": "[-0.4 pp \u2013 10.4 pp]",
+            "mitigated_gap_point_pp": 4.23,
+            "mitigated_gap_ci_str": "[-1.1 pp \u2013 9.6 pp]",
+            "status_assessment": "95% CI [-0.4 pp \u2013 10.4 pp] spans internal 5.0 pp threshold",
             "subgroups": [
                 {
                     "subgroup": "AfricanAmerican",
                     "sample_size_n": 3716,
-                    "baseline_tpr_pct": 52.71,
-                    "ensemble_tpr_pct": 53.69,
-                    "ensemble_fpr_pct": 34.86,
-                    "ensemble_precision_pct": 15.89,
-                    "ci_95_str": "48.8%\u201358.5%"
+                    "readmitted_cases_k": 406,
+                    "is_small_sample": false,
+                    "unmitigated_tpr_pct": 53.69,
+                    "unmitigated_fpr_pct": 34.86,
+                    "unmitigated_precision_pct": 15.89,
+                    "unmitigated_ci_95_str": "48.8%\u201358.5%",
+                    "mitigated_tpr_pct": 53.69,
+                    "mitigated_fpr_pct": 34.86,
+                    "mitigated_precision_pct": 15.89,
+                    "mitigated_ci_95_str": "48.8%\u201358.5%",
+                    "headline_eligible": true
                 },
                 {
                     "subgroup": "Asian",
                     "sample_size_n": 124,
-                    "baseline_tpr_pct": 46.15,
-                    "ensemble_tpr_pct": 38.46,
-                    "ensemble_fpr_pct": 24.32,
-                    "ensemble_precision_pct": 15.62,
-                    "ci_95_str": "17.7%\u201364.5%"
+                    "readmitted_cases_k": 13,
+                    "is_small_sample": true,
+                    "unmitigated_tpr_pct": 38.46,
+                    "unmitigated_fpr_pct": 24.32,
+                    "unmitigated_precision_pct": 15.62,
+                    "unmitigated_ci_95_str": "17.7%\u201364.5%",
+                    "mitigated_tpr_pct": 38.46,
+                    "mitigated_fpr_pct": 24.32,
+                    "mitigated_precision_pct": 15.62,
+                    "mitigated_ci_95_str": "17.7%\u201364.5%",
+                    "headline_eligible": false
                 },
                 {
                     "subgroup": "Caucasian",
                     "sample_size_n": 14874,
-                    "baseline_tpr_pct": 58.56,
-                    "ensemble_tpr_pct": 58.67,
-                    "ensemble_fpr_pct": 36.16,
-                    "ensemble_precision_pct": 17.65,
-                    "ci_95_str": "56.3%\u201361.0%"
+                    "readmitted_cases_k": 1735,
+                    "is_small_sample": false,
+                    "unmitigated_tpr_pct": 58.67,
+                    "unmitigated_fpr_pct": 36.16,
+                    "unmitigated_precision_pct": 17.65,
+                    "unmitigated_ci_95_str": "56.3%\u201361.0%",
+                    "mitigated_tpr_pct": 57.93,
+                    "mitigated_fpr_pct": 35.72,
+                    "mitigated_precision_pct": 17.64,
+                    "mitigated_ci_95_str": "55.6%\u201360.2%",
+                    "headline_eligible": true
                 },
                 {
                     "subgroup": "Hispanic",
                     "sample_size_n": 405,
-                    "baseline_tpr_pct": 66.67,
-                    "ensemble_tpr_pct": 60.0,
-                    "ensemble_fpr_pct": 26.94,
-                    "ensemble_precision_pct": 21.77,
-                    "ci_95_str": "45.5%\u201373.0%"
+                    "readmitted_cases_k": 45,
+                    "is_small_sample": true,
+                    "unmitigated_tpr_pct": 60.0,
+                    "unmitigated_fpr_pct": 26.94,
+                    "unmitigated_precision_pct": 21.77,
+                    "unmitigated_ci_95_str": "45.5%\u201373.0%",
+                    "mitigated_tpr_pct": 60.0,
+                    "mitigated_fpr_pct": 26.94,
+                    "mitigated_precision_pct": 21.77,
+                    "mitigated_ci_95_str": "45.5%\u201373.0%",
+                    "headline_eligible": false
                 },
                 {
                     "subgroup": "Other",
                     "sample_size_n": 308,
-                    "baseline_tpr_pct": 60.0,
-                    "ensemble_tpr_pct": 60.0,
-                    "ensemble_fpr_pct": 26.15,
-                    "ensemble_precision_pct": 16.85,
-                    "ci_95_str": "40.7%\u201376.6%"
+                    "readmitted_cases_k": 25,
+                    "is_small_sample": true,
+                    "unmitigated_tpr_pct": 60.0,
+                    "unmitigated_fpr_pct": 26.15,
+                    "unmitigated_precision_pct": 16.85,
+                    "unmitigated_ci_95_str": "40.7%\u201376.6%",
+                    "mitigated_tpr_pct": 60.0,
+                    "mitigated_fpr_pct": 26.15,
+                    "mitigated_precision_pct": 16.85,
+                    "mitigated_ci_95_str": "40.7%\u201376.6%",
+                    "headline_eligible": false
                 },
                 {
                     "subgroup": "Other/Unknown",
                     "sample_size_n": 443,
-                    "baseline_tpr_pct": 53.85,
-                    "ensemble_tpr_pct": 53.85,
-                    "ensemble_fpr_pct": 24.26,
-                    "ensemble_precision_pct": 17.65,
-                    "ci_95_str": "38.6%\u201368.4%"
+                    "readmitted_cases_k": 39,
+                    "is_small_sample": true,
+                    "unmitigated_tpr_pct": 53.85,
+                    "unmitigated_fpr_pct": 24.26,
+                    "unmitigated_precision_pct": 17.65,
+                    "unmitigated_ci_95_str": "38.6%\u201368.4%",
+                    "mitigated_tpr_pct": 53.85,
+                    "mitigated_fpr_pct": 24.26,
+                    "mitigated_precision_pct": 17.65,
+                    "mitigated_ci_95_str": "38.6%\u201368.4%",
+                    "headline_eligible": false
                 }
             ]
         },
         "gender_clean": {
             "attribute": "gender_clean",
-            "baseline_tpr_gap_pp": 3.7,
-            "mitigated_tpr_gap_pp": 3.33,
-            "gap_reduction_pct": 10.0,
-            "reduction_badge": "Gap reduced 10% vs. unmitigated model (3.7 pp \u2192 3.33 pp)",
+            "headline_comparison": "Female vs. Male (groups with \u2265100 readmissions)",
+            "headline_gap_point_pp": 3.32,
+            "headline_gap_ci_lower_pp": -1.01,
+            "headline_gap_ci_upper_pp": 7.41,
+            "headline_gap_ci_str": "[-1.0 pp \u2013 7.4 pp]",
+            "mitigated_gap_point_pp": 3.32,
+            "mitigated_gap_ci_str": "[-1.0 pp \u2013 7.4 pp]",
+            "status_assessment": "Gap not distinguishable from zero (95% CI includes 0)",
             "subgroups": [
                 {
                     "subgroup": "Female",
                     "sample_size_n": 10615,
-                    "baseline_tpr_pct": 59.21,
-                    "ensemble_tpr_pct": 59.13,
-                    "ensemble_fpr_pct": 36.45,
-                    "ensemble_precision_pct": 17.64,
-                    "ci_95_str": "56.4%\u201361.8%"
+                    "readmitted_cases_k": 1238,
+                    "is_small_sample": false,
+                    "unmitigated_tpr_pct": 59.13,
+                    "unmitigated_fpr_pct": 36.45,
+                    "unmitigated_precision_pct": 17.64,
+                    "unmitigated_ci_95_str": "56.4%\u201361.8%",
+                    "mitigated_tpr_pct": 58.48,
+                    "mitigated_fpr_pct": 36.13,
+                    "mitigated_precision_pct": 17.61,
+                    "mitigated_ci_95_str": "55.7%\u201361.2%",
+                    "headline_eligible": true
                 },
                 {
                     "subgroup": "Male",
                     "sample_size_n": 9254,
-                    "baseline_tpr_pct": 55.51,
-                    "ensemble_tpr_pct": 55.8,
-                    "ensemble_fpr_pct": 33.81,
-                    "ensemble_precision_pct": 17.05,
-                    "ci_95_str": "52.7%\u201358.8%"
+                    "readmitted_cases_k": 1025,
+                    "is_small_sample": false,
+                    "unmitigated_tpr_pct": 55.8,
+                    "unmitigated_fpr_pct": 33.81,
+                    "unmitigated_precision_pct": 17.05,
+                    "unmitigated_ci_95_str": "52.7%\u201358.8%",
+                    "mitigated_tpr_pct": 55.32,
+                    "mitigated_fpr_pct": 33.47,
+                    "mitigated_precision_pct": 17.07,
+                    "mitigated_ci_95_str": "52.3%\u201358.3%",
+                    "headline_eligible": true
                 },
                 {
                     "subgroup": "Other/Unknown",
                     "sample_size_n": 1,
-                    "baseline_tpr_pct": 0.0,
-                    "ensemble_tpr_pct": 0.0,
-                    "ensemble_fpr_pct": 0.0,
-                    "ensemble_precision_pct": 0.0,
-                    "ci_95_str": "0.0%\u20130.0%"
+                    "readmitted_cases_k": 0,
+                    "is_small_sample": true,
+                    "unmitigated_tpr_pct": 0.0,
+                    "unmitigated_fpr_pct": 0.0,
+                    "unmitigated_precision_pct": 0.0,
+                    "unmitigated_ci_95_str": "0.0%\u20130.0%",
+                    "mitigated_tpr_pct": 0.0,
+                    "mitigated_fpr_pct": 0.0,
+                    "mitigated_precision_pct": 0.0,
+                    "mitigated_ci_95_str": "0.0%\u20130.0%",
+                    "headline_eligible": false
                 }
             ]
         },
         "age_group": {
             "attribute": "age_group",
-            "baseline_tpr_gap_pp": 14.46,
-            "mitigated_tpr_gap_pp": 15.31,
-            "gap_reduction_pct": -5.9,
-            "reduction_badge": "Gap reduced -6% vs. unmitigated model (14.46 pp \u2192 15.31 pp)",
+            "headline_comparison": "60+ Years vs. 30-60 Years (groups with \u2265100 readmissions)",
+            "headline_gap_point_pp": 3.93,
+            "headline_gap_ci_lower_pp": -0.91,
+            "headline_gap_ci_upper_pp": 8.63,
+            "headline_gap_ci_str": "[-0.9 pp \u2013 8.6 pp]",
+            "mitigated_gap_point_pp": 3.93,
+            "mitigated_gap_ci_str": "[-0.9 pp \u2013 8.6 pp]",
+            "status_assessment": "Gap not distinguishable from zero (95% CI includes 0)",
             "subgroups": [
                 {
                     "subgroup": "30-60 Years",
                     "sample_size_n": 6131,
-                    "baseline_tpr_pct": 55.24,
-                    "ensemble_tpr_pct": 54.39,
-                    "ensemble_fpr_pct": 25.96,
-                    "ensemble_precision_pct": 18.3,
-                    "ci_95_str": "50.4%\u201358.4%"
+                    "readmitted_cases_k": 592,
+                    "is_small_sample": false,
+                    "unmitigated_tpr_pct": 54.39,
+                    "unmitigated_fpr_pct": 25.96,
+                    "unmitigated_precision_pct": 18.3,
+                    "unmitigated_ci_95_str": "50.4%\u201358.4%",
+                    "mitigated_tpr_pct": 53.89,
+                    "mitigated_fpr_pct": 25.78,
+                    "mitigated_precision_pct": 18.26,
+                    "mitigated_ci_95_str": "49.9%\u201357.9%",
+                    "headline_eligible": true
                 },
                 {
                     "subgroup": "60+ Years",
                     "sample_size_n": 13227,
-                    "baseline_tpr_pct": 57.88,
-                    "ensemble_tpr_pct": 58.32,
-                    "ensemble_fpr_pct": 40.17,
-                    "ensemble_precision_pct": 16.7,
-                    "ci_95_str": "55.9%\u201360.7%"
+                    "readmitted_cases_k": 1605,
+                    "is_small_sample": false,
+                    "unmitigated_tpr_pct": 58.32,
+                    "unmitigated_fpr_pct": 40.17,
+                    "unmitigated_precision_pct": 16.7,
+                    "unmitigated_ci_95_str": "55.9%\u201360.7%",
+                    "mitigated_tpr_pct": 57.76,
+                    "mitigated_fpr_pct": 39.75,
+                    "mitigated_precision_pct": 16.71,
+                    "mitigated_ci_95_str": "55.3%\u201360.2%",
+                    "headline_eligible": true
                 },
                 {
                     "subgroup": "<30 Years",
                     "sample_size_n": 512,
-                    "baseline_tpr_pct": 69.7,
-                    "ensemble_tpr_pct": 69.7,
-                    "ensemble_fpr_pct": 21.3,
-                    "ensemble_precision_pct": 32.62,
-                    "ci_95_str": "57.8%\u201379.4%"
+                    "readmitted_cases_k": 66,
+                    "is_small_sample": true,
+                    "unmitigated_tpr_pct": 69.7,
+                    "unmitigated_fpr_pct": 21.3,
+                    "unmitigated_precision_pct": 32.62,
+                    "unmitigated_ci_95_str": "57.8%\u201379.4%",
+                    "mitigated_tpr_pct": 68.18,
+                    "mitigated_fpr_pct": 21.3,
+                    "mitigated_precision_pct": 32.14,
+                    "mitigated_ci_95_str": "56.2%\u201378.2%",
+                    "headline_eligible": false
                 }
             ]
         }
     },
-    "fairness_threshold_used": 0.12,
-    "fairness_status_rule": "Internal review threshold (Pass if TPR gap <= 5.0 pp)",
-    "fairness_disclosure": "Demographic parity evaluated on the held-out test cohort (N=19,870) across all protected groups."
+    "training_strategies_comparison": [
+        {
+            "strategy_name": "Baseline Unweighted XGBoost",
+            "description": "Standard gradient booster without class weights",
+            "val_tuned_threshold": 0.14,
+            "auc_roc": 0.6521,
+            "brier_score": 0.0976,
+            "recall_pct": 43.53,
+            "precision_pct": 18.51,
+            "flag_rate_pct": 26.78,
+            "cauc_tpr_pct": 43.92,
+            "aa_tpr_pct": 41.38,
+            "race_gap_pp": 2.54
+        },
+        {
+            "strategy_name": "Class-Weighted XGBoost",
+            "description": "scale_pos_weight inverse class frequencies on train split",
+            "val_tuned_threshold": 0.55,
+            "auc_roc": 0.6517,
+            "brier_score": 0.2262,
+            "recall_pct": 45.51,
+            "precision_pct": 18.74,
+            "flag_rate_pct": 27.66,
+            "cauc_tpr_pct": 46.11,
+            "aa_tpr_pct": 43.6,
+            "race_gap_pp": 2.51
+        },
+        {
+            "strategy_name": "Resampling (RUS on Train)",
+            "description": "Random under-sampling applied strictly to training split",
+            "val_tuned_threshold": 0.54,
+            "auc_roc": 0.6494,
+            "brier_score": 0.2328,
+            "recall_pct": 51.17,
+            "precision_pct": 17.93,
+            "flag_rate_pct": 32.51,
+            "cauc_tpr_pct": 51.59,
+            "aa_tpr_pct": 48.52,
+            "race_gap_pp": 3.06
+        },
+        {
+            "strategy_name": "Calibrated Ensemble (Deployed)",
+            "description": "Platt-calibrated soft voting ensemble with unified 12% cutoff",
+            "val_tuned_threshold": 0.12,
+            "auc_roc": 0.653,
+            "brier_score": 0.0976,
+            "recall_pct": 57.62,
+            "precision_pct": 17.38,
+            "flag_rate_pct": 37.77,
+            "cauc_tpr_pct": 58.67,
+            "aa_tpr_pct": 53.69,
+            "race_gap_pp": 4.98
+        }
+    ]
 }

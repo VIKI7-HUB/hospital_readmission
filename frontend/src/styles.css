@@ -2346,16 +2346,43 @@ select:focus-visible {
   color: var(--status-online);
   background: var(--risk-low-bg);
   border: 1px solid rgba(16, 185, 129, 0.25);
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: var(--radius-pill);
   vertical-align: middle;
-  line-height: 1;
+  line-height: 1.35;
+  white-space: normal;
 }
 
 .improvement-badge-pill svg {
   display: inline-block;
   flex-shrink: 0;
   margin: 0;
+}
+
+.status-badge-chip.warning {
+  background: var(--risk-med-bg);
+  color: var(--risk-med-text);
+  border: 1px solid var(--risk-med-border);
+}
+
+.status-badge-chip.neutral {
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.small-sample-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--risk-med-text);
+  background: var(--risk-med-bg);
+  border: 1px solid var(--risk-med-border);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
 }
 
 /* "How to read this page" Intro Guide */
@@ -2875,6 +2902,418 @@ select:focus-visible {
   color: var(--text-primary);
   line-height: 1.45;
   margin: 0;
+}
+
+/* Balanced 2-column grid for governance sections */
+.governance-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .governance-grid-2col {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Benchmark Table View Toggle & Dense Data Table */
+.benchmark-toggle-group {
+  display: inline-flex;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  padding: 3px;
+  gap: 4px;
+}
+
+.benchmark-toggle-btn {
+  padding: 6px 14px;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.benchmark-toggle-btn.active {
+  background: var(--brand-indigo);
+  color: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.benchmark-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  background: var(--bg-surface);
+  margin-top: 12px;
+}
+
+.benchmark-dense-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 860px;
+}
+
+.benchmark-dense-table th {
+  background: var(--bg-subtle);
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.benchmark-dense-table th.sortable-th {
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.benchmark-dense-table th.sortable-th:hover {
+  color: var(--text-primary);
+}
+
+.benchmark-dense-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.benchmark-dense-table tr:hover td {
+  background: var(--bg-subtle);
+}
+
+.benchmark-dense-table tr.champion-row {
+  background: linear-gradient(90deg, rgba(79, 70, 229, 0.08) 0%, transparent 100%);
+  font-weight: 600;
+}
+
+.benchmark-dense-table tr.champion-row td {
+  border-bottom-color: rgba(79, 70, 229, 0.25);
+}
+
+/* Model Optimized For Cards */
+.model-optimized-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.model-optimized-card {
+  padding: 12px 14px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.model-optimized-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.model-optimized-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Threshold Trade-off Slider Box */
+.tradeoff-box {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tradeoff-slider-track-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tradeoff-range-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--border-color);
+  outline: none;
+  accent-color: var(--brand-indigo);
+  cursor: pointer;
+}
+
+.tradeoff-presets-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tradeoff-preset-chip {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tradeoff-preset-chip.active {
+  background: var(--brand-indigo-light);
+  border-color: var(--brand-indigo);
+  color: var(--brand-indigo);
+  font-weight: 700;
+}
+
+.tradeoff-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tradeoff-cell {
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tradeoff-cell.tp {
+  border-left: 3px solid #10B981;
+}
+
+.tradeoff-cell.fp {
+  border-left: 3px solid #F59E0B;
+}
+
+.tradeoff-cell.tn {
+  border-left: 3px solid #6366F1;
+}
+
+.tradeoff-cell.fn {
+  border-left: 3px solid #EF4444;
+}
+
+.tradeoff-cell-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.tradeoff-cell-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.tradeoff-cell-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.tradeoff-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tradeoff-metric-pill {
+  padding: 8px 10px;
+  border-radius: var(--radius-control);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tradeoff-metric-lbl {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.tradeoff-metric-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Tier Validation Table */
+.tier-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  background: var(--bg-surface);
+}
+
+.tier-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 520px;
+}
+
+.tier-data-table th {
+  background: var(--bg-subtle);
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.tier-data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+/* Fairness Methodology Banner & Disclosures */
+.fairness-methodology-banner {
+  padding: 14px 16px;
+  border-radius: var(--radius-control);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.fairness-methodology-banner strong {
+  color: var(--text-primary);
+}
+
+.parity-tradeoff-alert {
+  padding: 12px 14px;
+  border-radius: var(--radius-control);
+  background: var(--risk-med-bg);
+  border: 1px solid var(--risk-med-border);
+  color: var(--risk-med-text);
+  font-size: 12px;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Clean General Data Table for Preprocessing & Fairness */
+.clean-data-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  background: var(--bg-surface);
+}
+
+.clean-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 500px;
+}
+
+.clean-data-table th {
+  background: var(--bg-subtle);
+  padding: 8px 12px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.clean-data-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.clean-data-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Feature Importance Odds Ratios List */
+.odds-ratios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.odds-ratio-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  font-size: 12px;
+}
+
+.odds-ratio-factor {
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.odds-ratio-val {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+}
+
+.odds-ratio-val.risk {
+  background: var(--risk-high-bg);
+  color: var(--risk-high-text);
+  border: 1px solid var(--risk-high-border);
+}
+
+.odds-ratio-val.protective {
+  background: var(--risk-low-bg);
+  color: var(--status-online);
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 /* ==========================================================================

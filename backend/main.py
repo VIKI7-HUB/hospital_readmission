@@ -51,6 +51,7 @@ def load_assets() -> dict:
         "worklist": PROCESSED_DIR / "worklist_precomputed.joblib",
         "benchmarks": MODELS_DIR / "model_comparison_results.csv",
         "fairness": FAIRNESS_DIR / "mitigation_improvement_summary.json",
+        "gov_full": FAIRNESS_DIR / "governance_full_artifacts.json",
     }
     missing = [str(path.relative_to(BASE_DIR)) for path in required.values() if not path.is_file()]
     if missing:
@@ -67,6 +68,11 @@ def load_assets() -> dict:
 
     with required["fairness"].open(encoding="utf-8") as file:
         fairness = json.load(file)
+
+    gov_full = {}
+    if required["gov_full"].is_file():
+        with required["gov_full"].open(encoding="utf-8") as file:
+            gov_full = json.load(file)
 
     subgroups = {}
     for name, file_name in [
@@ -86,6 +92,7 @@ def load_assets() -> dict:
         "benchmarks": benchmarks,
         "fairness": fairness,
         "subgroups": subgroups,
+        "gov_full": gov_full,
     }
 
 
@@ -335,8 +342,15 @@ def predict(request: PredictionRequest) -> dict:
 @app.get("/api/governance")
 def get_governance() -> dict:
     assets = load_assets()
+    gov_full = assets.get("gov_full", {})
     return {
-        "models": assets["benchmarks"],
+        "models": gov_full.get("models_common_cutoff", assets["benchmarks"]),
+        "models_common_cutoff": gov_full.get("models_common_cutoff", assets["benchmarks"]),
+        "models_tuned_cutoff": gov_full.get("models_tuned_cutoff", assets["benchmarks"]),
+        "tier_validation": gov_full.get("tier_validation", []),
+        "threshold_tradeoff": gov_full.get("threshold_tradeoff", []),
+        "feature_importance": gov_full.get("feature_importance", {}),
+        "data_preprocessing": gov_full.get("data_preprocessing", {}),
         "fairness": assets["fairness"],
         "subgroups": assets.get("subgroups", {}),
         "selected_model": "Calibrated Ensemble",
