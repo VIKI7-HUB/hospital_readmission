@@ -1,68 +1,166 @@
 {
-    "race_clean": {
-        "baseline": {
-            "demographic_parity_ratio": 0.598875738119182,
-            "equalized_odds_tpr_ratio": 0.811965811965812,
-            "equalized_odds_tpr_diff": 0.11282051282051281
+    "training_strategies_comparison": {
+        "baseline_unweighted": {
+            "description": "Standard unweighted training without class adjustment",
+            "auc_roc": 0.6521,
+            "recall": 57.53,
+            "race_tpr_gap_pp": 20.52
         },
-        "mitigated": {
-            "demographic_parity_ratio": 0.6937838423218541,
-            "equalized_odds_tpr_ratio": 0.9448332647179908,
-            "equalized_odds_tpr_diff": 0.03089337175792517
+        "class_weighted": {
+            "description": "Cost-sensitive training with scale_pos_weight inverse class frequencies",
+            "auc_roc": 0.6517,
+            "recall": 99.91
         },
-        "improvement_deltas": {
-            "tpr_disparity_reduction_absolute": 0.08192714106258764,
-            "equalized_odds_ratio_gain": 0.13286745275217882
+        "training_downsampling": {
+            "description": "Random under-sampling of majority class applied strictly to training split",
+            "auc_roc": 0.6494,
+            "recall": 99.96
         },
-        "group_thresholds": {
-            "Caucasian": 0.132,
-            "AfricanAmerican": 0.122,
-            "Other": 0.102,
-            "Asian": 0.098,
-            "Other/Missing": 0.116,
-            "Hispanic": 0.14
+        "selected_calibrated_ensemble": {
+            "description": "Soft-voting ensemble of calibrated gradient boosters at unified threshold",
+            "auc_roc": 0.653,
+            "recall": 57.62,
+            "race_tpr_gap_pp": 21.54
         }
     },
-    "age_group": {
-        "baseline": {
-            "demographic_parity_ratio": 0.6983895131301643,
-            "equalized_odds_tpr_ratio": 0.7881835323695788,
-            "equalized_odds_tpr_diff": 0.138001638001638
+    "demographic_audits": {
+        "race_clean": {
+            "attribute": "race_clean",
+            "baseline_tpr_gap_pp": 20.52,
+            "mitigated_tpr_gap_pp": 21.54,
+            "gap_reduction_pct": -5.0,
+            "reduction_badge": "Gap reduced -5% vs. unmitigated model (20.52 pp \u2192 21.54 pp)",
+            "subgroups": [
+                {
+                    "subgroup": "AfricanAmerican",
+                    "sample_size_n": 3716,
+                    "baseline_tpr_pct": 52.71,
+                    "ensemble_tpr_pct": 53.69,
+                    "ensemble_fpr_pct": 34.86,
+                    "ensemble_precision_pct": 15.89,
+                    "ci_95_str": "48.8%\u201358.5%"
+                },
+                {
+                    "subgroup": "Asian",
+                    "sample_size_n": 124,
+                    "baseline_tpr_pct": 46.15,
+                    "ensemble_tpr_pct": 38.46,
+                    "ensemble_fpr_pct": 24.32,
+                    "ensemble_precision_pct": 15.62,
+                    "ci_95_str": "17.7%\u201364.5%"
+                },
+                {
+                    "subgroup": "Caucasian",
+                    "sample_size_n": 14874,
+                    "baseline_tpr_pct": 58.56,
+                    "ensemble_tpr_pct": 58.67,
+                    "ensemble_fpr_pct": 36.16,
+                    "ensemble_precision_pct": 17.65,
+                    "ci_95_str": "56.3%\u201361.0%"
+                },
+                {
+                    "subgroup": "Hispanic",
+                    "sample_size_n": 405,
+                    "baseline_tpr_pct": 66.67,
+                    "ensemble_tpr_pct": 60.0,
+                    "ensemble_fpr_pct": 26.94,
+                    "ensemble_precision_pct": 21.77,
+                    "ci_95_str": "45.5%\u201373.0%"
+                },
+                {
+                    "subgroup": "Other",
+                    "sample_size_n": 308,
+                    "baseline_tpr_pct": 60.0,
+                    "ensemble_tpr_pct": 60.0,
+                    "ensemble_fpr_pct": 26.15,
+                    "ensemble_precision_pct": 16.85,
+                    "ci_95_str": "40.7%\u201376.6%"
+                },
+                {
+                    "subgroup": "Other/Unknown",
+                    "sample_size_n": 443,
+                    "baseline_tpr_pct": 53.85,
+                    "ensemble_tpr_pct": 53.85,
+                    "ensemble_fpr_pct": 24.26,
+                    "ensemble_precision_pct": 17.65,
+                    "ci_95_str": "38.6%\u201368.4%"
+                }
+            ]
         },
-        "mitigated": {
-            "demographic_parity_ratio": 0.49319912066818844,
-            "equalized_odds_tpr_ratio": 0.9885439763488544,
-            "equalized_odds_tpr_diff": 0.006145567827810838
+        "gender_clean": {
+            "attribute": "gender_clean",
+            "baseline_tpr_gap_pp": 3.7,
+            "mitigated_tpr_gap_pp": 3.33,
+            "gap_reduction_pct": 10.0,
+            "reduction_badge": "Gap reduced 10% vs. unmitigated model (3.7 pp \u2192 3.33 pp)",
+            "subgroups": [
+                {
+                    "subgroup": "Female",
+                    "sample_size_n": 10615,
+                    "baseline_tpr_pct": 59.21,
+                    "ensemble_tpr_pct": 59.13,
+                    "ensemble_fpr_pct": 36.45,
+                    "ensemble_precision_pct": 17.64,
+                    "ci_95_str": "56.4%\u201361.8%"
+                },
+                {
+                    "subgroup": "Male",
+                    "sample_size_n": 9254,
+                    "baseline_tpr_pct": 55.51,
+                    "ensemble_tpr_pct": 55.8,
+                    "ensemble_fpr_pct": 33.81,
+                    "ensemble_precision_pct": 17.05,
+                    "ci_95_str": "52.7%\u201358.8%"
+                },
+                {
+                    "subgroup": "Other/Unknown",
+                    "sample_size_n": 1,
+                    "baseline_tpr_pct": 0.0,
+                    "ensemble_tpr_pct": 0.0,
+                    "ensemble_fpr_pct": 0.0,
+                    "ensemble_precision_pct": 0.0,
+                    "ci_95_str": "0.0%\u20130.0%"
+                }
+            ]
         },
-        "improvement_deltas": {
-            "tpr_disparity_reduction_absolute": 0.13185607017382717,
-            "equalized_odds_ratio_gain": 0.20036044397927555
-        },
-        "group_thresholds": {
-            "<30 Years": 0.192,
-            "30-60 Years": 0.122,
-            "60+ Years": 0.13
+        "age_group": {
+            "attribute": "age_group",
+            "baseline_tpr_gap_pp": 14.46,
+            "mitigated_tpr_gap_pp": 15.31,
+            "gap_reduction_pct": -5.9,
+            "reduction_badge": "Gap reduced -6% vs. unmitigated model (14.46 pp \u2192 15.31 pp)",
+            "subgroups": [
+                {
+                    "subgroup": "30-60 Years",
+                    "sample_size_n": 6131,
+                    "baseline_tpr_pct": 55.24,
+                    "ensemble_tpr_pct": 54.39,
+                    "ensemble_fpr_pct": 25.96,
+                    "ensemble_precision_pct": 18.3,
+                    "ci_95_str": "50.4%\u201358.4%"
+                },
+                {
+                    "subgroup": "60+ Years",
+                    "sample_size_n": 13227,
+                    "baseline_tpr_pct": 57.88,
+                    "ensemble_tpr_pct": 58.32,
+                    "ensemble_fpr_pct": 40.17,
+                    "ensemble_precision_pct": 16.7,
+                    "ci_95_str": "55.9%\u201360.7%"
+                },
+                {
+                    "subgroup": "<30 Years",
+                    "sample_size_n": 512,
+                    "baseline_tpr_pct": 69.7,
+                    "ensemble_tpr_pct": 69.7,
+                    "ensemble_fpr_pct": 21.3,
+                    "ensemble_precision_pct": 32.62,
+                    "ci_95_str": "57.8%\u201379.4%"
+                }
+            ]
         }
     },
-    "gender_clean": {
-        "baseline": {
-            "demographic_parity_ratio": 0.8767702807090418,
-            "equalized_odds_tpr_ratio": 0.9221634324372441,
-            "equalized_odds_tpr_diff": 0.04306789077583828
-        },
-        "mitigated": {
-            "demographic_parity_ratio": 0.9757951559187266,
-            "equalized_odds_tpr_ratio": 0.9964845675606079,
-            "equalized_odds_tpr_diff": 0.001882658891209199
-        },
-        "improvement_deltas": {
-            "tpr_disparity_reduction_absolute": 0.04118523188462908,
-            "equalized_odds_ratio_gain": 0.0743211351233638
-        },
-        "group_thresholds": {
-            "Female": 0.132,
-            "Male": 0.124,
-            "Other/Unknown": 0.13
-        }
-    }
+    "fairness_threshold_used": 0.12,
+    "fairness_status_rule": "Internal review threshold (Pass if TPR gap <= 5.0 pp)",
+    "fairness_disclosure": "Demographic parity evaluated on the held-out test cohort (N=19,870) across all protected groups."
 }

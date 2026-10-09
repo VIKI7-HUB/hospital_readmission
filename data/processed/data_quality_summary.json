@@ -1,155 +1,74 @@
 {
     "total_raw_encounters": 101766,
+    "terminal_encounters_excluded": 2423,
     "total_clean_encounters": 99343,
-    "terminal_encounters_removed": 2423,
     "unique_patients": 69990,
-    "split_strategy": "Patient-Grouped Stratified 5-Fold Split (StratifiedGroupKFold on patient_nbr; 0% train/test patient leakage)",
     "target_distribution": {
-        "negative_count (no readmit or >30d)": 88029,
-        "positive_count (early readmit <30d)": 11314,
-        "prevalence_percentage": 11.388824577474004
+        "negative_count": 88029,
+        "positive_count": 11314,
+        "prevalence_percentage": 11.39
     },
-    "missing_value_audit": {
-        "race": {
-            "missing_count": 2273,
-            "missing_percentage": 2.23,
-            "action_taken": "Explicit Category"
+    "split_strategy": "Patient-Grouped Stratified Split (70% Train, 10% Val, 20% Test; 0% leakage)",
+    "split_sizes": {
+        "train": {
+            "encounters": 69538,
+            "percentage": 70.0
         },
-        "weight": {
-            "missing_count": 98569,
-            "missing_percentage": 96.86,
-            "action_taken": "Dropped"
+        "val": {
+            "encounters": 9935,
+            "percentage": 10.0
         },
-        "payer_code": {
-            "missing_count": 40256,
-            "missing_percentage": 39.56,
-            "action_taken": "Target Encoded"
-        },
-        "medical_specialty": {
-            "missing_count": 49949,
-            "missing_percentage": 49.08,
-            "action_taken": "Target Encoded"
-        },
-        "diag_1": {
-            "missing_count": 21,
-            "missing_percentage": 0.02,
-            "action_taken": "Explicit Category"
-        },
-        "diag_2": {
-            "missing_count": 358,
-            "missing_percentage": 0.35,
-            "action_taken": "Explicit Category"
-        },
-        "diag_3": {
-            "missing_count": 1423,
-            "missing_percentage": 1.4,
-            "action_taken": "Explicit Category"
-        },
-        "max_glu_serum": {
-            "missing_count": 96420,
-            "missing_percentage": 94.75,
-            "action_taken": "Explicit Category"
-        },
-        "A1Cresult": {
-            "missing_count": 84748,
-            "missing_percentage": 83.28,
-            "action_taken": "Explicit Category"
+        "test": {
+            "encounters": 19870,
+            "percentage": 20.0
         }
     },
+    "features_kept": [
+        "number_inpatient",
+        "number_outpatient",
+        "number_emergency",
+        "time_in_hospital",
+        "num_lab_procedures",
+        "num_medications",
+        "diag_1_group",
+        "discharge_destination",
+        "insulin_regimen",
+        "medication_change",
+        "age_group",
+        "gender_clean",
+        "race_clean"
+    ],
+    "features_excluded_count": 13,
     "outlier_winsorization_caps": {
+        "number_inpatient": {
+            "raw_max": 21.0,
+            "cap_99th": 6.0,
+            "post_cap_max": 6.0
+        },
         "number_outpatient": {
             "raw_max": 42.0,
-            "99th_percentile_cap": 5.0,
+            "cap_99th": 5.0,
             "post_cap_max": 5.0
         },
         "number_emergency": {
             "raw_max": 76.0,
-            "99th_percentile_cap": 3.0,
+            "cap_99th": 3.0,
             "post_cap_max": 3.0
         },
-        "number_inpatient": {
-            "raw_max": 21.0,
-            "99th_percentile_cap": 6.0,
-            "post_cap_max": 6.0
+        "time_in_hospital": {
+            "raw_max": 14.0,
+            "cap_99th": 14.0,
+            "post_cap_max": 14.0
         },
-        "total_visits": {
-            "raw_max": 80.0,
-            "99th_percentile_cap": 10.0,
-            "post_cap_max": 10.0
+        "num_lab_procedures": {
+            "raw_max": 132.0,
+            "cap_99th": 84.0,
+            "post_cap_max": 84.0
+        },
+        "num_medications": {
+            "raw_max": 81.0,
+            "cap_99th": 43.0,
+            "post_cap_max": 43.0
         }
-    },
-    "feature_engineering": {
-        "numerical_features": [
-            "time_in_hospital",
-            "num_lab_procedures",
-            "num_procedures",
-            "num_medications",
-            "number_outpatient",
-            "number_emergency",
-            "number_inpatient",
-            "number_diagnoses",
-            "total_visits",
-            "lab_intensity_per_day",
-            "num_med_changes",
-            "num_active_meds",
-            "polypharmacy",
-            "high_prior_utilization",
-            "has_diabetes_diag",
-            "comorbidity_count",
-            "inpatient_x_stay",
-            "age_midpoint",
-            "age_x_polypharmacy",
-            "a1c_x_med_change",
-            "er_x_inpatient"
-        ],
-        "categorical_features": [
-            "race_clean",
-            "gender_clean",
-            "age",
-            "admission_type_cat",
-            "discharge_disp_cat",
-            "admission_source_cat",
-            "diag_1_cat",
-            "diag_2_cat",
-            "diag_3_cat",
-            "max_glu_serum",
-            "A1Cresult",
-            "change",
-            "diabetesMed",
-            "metformin",
-            "repaglinide",
-            "nateglinide",
-            "chlorpropamide",
-            "glimepiride",
-            "acetohexamide",
-            "glipizide",
-            "glimepiride-pioglitazone",
-            "metformin-rosiglitazone",
-            "metformin-pioglitazone",
-            "glyburide",
-            "tolbutamide",
-            "pioglitazone",
-            "rosiglitazone",
-            "acarbose",
-            "miglitol",
-            "troglitazone",
-            "tolazamide",
-            "insulin",
-            "glyburide-metformin"
-        ],
-        "target_encoded_features": [
-            "medical_specialty",
-            "payer_code"
-        ],
-        "total_feature_count": 56
-    },
-    "excluded_features_rationale": {
-        "terminal_discharge_dispositions": "Excludes IDs (11, 13, 14, 19, 20, 21) corresponding to expired or hospice discharges who cannot experience 30-day readmissions",
-        "encounter_id": "Administrative identifier dropped to prevent memorization",
-        "patient_nbr": "Used exclusively as group clustering identifier in StratifiedGroupKFold to prevent train-test contamination",
-        "weight": "Dropped due to >96% missingness across participating clinical facilities",
-        "readmitted": "Raw target string mapped to binary 30-day indicator (<30d vs else)",
-        "examide": "Dropped due to zero variance across all encounters",
-        "citogliptin": "Dropped due to zero variance across all encounters"
     }
 }

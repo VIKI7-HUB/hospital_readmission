@@ -1,39 +1,23 @@
 import os
 import json
-import pandas as pd
-import numpy as np
 import joblib
-from sklearn.model_selection import StratifiedGroupKFold, KFold
-from sklearn.preprocessing import StandardScaler, OneHotEncoder, TargetEncoder
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import StratifiedGroupKFold
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 
-# Define paths
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, "data")
 PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
 
-MEDICATION_COLS = [
-    'metformin', 'repaglinide', 'nateglinide', 'chlorpropamide', 'glimepiride',
-    'acetohexamide', 'glipizide', 'gliquidone', 'glimepiride-pioglitazone',
-    'metformin-rosiglitazone', 'metformin-pioglitazone', 'glyburide', 'tolbutamide',
-    'pioglitazone', 'rosiglitazone', 'acarbose', 'miglitol', 'troglitazone',
-    'tolazamide', 'examide', 'citogliptin', 'insulin', 'glyburide-metformin'
-]
-
-AGE_MIDPOINT_MAP = {
-    '[0-10)': 5.0, '[10-20)': 15.0, '[20-30)': 25.0, '[30-40)': 35.0,
-    '[40-50)': 45.0, '[50-60)': 55.0, '[60-70)': 65.0, '[70-80)': 75.0,
-    '[80-90)': 85.0, '[90-100)': 95.0
-}
-
-# Discharge disposition IDs indicating death or hospice (ineligible for readmission)
+# Terminal discharge disposition IDs (death or hospice)
 TERMINAL_DISCHARGE_IDS = {11, 13, 14, 19, 20, 21, '11', '13', '14', '19', '20', '21'}
 
+# Grouping high-cardinality ICD-9 codes into standardized clinical disease categories
 def map_icd9_to_category(code):
-    """
-    Maps high-cardinality ICD-9 diagnosis codes into standardized clinical disease categories.
-    """
     if pd.isna(code) or str(code).strip() in ['?', '', 'None', 'nan']:
         return 'Missing'
     
@@ -66,8 +50,7 @@ def map_icd9_to_category(code):
         return 'Other'
 
 def group_age(age_str):
-    """Harmonizes granular 10-year age brackets into clinical disparity cohorts."""
-    if pd.isna(age_str) or age_str == '?':
+    if pd.isna(age_str) or str(age_str).strip() in ['?', '', 'None', 'nan']:
         return 'Unknown'
     if age_str in ['[0-10)', '[10-20)', '[20-30)']:
         return '<30 Years'
@@ -76,23 +59,7 @@ def group_age(age_str):
     else:
         return '60+ Years'
 
-def map_admission_type(val):
-    """Groups admission types into clinical operational categories."""
-    try:
-        v = int(val)
-    except (ValueError, TypeError):
-        return 'Other_Unknown'
-    if v in [1, 2, 7]:
-        return 'Emergency_Urgent'
-    elif v == 3:
-        return 'Elective'
-    elif v == 4:
-        return 'Newborn'
-    else:
-        return 'Other_Unknown'
-
 def map_discharge_disposition(val):
-    """Groups discharge dispositions into post-acute recovery pathways (excluding terminal)."""
     try:
         v = int(val)
     except (ValueError, TypeError):
@@ -100,367 +67,190 @@ def map_discharge_disposition(val):
     if v in [1, 6, 8]:
         return 'Home'
     elif v in [2, 3, 4, 5, 9, 10, 15, 22, 23, 24, 27, 28, 29, 30]:
-        return 'Transfer_Facility'
+        return 'Facility_Rehab'
     elif v == 7:
         return 'Left_AMA'
-    elif v in [12, 16, 17]:
-        return 'Outpatient_Referred'
     else:
         return 'Other_Unknown'
 
-def map_admission_source(val):
-    """Groups admission sources into intake referral vectors."""
-    try:
-        v = int(val)
-    except (ValueError, TypeError):
-        return 'Other_Unknown'
-    if v == 7:
-        return 'Emergency_Room'
-    elif v in [1, 2, 3]:
-        return 'Referral'
-    elif v in [4, 5, 6, 10, 18, 22, 25, 26]:
-        return 'Transfer'
-    else:
-        return 'Other_Unknown'
-
-def check_is_diabetes_code(val):
-    """Helper to detect whether an ICD-9 diagnosis is diabetes-related (250.xx)."""
-    if pd.isna(val) or str(val).strip() in ['?', '', 'None', 'nan']:
-        return False
-    s = str(val).strip()
-    if s.startswith('250'):
-        return True
-    try:
-        if np.floor(float(s)) == 250:
-            return True
-    except ValueError:
-        pass
-    return False
-
-def count_medication_adjustments(row, med_cols):
-    """Counts dose adjustments (Up/Down) across antidiabetic medications."""
-    changes = 0
-    for col in med_cols:
-        val = str(row.get(col, 'No'))
-        if val in ['Up', 'Down']:
-            changes += 1
-    return changes
-
-def count_active_medications(row, med_cols):
-    """Counts active antidiabetic prescriptions (Steady/Up/Down)."""
-    active = 0
-    for col in med_cols:
-        val = str(row.get(col, 'No'))
-        if val in ['Steady', 'Up', 'Down']:
-            active += 1
-    return active
-
-def engineer_features(df_in):
-    """
-    Applies comprehensive feature engineering to a dataframe (or single-row dataframe).
-    Creates clinical categories, comorbidities, interactions, and utilization metrics.
-    """
-    df = df_in.copy()
-    
-    # 1. Demographic mappings
-    if 'age' in df.columns:
-        if 'age_group' not in df.columns:
-            df['age_group'] = df['age'].apply(group_age)
-        if 'age_midpoint' not in df.columns:
-            df['age_midpoint'] = df['age'].map(AGE_MIDPOINT_MAP).fillna(65.0)
-    else:
-        if 'age_group' not in df.columns:
-            df['age_group'] = '60+ Years'
-        if 'age_midpoint' not in df.columns:
-            df['age_midpoint'] = 65.0
-        
-    if 'race' in df.columns:
-        df['race_clean'] = df['race'].fillna('Other/Missing')
-    elif 'race_clean' not in df.columns:
-        df['race_clean'] = 'Other/Missing'
-        
-    if 'gender' in df.columns:
-        df['gender_clean'] = df['gender'].apply(lambda x: x if x in ['Male', 'Female'] else 'Other/Unknown')
-    elif 'gender_clean' not in df.columns:
-        df['gender_clean'] = 'Other/Unknown'
-    
-    # 2. Administrative clinical categorization
-    if 'admission_type_id' in df.columns:
-        df['admission_type_cat'] = df['admission_type_id'].apply(map_admission_type)
-    elif 'admission_type_cat' not in df.columns:
-        df['admission_type_cat'] = 'Emergency_Urgent'
-        
-    if 'discharge_disposition_id' in df.columns:
-        df['discharge_disp_cat'] = df['discharge_disposition_id'].apply(map_discharge_disposition)
-    elif 'discharge_disp_cat' not in df.columns:
-        df['discharge_disp_cat'] = 'Home'
-        
-    if 'admission_source_id' in df.columns:
-        df['admission_source_cat'] = df['admission_source_id'].apply(map_admission_source)
-    elif 'admission_source_cat' not in df.columns:
-        df['admission_source_cat'] = 'Emergency_Room'
-    
-    # 3. Numeric conversions & healthcare utilization
-    for col in ['number_outpatient', 'number_emergency', 'number_inpatient', 'time_in_hospital',
-                'num_lab_procedures', 'num_procedures', 'num_medications', 'number_diagnoses']:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
-        else:
-            df[col] = 0
-            
-    df['total_visits'] = df['number_outpatient'] + df['number_emergency'] + df['number_inpatient']
-    df['high_prior_utilization'] = ((df['number_inpatient'] > 0) | (df['number_emergency'] > 0)).astype(int)
-    df['lab_intensity_per_day'] = df['num_lab_procedures'] / (df['time_in_hospital'] + 0.1)
-    df['polypharmacy'] = (df['num_medications'] >= 10).astype(int)
-    
-    # 4. Medication changes and active med counts
-    med_cols_present = [c for c in MEDICATION_COLS if c in df.columns]
-    if 'num_med_changes' not in df.columns or len(med_cols_present) > 0:
-        df['num_med_changes'] = df.apply(lambda r: count_medication_adjustments(r, med_cols_present), axis=1)
-    if 'num_active_meds' not in df.columns or len(med_cols_present) > 0:
-        df['num_active_meds'] = df.apply(lambda r: count_active_medications(r, med_cols_present), axis=1)
-    
-    # 5. ICD-9 Diagnoses & Comorbidity Engineering
-    if 'diag_1' in df.columns:
-        df['diag_1_cat'] = df['diag_1'].apply(map_icd9_to_category)
-    elif 'diag_1_cat' not in df.columns:
-        df['diag_1_cat'] = 'Circulatory'
-        
-    if 'diag_2' in df.columns:
-        df['diag_2_cat'] = df['diag_2'].apply(map_icd9_to_category)
-    elif 'diag_2_cat' not in df.columns:
-        df['diag_2_cat'] = 'Other'
-        
-    if 'diag_3' in df.columns:
-        df['diag_3_cat'] = df['diag_3'].apply(map_icd9_to_category)
-    elif 'diag_3_cat' not in df.columns:
-        df['diag_3_cat'] = 'Other'
-    
-    # Cross-diagnosis diabetes indicator
-    if any(c in df.columns for c in ['diag_1', 'diag_2', 'diag_3']):
-        d1 = df['diag_1'] if 'diag_1' in df.columns else pd.Series([np.nan]*len(df))
-        d2 = df['diag_2'] if 'diag_2' in df.columns else pd.Series([np.nan]*len(df))
-        d3 = df['diag_3'] if 'diag_3' in df.columns else pd.Series([np.nan]*len(df))
-        has_dm = []
-        for v1, v2, v3 in zip(d1, d2, d3):
-            is_dm = int(check_is_diabetes_code(v1) or check_is_diabetes_code(v2) or check_is_diabetes_code(v3))
-            has_dm.append(is_dm)
-        df['has_diabetes_diag'] = has_dm
-    else:
-        existing_has_dm = df['has_diabetes_diag'] if 'has_diabetes_diag' in df.columns else 0
-        df['has_diabetes_diag'] = (
-            (df['diag_1_cat'] == 'Diabetes') | 
-            (df['diag_2_cat'] == 'Diabetes') | 
-            (df['diag_3_cat'] == 'Diabetes') | 
-            (existing_has_dm == 1)
-        ).astype(int)
-    
-    # Comorbidity count across organ systems
-    high_risk_systems = {'Circulatory', 'Respiratory', 'Digestive', 'Diabetes', 'Genitourinary', 'Musculoskeletal', 'Neoplasms'}
-    comorbidities = []
-    for c1, c2, c3 in zip(df['diag_1_cat'], df['diag_2_cat'], df['diag_3_cat']):
-        matched = {c1, c2, c3}.intersection(high_risk_systems)
-        comorbidities.append(len(matched))
-    df['comorbidity_count'] = comorbidities
-    
-    # 6. Clinical Interaction Features
-    df['inpatient_x_stay'] = df['number_inpatient'] * df['time_in_hospital']
-    df['age_x_polypharmacy'] = df['age_midpoint'] * df['polypharmacy']
-    
-    if 'A1Cresult' in df.columns:
-        df['A1Cresult'] = df['A1Cresult'].replace({'None': 'Missing', 'none': 'Missing', 'nan': 'Missing', '': 'Missing'}).fillna('Missing').astype(str)
-    else:
-        df['A1Cresult'] = 'Missing'
-        
-    df['a1c_high'] = df['A1Cresult'].isin(['>8', '>7']).astype(int)
-    df['a1c_x_med_change'] = df['a1c_high'] * df['num_med_changes']
-    df['er_x_inpatient'] = df['number_emergency'] * df['number_inpatient']
-    
-    # High-cardinality handling defaults
-    if 'medical_specialty' in df.columns:
-        df['medical_specialty'] = df['medical_specialty'].fillna('Missing').astype(str)
-    else:
-        df['medical_specialty'] = 'Missing'
-        
-    if 'payer_code' in df.columns:
-        df['payer_code'] = df['payer_code'].fillna('Missing').astype(str)
-    else:
-        df['payer_code'] = 'Missing'
-        
-    return df
-
-def generate_data_quality_summary(df_raw, df_clean, missing_stats, winsor_stats, num_cols, cat_cols, target_cols):
-    """Generates structured JSON documenting KPI 5 compliance and leakage fixes."""
-    summary = {
-        'total_raw_encounters': int(len(df_raw)),
-        'total_clean_encounters': int(len(df_clean)),
-        'terminal_encounters_removed': int(len(df_raw) - len(df_clean)),
-        'unique_patients': int(df_clean['patient_nbr'].nunique()) if 'patient_nbr' in df_clean.columns else 0,
-        'split_strategy': 'Patient-Grouped Stratified 5-Fold Split (StratifiedGroupKFold on patient_nbr; 0% train/test patient leakage)',
-        'target_distribution': {
-            'negative_count (no readmit or >30d)': int((df_clean['target'] == 0).sum()),
-            'positive_count (early readmit <30d)': int((df_clean['target'] == 1).sum()),
-            'prevalence_percentage': float(df_clean['target'].mean() * 100)
+def get_feature_exclusion_rationale():
+    """Returns structured table of excluded features with explicit written rationales."""
+    return [
+        {
+            "feature": "weight",
+            "category": "Clinical Measurement",
+            "missingness": "96.86%",
+            "reason": "High missingness across almost all participating clinical centers (>96% missing); unreliable across sites."
         },
-        'missing_value_audit': missing_stats,
-        'outlier_winsorization_caps': winsor_stats,
-        'feature_engineering': {
-            'numerical_features': num_cols,
-            'categorical_features': cat_cols,
-            'target_encoded_features': target_cols,
-            'total_feature_count': len(num_cols) + len(cat_cols) + len(target_cols)
+        {
+            "feature": "payer_code",
+            "category": "Administrative / Billing",
+            "missingness": "39.56%",
+            "reason": "Billing artifact without direct pathophysiological relationship to acute readmission risk; high missingness."
         },
-        'excluded_features_rationale': {
-            'terminal_discharge_dispositions': 'Excludes IDs (11, 13, 14, 19, 20, 21) corresponding to expired or hospice discharges who cannot experience 30-day readmissions',
-            'encounter_id': 'Administrative identifier dropped to prevent memorization',
-            'patient_nbr': 'Used exclusively as group clustering identifier in StratifiedGroupKFold to prevent train-test contamination',
-            'weight': 'Dropped due to >96% missingness across participating clinical facilities',
-            'readmitted': 'Raw target string mapped to binary 30-day indicator (<30d vs else)',
-            'examide': 'Dropped due to zero variance across all encounters',
-            'citogliptin': 'Dropped due to zero variance across all encounters'
+        {
+            "feature": "medical_specialty",
+            "category": "Administrative / Provider",
+            "missingness": "49.08%",
+            "reason": "High missingness and high cardinality (73 categories) causing severe risk of overfitting on sparse specialties."
+        },
+        {
+            "feature": "diag_2, diag_3",
+            "category": "Secondary Diagnoses",
+            "missingness": "0.35% - 1.40%",
+            "reason": "Excluded to maintain strict clinical parsimony around the principal admitting diagnosis (diag_1) and avoid multicollinearity."
+        },
+        {
+            "feature": "admission_type_id, admission_source_id",
+            "category": "Intake Administrative Channels",
+            "missingness": "0.00%",
+            "reason": "Intake channel categories provide redundant signals already captured by prior utilization counts and primary diagnosis."
+        },
+        {
+            "feature": "num_procedures",
+            "category": "Inpatient Utilization",
+            "missingness": "0.00%",
+            "reason": "Excluded to maintain parsimony; inpatient intervention intensity is already represented by time_in_hospital and num_lab_procedures."
+        },
+        {
+            "feature": "number_diagnoses",
+            "category": "Clinical Count",
+            "missingness": "0.00%",
+            "reason": "Redundant comorbidity signal that tracks closely with primary diagnosis category and length of stay."
+        },
+        {
+            "feature": "max_glu_serum, A1Cresult",
+            "category": "Laboratory Testing",
+            "missingness": "83.28% - 94.75%",
+            "reason": "Extreme unmeasured rate (>83-94% not ordered); testing frequency varies by admitting specialty rather than acute 30-day recidivism."
+        },
+        {
+            "feature": "diabetesMed",
+            "category": "Medication Flag",
+            "missingness": "0.00%",
+            "reason": "Highly redundant with insulin regimen and the medication-change (change) indicator."
+        },
+        {
+            "feature": "22 individual antidiabetic oral medications (metformin, glipizide, glyburide, pioglitazone, etc.)",
+            "category": "Specific Pharmacology",
+            "missingness": "0.00%",
+            "reason": "Extreme sparsity across individual chemical agents (many <0.1% usage), zero variance for examide/citoglipton, and therapeutic volatility is already captured by insulin and change."
+        },
+        {
+            "feature": "encounter_id",
+            "category": "Identifier",
+            "missingness": "0.00%",
+            "reason": "Administrative surrogate key; dropped to prevent memorization and data leakage."
+        },
+        {
+            "feature": "patient_nbr",
+            "category": "Cluster Key",
+            "missingness": "0.00%",
+            "reason": "Used exclusively for leak-free patient-grouped train/val/test splitting; removed from model input space."
+        },
+        {
+            "feature": "terminal_discharge_dispositions (IDs 11, 13, 14, 19, 20, 21)",
+            "category": "Clinical Exclusions",
+            "missingness": "0.00%",
+            "reason": "Patients discharged to hospice or who expired in hospital cannot experience 30-day readmissions; excluded to prevent target contamination."
         }
-    }
-    
-    summary_path = os.path.join(PROCESSED_DIR, "data_quality_summary.json")
-    with open(summary_path, 'w') as f:
-        json.dump(summary, f, indent=4)
-    print(f"[+] Saved updated Data Quality & Governance Summary to {summary_path}")
-    return summary
+    ]
 
-def clean_and_preprocess_data(raw_csv_path, target_col='readmitted_30d'):
-    """
-    Executes leak-free preprocessing:
-    1. Filters out terminal/hospice discharges.
-    2. Builds clinical and interaction features.
-    3. Winsorizes healthcare utilization counts.
-    4. Splits using StratifiedGroupKFold on patient_nbr (zero patient leakage).
-    5. Fits Scikit-Learn pipeline (StandardScaler + TargetEncoder + OneHotEncoder).
-    6. Saves Parquet, CSV, preprocessor pipeline, and train_test split joblib artifacts.
-    """
+def clean_and_prepare_dataset(raw_csv_path):
     os.makedirs(PROCESSED_DIR, exist_ok=True)
     print(f"[*] Reading raw data from {raw_csv_path}...")
     df_raw = pd.read_csv(raw_csv_path)
-    print(f"[*] Raw dataset shape: {df_raw.shape}")
+    total_raw = len(df_raw)
     
-    # Audit raw missingness
-    raw_missing_counts = ((df_raw == '?') | (df_raw.isna())).sum()
-    raw_missing_pcts = (raw_missing_counts / len(df_raw)) * 100
-    missing_stats = {}
-    for col in df_raw.columns:
-        if raw_missing_counts[col] > 0:
-            missing_stats[col] = {
-                'missing_count': int(raw_missing_counts[col]),
-                'missing_percentage': round(float(raw_missing_pcts[col]), 2),
-                'action_taken': 'Dropped' if col == 'weight' else ('Target Encoded' if col in ['medical_specialty', 'payer_code'] else 'Explicit Category')
-            }
-            
+    # 1. Target Definition: readmitted <30 days = 1, else 0
     df = df_raw.copy()
-    df = df.replace('?', np.nan)
+    df['target'] = (df['readmitted'] == '<30').astype(int)
     
-    # 1. Exclude terminal / hospice discharges (cannot be readmitted)
-    raw_len = len(df)
+    # 2. Exclude terminal / hospice discharges
     dead_mask = df['discharge_disposition_id'].astype(str).isin(TERMINAL_DISCHARGE_IDS)
+    terminal_excluded = int(dead_mask.sum())
     df = df[~dead_mask].reset_index(drop=True)
-    print(f"[+] Excluded {dead_mask.sum()} terminal/hospice encounters ({raw_len} -> {len(df)} encounters)")
+    total_clean = len(df)
+    print(f"[+] Excluded {terminal_excluded} terminal/hospice encounters ({total_raw} -> {total_clean} clean encounters)")
     
-    # 2. Target Variable
-    if target_col == 'readmitted_30d':
-        df['target'] = (df['readmitted'] == '<30').astype(int)
-    else:
-        df['target'] = (df['readmitted'] != 'NO').astype(int)
-    print(f"[+] Cleaned target variable prevalence: {df['target'].mean()*100:.2f}% ({df['target'].sum()} positive readmissions)")
+    # 3. Clean and map features
+    # Primary Diagnosis
+    df['diag_1_group'] = df['diag_1'].apply(map_icd9_to_category)
     
-    # 3. Clinical Feature Engineering
-    df = engineer_features(df)
+    # Discharge destination
+    df['discharge_destination'] = df['discharge_disposition_id'].apply(map_discharge_disposition)
     
-    # 4. Outlier Capping (Winsorization at 99th percentile)
+    # Demographics
+    df['age_group'] = df['age'].apply(group_age)
+    df['gender_clean'] = df['gender'].apply(lambda x: x if x in ['Male', 'Female'] else 'Other/Unknown')
+    df['race_clean'] = df['race'].replace('?', 'Other/Unknown').fillna('Other/Unknown')
+    
+    # Medication flags
+    df['insulin_regimen'] = df['insulin'].replace('?', 'No').fillna('No')
+    df['medication_change'] = df['change'].replace('?', 'No').fillna('No')
+    
+    # Continuous utilization features with 99th percentile winsorization
+    numeric_features = [
+        'number_inpatient', 'number_outpatient', 'number_emergency',
+        'time_in_hospital', 'num_lab_procedures', 'num_medications'
+    ]
     winsor_stats = {}
-    for col in ['number_outpatient', 'number_emergency', 'number_inpatient', 'total_visits']:
-        pre_max = float(df[col].max())
-        q99 = float(df[col].quantile(0.99))
-        df[col] = np.minimum(df[col], q99)
+    for col in numeric_features:
+        df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+        raw_max = float(df[col].max())
+        cap_val = float(df[col].quantile(0.99))
+        df[col] = np.minimum(df[col], cap_val)
         winsor_stats[col] = {
-            'raw_max': pre_max,
-            '99th_percentile_cap': q99,
+            'raw_max': raw_max,
+            'cap_99th': cap_val,
             'post_cap_max': float(df[col].max())
         }
         
-    # 5. Define Feature Groups
-    numerical_features = [
-        'time_in_hospital', 'num_lab_procedures', 'num_procedures', 'num_medications',
-        'number_outpatient', 'number_emergency', 'number_inpatient', 'number_diagnoses',
-        'total_visits', 'lab_intensity_per_day', 'num_med_changes', 'num_active_meds',
-        'polypharmacy', 'high_prior_utilization', 'has_diabetes_diag', 'comorbidity_count',
-        'inpatient_x_stay', 'age_midpoint', 'age_x_polypharmacy', 'a1c_x_med_change', 'er_x_inpatient'
-    ]
-    
-    target_encoded_features = [
-        'medical_specialty', 'payer_code'
-    ]
-    
     categorical_features = [
-        'race_clean', 'gender_clean', 'age', 'admission_type_cat',
-        'discharge_disp_cat', 'admission_source_cat', 'diag_1_cat',
-        'diag_2_cat', 'diag_3_cat', 'max_glu_serum', 'A1Cresult', 'change', 'diabetesMed'
+        'diag_1_group', 'discharge_destination', 'insulin_regimen',
+        'medication_change', 'age_group', 'gender_clean', 'race_clean'
     ]
     
-    med_cols_present = [col for col in MEDICATION_COLS if col in df.columns and col not in ['examide', 'citogliptin']]
-    for med in med_cols_present:
-        if df[med].nunique() > 1:
-            categorical_features.append(med)
-            
-    for c in categorical_features + target_encoded_features:
-        df[c] = df[c].fillna('Missing').astype(str)
+    for col in categorical_features:
+        df[col] = df[col].astype(str)
         
-    all_feature_cols = numerical_features + target_encoded_features + categorical_features
+    all_feature_cols = numeric_features + categorical_features
+    print(f"[+] Total aligned feature set: {len(all_feature_cols)} features ({len(numeric_features)} numeric, {len(categorical_features)} categorical)")
     
-    # Save cleaned CSV and Parquet with optimized memory footprints
-    clean_csv_path = os.path.join(PROCESSED_DIR, "clean_diabetic_data.csv")
-    clean_parquet_path = os.path.join(PROCESSED_DIR, "clean_diabetic_data.parquet")
+    # 4. Leak-Free Patient-Grouped Stratified 70/10/20 Split
+    print("[*] Performing leak-free patient-grouped stratified 70/10/20 split...")
+    sgkf5 = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)
+    train_val_idx, test_idx = next(sgkf5.split(df, df['target'], df['patient_nbr']))
     
-    cols_to_save = list(dict.fromkeys(['encounter_id', 'patient_nbr', 'target', 'age_group', 'gender_clean', 'race_clean'] + all_feature_cols))
-    df_save = df[[c for c in cols_to_save if c in df.columns]].copy()
+    df_tv = df.iloc[train_val_idx].reset_index(drop=True)
+    df_test = df.iloc[test_idx].reset_index(drop=True)
     
-    df_save.to_csv(clean_csv_path, index=False)
+    sgkf8 = StratifiedGroupKFold(n_splits=8, shuffle=True, random_state=42)
+    train_idx, val_idx = next(sgkf8.split(df_tv, df_tv['target'], df_tv['patient_nbr']))
     
-    # Convert types for fast parquet storage
-    for col in categorical_features + target_encoded_features + ['age_group', 'gender_clean', 'race_clean']:
-        if col in df_save.columns:
-            df_save[col] = df_save[col].astype('category')
-    for col in numerical_features:
-        if col in df_save.columns:
-            df_save[col] = df_save[col].astype(np.float32)
-    df_save['target'] = df_save['target'].astype(np.int8)
-    df_save.to_parquet(clean_parquet_path, index=False)
-    print(f"[+] Saved clean datasets to {clean_csv_path} and {clean_parquet_path}")
+    df_train = df_tv.iloc[train_idx].reset_index(drop=True)
+    df_val = df_tv.iloc[val_idx].reset_index(drop=True)
     
-    # 6. Leak-Free Patient-Grouped Stratified Split
-    sgkf = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)
-    train_idx, test_idx = next(sgkf.split(df, df['target'], df['patient_nbr']))
+    n_train = len(df_train)
+    n_val = len(df_val)
+    n_test = len(df_test)
     
-    X_train = df.iloc[train_idx][all_feature_cols].copy()
-    y_train = df.iloc[train_idx]['target'].copy()
-    sens_train = df.iloc[train_idx][['age_group', 'gender_clean', 'race_clean']].copy()
+    pts_train = set(df_train['patient_nbr'])
+    pts_val = set(df_val['patient_nbr'])
+    pts_test = set(df_test['patient_nbr'])
     
-    X_test = df.iloc[test_idx][all_feature_cols].copy()
-    y_test = df.iloc[test_idx]['target'].copy()
-    sens_test = df.iloc[test_idx][['age_group', 'gender_clean', 'race_clean']].copy()
+    overlap_tv = len(pts_train.intersection(pts_val))
+    overlap_tt = len(pts_train.intersection(pts_test))
+    overlap_vt = len(pts_val.intersection(pts_test))
     
-    train_pts = set(df.iloc[train_idx]['patient_nbr'])
-    test_pts = set(df.iloc[test_idx]['patient_nbr'])
-    patient_overlap = len(train_pts.intersection(test_pts))
-    print(f"[+] StratifiedGroupKFold split: Train={len(X_train)} (pts={len(train_pts)}), Test={len(X_test)} (pts={len(test_pts)})")
-    print(f"[+] Verified patient overlap between train and test: {patient_overlap} (LEAKAGE FREE!)")
+    print(f"[+] Split sizes: Train={n_train} ({n_train/total_clean*100:.1f}%), Val={n_val} ({n_val/total_clean*100:.1f}%), Test={n_test} ({n_test/total_clean*100:.1f}%)")
+    print(f"[+] Verified patient overlap: Train-Val={overlap_tv}, Train-Test={overlap_tt}, Val-Test={overlap_vt} (0% LEAKAGE)")
     
-    # 7. Construct and Fit ColumnTransformer Preprocessor
+    # 5. Build and Fit Preprocessing Pipeline (FIT ON TRAIN ONLY)
+    print("[*] Fitting preprocessing pipeline strictly on training split...")
     num_pipeline = Pipeline([
         ('imputer', SimpleImputer(strategy='median')),
         ('scaler', StandardScaler())
-    ])
-    
-    target_pipeline = Pipeline([
-        ('imputer', SimpleImputer(strategy='constant', fill_value='Missing')),
-        ('target_enc', TargetEncoder(smooth='auto', cv=KFold(n_splits=5, shuffle=True, random_state=42)))
     ])
     
     cat_pipeline = Pipeline([
@@ -468,44 +258,81 @@ def clean_and_preprocess_data(raw_csv_path, target_col='readmitted_30d'):
         ('encoder', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
     ])
     
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('num', num_pipeline, numerical_features),
-            ('te', target_pipeline, target_encoded_features),
-            ('cat', cat_pipeline, categorical_features)
-        ]
-    )
+    preprocessor = ColumnTransformer([
+        ('num', num_pipeline, numeric_features),
+        ('cat', cat_pipeline, categorical_features)
+    ])
     
-    print("[*] Fitting preprocessing pipeline on leak-free training set...")
-    preprocessor.fit(X_train, y_train)
+    X_train_raw = df_train[all_feature_cols]
+    y_train = df_train['target'].values
     
-    # Save Preprocessor and train/test artifacts
+    X_val_raw = df_val[all_feature_cols]
+    y_val = df_val['target'].values
+    
+    X_test_raw = df_test[all_feature_cols]
+    y_test = df_test['target'].values
+    
+    preprocessor.fit(X_train_raw, y_train)
+    
+    # Extract transformed feature names
+    cat_encoder = preprocessor.named_transformers_['cat'].named_steps['encoder']
+    one_hot_cols = list(cat_encoder.get_feature_names_out(categorical_features))
+    transformed_feature_names = numeric_features + one_hot_cols
+    print(f"[+] Preprocessor fitted: {len(transformed_feature_names)} transformed feature columns after one-hot encoding.")
+    
+    # Save artifacts
     joblib.dump(preprocessor, os.path.join(PROCESSED_DIR, "preprocessor.joblib"))
     
-    # Save splits
-    joblib.dump({
-        'X_train': X_train, 'X_test': X_test,
-        'y_train': y_train, 'y_test': y_test,
-        'sens_train': sens_train, 'sens_test': sens_test,
-        'num_cols': numerical_features,
-        'te_cols': target_encoded_features,
-        'cat_cols': categorical_features,
-        'patient_nbr_train': df.iloc[train_idx]['patient_nbr'],
-        'patient_nbr_test': df.iloc[test_idx]['patient_nbr'],
-        'encounter_id_test': df.iloc[test_idx]['encounter_id'] if 'encounter_id' in df.columns else df.iloc[test_idx].index
-    }, os.path.join(PROCESSED_DIR, "train_test_data.joblib"), compress=4)
+    split_artifacts = {
+        'df_train': df_train, 'df_val': df_val, 'df_test': df_test,
+        'X_train_raw': X_train_raw, 'X_val_raw': X_val_raw, 'X_test_raw': X_test_raw,
+        'y_train': y_train, 'y_val': y_val, 'y_test': y_test,
+        'numeric_features': numeric_features,
+        'categorical_features': categorical_features,
+        'all_feature_cols': all_feature_cols,
+        'transformed_feature_names': transformed_feature_names,
+        'sens_train': df_train[['age_group', 'gender_clean', 'race_clean']],
+        'sens_val': df_val[['age_group', 'gender_clean', 'race_clean']],
+        'sens_test': df_test[['age_group', 'gender_clean', 'race_clean']],
+        'patient_nbr_train': df_train['patient_nbr'],
+        'patient_nbr_val': df_val['patient_nbr'],
+        'patient_nbr_test': df_test['patient_nbr'],
+        'encounter_id_test': df_test['encounter_id']
+    }
+    joblib.dump(split_artifacts, os.path.join(PROCESSED_DIR, "train_val_test_data.joblib"), compress=3)
     
-    # Generate data quality report JSON
-    generate_data_quality_summary(df_raw, df, missing_stats, winsor_stats, numerical_features, categorical_features, target_encoded_features)
-    
-    print("[+] Preprocessing pipeline completed and artifacts verified!")
-    return clean_csv_path
+    # Save feature exclusion table
+    exclusion_table = get_feature_exclusion_rationale()
+    with open(os.path.join(PROCESSED_DIR, "feature_selection_rationale.json"), "w") as f:
+        json.dump(exclusion_table, f, indent=4)
+        
+    # Save data quality summary
+    data_quality_summary = {
+        "total_raw_encounters": total_raw,
+        "terminal_encounters_excluded": terminal_excluded,
+        "total_clean_encounters": total_clean,
+        "unique_patients": int(df['patient_nbr'].nunique()),
+        "target_distribution": {
+            "negative_count": int((df['target'] == 0).sum()),
+            "positive_count": int((df['target'] == 1).sum()),
+            "prevalence_percentage": round(float(df['target'].mean() * 100), 2)
+        },
+        "split_strategy": "Patient-Grouped Stratified Split (70% Train, 10% Val, 20% Test; 0% leakage)",
+        "split_sizes": {
+            "train": {"encounters": n_train, "percentage": round(n_train / total_clean * 100, 2)},
+            "val": {"encounters": n_val, "percentage": round(n_val / total_clean * 100, 2)},
+            "test": {"encounters": n_test, "percentage": round(n_test / total_clean * 100, 2)}
+        },
+        "features_kept": all_feature_cols,
+        "features_excluded_count": len(exclusion_table),
+        "outlier_winsorization_caps": winsor_stats
+    }
+    with open(os.path.join(PROCESSED_DIR, "data_quality_summary.json"), "w") as f:
+        json.dump(data_quality_summary, f, indent=4)
+        
+    print("[+] Preprocessing and split artifacts successfully saved!")
+    return split_artifacts
 
 if __name__ == "__main__":
     raw_path = os.path.join(DATA_DIR, "raw", "diabetic_data.csv")
-    if os.path.exists(raw_path):
-        clean_and_preprocess_data(raw_path)
-    else:
-        from src.download_data import download_and_extract_data
-        raw_path = download_and_extract_data()
-        clean_and_preprocess_data(raw_path)
+    clean_and_prepare_dataset(raw_path)

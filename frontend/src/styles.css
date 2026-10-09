@@ -1151,6 +1151,8 @@ select:focus-visible {
 
 .clinical-data-table {
   width: 100%;
+  min-width: 1110px;
+  table-layout: fixed;
   border-collapse: collapse;
   text-align: left;
   font-size: var(--font-base);
@@ -1164,7 +1166,7 @@ select:focus-visible {
 }
 
 .clinical-data-table th {
-  padding: 12px 16px;
+  padding: 12px 14px;
   font-size: var(--font-xs);
   font-weight: 600;
   text-transform: uppercase;
@@ -1173,6 +1175,9 @@ select:focus-visible {
   border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
   user-select: none;
+  overflow: hidden;
+  position: relative;
+  box-sizing: border-box;
 }
 
 .clinical-data-table th.sortable {
@@ -1188,6 +1193,7 @@ select:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  max-width: 100%;
 }
 
 .clinical-data-table tbody tr {
@@ -1218,6 +1224,7 @@ select:focus-visible {
   width: 3px;
   background: var(--brand-indigo);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  z-index: 1;
 }
 
 .clinical-data-table tbody tr:hover .row-action-ghost {
@@ -1226,15 +1233,66 @@ select:focus-visible {
 }
 
 .clinical-data-table td {
-  padding: 12px 16px;
+  padding: 12px 14px;
   color: var(--text-primary);
   vertical-align: middle;
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Explicit column widths for fixed table layout */
+.clinical-data-table .col-enc {
+  width: 120px;
+}
+
+.clinical-data-table .col-profile {
+  width: 170px;
+}
+
+.clinical-data-table .col-stay {
+  width: 90px;
+}
+
+.clinical-data-table .col-meds {
+  width: 110px;
+}
+
+.clinical-data-table .col-acute {
+  width: 140px;
+}
+
+.clinical-data-table .col-flags {
+  width: 220px;
+  min-width: 220px;
+  padding-right: 16px;
+}
+
+.clinical-data-table .col-risk {
+  width: 220px;
+  min-width: 220px;
+}
+
+.clinical-data-table .col-action {
+  width: 40px;
+  padding-left: 4px;
+  padding-right: 8px;
+  text-align: center;
+}
+
+/* Subtle divider and 16px column gap between Care flags and Readmission risk */
+.clinical-data-table th.cell-risk-th,
+.clinical-data-table td.cell-risk {
+  border-left: 1px solid var(--border-color);
+  padding-left: 16px;
 }
 
 /* Columns */
 .encounter-cell {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .encounter-id-code {
@@ -1242,17 +1300,20 @@ select:focus-visible {
   font-weight: 700;
   font-size: var(--font-base);
   color: var(--brand-indigo);
+  white-space: nowrap;
 }
 
 .encounter-subtext {
   font-size: var(--font-xs);
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .profile-cell {
   display: flex;
   flex-direction: column;
-  max-width: 155px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .profile-age {
@@ -1273,6 +1334,7 @@ select:focus-visible {
 .inline-metric {
   font-weight: 600;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .inline-metric small {
@@ -1280,6 +1342,7 @@ select:focus-visible {
   color: var(--text-muted);
   margin-left: 3px;
   font-size: var(--font-xs);
+  white-space: nowrap;
 }
 
 /* Polypharmacy dot */
@@ -1296,6 +1359,127 @@ select:focus-visible {
   border-radius: var(--radius-pill);
   margin-top: 3px;
   width: fit-content;
+  white-space: nowrap;
+  cursor: help;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.polypharmacy-indicator:hover,
+.polypharmacy-indicator:focus-visible {
+  filter: brightness(1.08);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+}
+
+.th-info-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  padding: 2px;
+  border-radius: 4px;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.th-info-icon-btn:hover,
+.th-info-icon-btn:focus-visible {
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
+}
+
+/* Table Legend Bar */
+.table-legend-bar {
+  padding: 6px 16px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+[data-theme="dark"] .table-legend-bar {
+  background: rgba(30, 41, 59, 0.4);
+}
+
+.table-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot.polypharmacy-dot {
+  color: var(--risk-med-text);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.legend-label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.legend-def {
+  color: var(--text-muted);
+}
+
+/* Shared Portal Tooltip */
+.clinical-shared-tooltip {
+  position: fixed;
+  z-index: 99999;
+  pointer-events: none;
+  max-width: 290px;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.clinical-shared-tooltip-content {
+  background: #0F172A;
+  color: #F8FAFC;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  white-space: normal;
+  text-align: center;
+}
+
+[data-theme="dark"] .clinical-shared-tooltip-content {
+  background: #1E293B;
+  color: #F8FAFC;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.clinical-shared-tooltip-arrow {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+}
+
+.clinical-shared-tooltip-arrow.arrow-bottom {
+  top: 100%;
+  border-top: 5px solid #0F172A;
+}
+
+[data-theme="dark"] .clinical-shared-tooltip-arrow.arrow-bottom {
+  border-top-color: #1E293B;
+}
+
+.clinical-shared-tooltip-arrow.arrow-top {
+  bottom: 100%;
+  border-bottom: 5px solid #0F172A;
+}
+
+[data-theme="dark"] .clinical-shared-tooltip-arrow.arrow-top {
+  border-bottom-color: #1E293B;
 }
 
 /* Care Flags */
@@ -1304,7 +1488,9 @@ select:focus-visible {
   align-items: center;
   gap: 6px;
   flex-wrap: nowrap;
-  max-width: 220px;
+  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .care-flag-pill {
@@ -1319,13 +1505,23 @@ select:focus-visible {
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
   white-space: nowrap;
-  flex-shrink: 0;
+  max-width: 110px;
+  overflow: hidden;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .care-flag-pill svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
+}
+
+.care-flag-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .flag-overflow-chip {
@@ -1341,37 +1537,43 @@ select:focus-visible {
   align-items: center;
   cursor: help;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
-/* Risk Score Cell (Right Aligned) */
+/* Risk Score Cell (Grid with two rows) */
 .risk-score-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  min-width: 140px;
+  display: grid;
+  grid-template-rows: auto auto;
+  grid-template-columns: 1fr;
+  row-gap: 5px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .risk-score-top {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
   gap: 8px;
 }
 
 .risk-pct-large {
-  font-size: var(--font-xl);
+  font-size: var(--font-md);
   font-weight: 700;
-  color: var(--text-primary);
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .risk-pct-large.high { color: var(--risk-high-text); }
 .risk-pct-large.moderate { color: var(--risk-med-text); }
 .risk-pct-large.low { color: var(--risk-low-text); }
 
-/* Progress Bar */
+/* Progress Bar in Row 2: full width and left-aligned */
 .risk-mini-bar-track {
   width: 100%;
-  height: 4px;
+  height: 5px;
   background: var(--bg-subtle);
   border-radius: var(--radius-pill);
   overflow: hidden;
@@ -1389,11 +1591,6 @@ select:focus-visible {
   animation: sheen 3s infinite linear;
 }
 
-@keyframes sheen {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
 .risk-mini-bar-fill.moderate { background: var(--risk-med-bar); }
 .risk-mini-bar-fill.low { background: var(--risk-low-bar); }
 
@@ -1404,9 +1601,10 @@ select:focus-visible {
   gap: 5px;
   font-size: var(--font-xs);
   font-weight: 600;
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: var(--radius-pill);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .risk-badge-pill i {

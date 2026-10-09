@@ -1,0 +1,80 @@
+[
+    {
+        "feature": "weight",
+        "category": "Clinical Measurement",
+        "missingness": "96.86%",
+        "reason": "High missingness across almost all participating clinical centers (>96% missing); unreliable across sites."
+    },
+    {
+        "feature": "payer_code",
+        "category": "Administrative / Billing",
+        "missingness": "39.56%",
+        "reason": "Billing artifact without direct pathophysiological relationship to acute readmission risk; high missingness."
+    },
+    {
+        "feature": "medical_specialty",
+        "category": "Administrative / Provider",
+        "missingness": "49.08%",
+        "reason": "High missingness and high cardinality (73 categories) causing severe risk of overfitting on sparse specialties."
+    },
+    {
+        "feature": "diag_2, diag_3",
+        "category": "Secondary Diagnoses",
+        "missingness": "0.35% - 1.40%",
+        "reason": "Excluded to maintain strict clinical parsimony around the principal admitting diagnosis (diag_1) and avoid multicollinearity."
+    },
+    {
+        "feature": "admission_type_id, admission_source_id",
+        "category": "Intake Administrative Channels",
+        "missingness": "0.00%",
+        "reason": "Intake channel categories provide redundant signals already captured by prior utilization counts and primary diagnosis."
+    },
+    {
+        "feature": "num_procedures",
+        "category": "Inpatient Utilization",
+        "missingness": "0.00%",
+        "reason": "Excluded to maintain parsimony; inpatient intervention intensity is already represented by time_in_hospital and num_lab_procedures."
+    },
+    {
+        "feature": "number_diagnoses",
+        "category": "Clinical Count",
+        "missingness": "0.00%",
+        "reason": "Redundant comorbidity signal that tracks closely with primary diagnosis category and length of stay."
+    },
+    {
+        "feature": "max_glu_serum, A1Cresult",
+        "category": "Laboratory Testing",
+        "missingness": "83.28% - 94.75%",
+        "reason": "Extreme unmeasured rate (>83-94% not ordered); testing frequency varies by admitting specialty rather than acute 30-day recidivism."
+    },
+    {
+        "feature": "diabetesMed",
+        "category": "Medication Flag",
+        "missingness": "0.00%",
+        "reason": "Highly redundant with insulin regimen and the medication-change (change) indicator."
+    },
+    {
+        "feature": "22 individual antidiabetic oral medications (metformin, glipizide, glyburide, pioglitazone, etc.)",
+        "category": "Specific Pharmacology",
+        "missingness": "0.00%",
+        "reason": "Extreme sparsity across individual chemical agents (many <0.1% usage), zero variance for examide/citoglipton, and therapeutic volatility is already captured by insulin and change."
+    },
+    {
+        "feature": "encounter_id",
+        "category": "Identifier",
+        "missingness": "0.00%",
+        "reason": "Administrative surrogate key; dropped to prevent memorization and data leakage."
+    },
+    {
+        "feature": "patient_nbr",
+        "category": "Cluster Key",
+        "missingness": "0.00%",
+        "reason": "Used exclusively for leak-free patient-grouped train/val/test splitting; removed from model input space."
+    },
+    {
+        "feature": "terminal_discharge_dispositions (IDs 11, 13, 14, 19, 20, 21)",
+        "category": "Clinical Exclusions",
+        "missingness": "0.00%",
+        "reason": "Patients discharged to hospice or who expired in hospital cannot experience 30-day readmissions; excluded to prevent target contamination."
+    }
+]

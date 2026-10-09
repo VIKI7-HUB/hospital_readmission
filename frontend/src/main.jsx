@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Command } from "cmdk";
 import { Toaster, toast } from "sonner";
@@ -191,6 +192,37 @@ function RiskBar({ probability, tier }) {
         transition={{ duration: 0.6, ease: "easeOut" }}
       />
     </div>
+  );
+}
+
+function SharedTooltip({ tooltip }) {
+  if (!tooltip || !tooltip.targetRect) return null;
+  const { text, targetRect, placement = "top" } = tooltip;
+
+  const isTop = placement === "top" && targetRect.top > 70;
+  const leftPos = Math.max(150, Math.min(window.innerWidth - 150, targetRect.left + targetRect.width / 2));
+
+  const tooltipStyle = {
+    position: "fixed",
+    left: `${leftPos}px`,
+    top: isTop ? `${targetRect.top - 8}px` : `${targetRect.bottom + 8}px`,
+    transform: isTop ? "translate(-50%, -100%)" : "translate(-50%, 0)",
+    zIndex: 99999,
+    pointerEvents: "none",
+  };
+
+  return createPortal(
+    <div
+      className="clinical-shared-tooltip"
+      style={tooltipStyle}
+      role="tooltip"
+    >
+      <div className="clinical-shared-tooltip-content">
+        {text}
+      </div>
+      <div className={`clinical-shared-tooltip-arrow ${isTop ? "arrow-bottom" : "arrow-top"}`} />
+    </div>,
+    document.body
   );
 }
 
@@ -429,6 +461,69 @@ function App() {
   const [refreshedSuccess, setRefreshedSuccess] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [focusedRowIndex, setFocusedRowIndex] = useState(0);
+
+  // Responsive column detection for Care Flags pill count
+  const [isWideFlagsCol, setIsWideFlagsCol] = useState(false);
+  const roRef = useRef(null);
+  const careFlagsThCallback = useCallback((node) => {
+    if (roRef.current) {
+      roRef.current.disconnect();
+      roRef.current = null;
+    }
+    if (node) {
+      roRef.current = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const width = entry.contentRect.width;
+          setIsWideFlagsCol(width >= 230);
+        }
+      });
+      roRef.current.observe(node);
+    }
+  }, []);
+
+  // Single shared tooltip state
+  const [sharedTooltip, setSharedTooltip] = useState(null);
+  const tooltipTimerRef = useRef(null);
+
+  const showTooltip = useCallback((text, targetElement, placement = "top") => {
+    if (tooltipTimerRef.current) {
+      clearTimeout(tooltipTimerRef.current);
+    }
+    tooltipTimerRef.current = setTimeout(() => {
+      if (targetElement) {
+        const rect = targetElement.getBoundingClientRect();
+        setSharedTooltip({ text, targetRect: rect, placement });
+      }
+    }, 300);
+  }, []);
+
+  const hideTooltip = useCallback(() => {
+    if (tooltipTimerRef.current) {
+      clearTimeout(tooltipTimerRef.current);
+      tooltipTimerRef.current = null;
+    }
+    setSharedTooltip(null);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        hideTooltip();
+      }
+    };
+    const handleScroll = () => {
+      if (tooltipTimerRef.current) {
+        clearTimeout(tooltipTimerRef.current);
+      }
+      setSharedTooltip(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("scroll", handleScroll, true);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [hideTooltip]);
 
   const searchInputRef = useRef(null);
   const variants = useMemo(() => createVariants(reduceMotion), [reduceMotion]);
@@ -1275,9 +1370,6 @@ function App() {
                   }
                   icon={Pill}
                   tone="amber"
-                  onClick={() => {
-                    toast.info("Encounters with 10+ medications are marked with ● Polypharmacy");
-                  }}
                 />
 
                 <KpiCard
@@ -1291,9 +1383,6 @@ function App() {
                   }
                   icon={TrendingUp}
                   tone="green"
-                  onClick={() => {
-                    toast.info("Historical cohort baseline readmission rate: 12.8%");
-                  }}
                 />
               </section>
 
@@ -1396,12 +1485,31 @@ function App() {
                   )}
                 </div>
 
+                {/* Permanent Legend */}
+                <div className="table-legend-bar">
+                  <span className="table-legend-item">
+                    <span className="legend-dot polypharmacy-dot">●</span>
+                    <span className="legend-label">Polypharmacy</span>
+                    <span className="legend-def">= 10 or more active medications</span>
+                  </span>
+                </div>
+
                 {/* Data Table */}
                 <div className="data-table-container">
                   <table className="clinical-data-table">
+                    <colgroup>
+                      <col className="col-enc" style={{ width: "120px" }} />
+                      <col className="col-profile" style={{ width: "170px" }} />
+                      <col className="col-stay" style={{ width: "90px" }} />
+                      <col className="col-meds" style={{ width: "110px" }} />
+                      <col className="col-acute" style={{ width: "140px" }} />
+                      <col className="col-flags" style={{ width: "220px" }} />
+                      <col className="col-risk" style={{ width: "220px" }} />
+                      <col className="col-action" style={{ width: "40px" }} />
+                    </colgroup>
                     <thead>
                       <tr>
-                        <th className="sortable" onClick={() => handleSort("enc_id")}>
+                        <th className="sortable col-enc" onClick={() => handleSort("enc_id")}>
                           <div className="th-inner-flex">
                             <span>Encounter</span>
                             {sortField === "enc_id" ? (
@@ -1413,10 +1521,10 @@ function App() {
                             )}
                           </div>
                         </th>
-                        <th>Profile</th>
-                        <th className="sortable" onClick={() => handleSort("stay")}>
+                        <th className="col-profile">Profile</th>
+                        <th className="sortable col-stay" onClick={() => handleSort("stay")}>
                           <div className="th-inner-flex">
-                            <span>Hospital stay</span>
+                            <span>Stay</span>
                             {sortField === "stay" ? (
                               <motion.span animate={{ rotate: sortOrder === "asc" ? 0 : 180 }} transition={{ duration: 0.15 }}>
                                 <ArrowUp className="w-3.5 h-3.5" />
@@ -1426,9 +1534,22 @@ function App() {
                             )}
                           </div>
                         </th>
-                        <th className="sortable" onClick={() => handleSort("meds")}>
+                        <th className="sortable col-meds" onClick={() => handleSort("meds")}>
                           <div className="th-inner-flex">
                             <span>Medications</span>
+                            <span
+                              className="th-info-icon-btn"
+                              tabIndex={0}
+                              role="button"
+                              aria-label="Polypharmacy info"
+                              onClick={(e) => e.stopPropagation()}
+                              onMouseEnter={(e) => showTooltip("Encounters with 10+ medications are marked with ● Polypharmacy", e.currentTarget, "bottom")}
+                              onMouseLeave={hideTooltip}
+                              onFocus={(e) => showTooltip("Encounters with 10+ medications are marked with ● Polypharmacy", e.currentTarget, "bottom")}
+                              onBlur={hideTooltip}
+                            >
+                              <Info className="w-3.5 h-3.5 text-muted" />
+                            </span>
                             {sortField === "meds" ? (
                               <motion.span animate={{ rotate: sortOrder === "asc" ? 0 : 180 }} transition={{ duration: 0.15 }}>
                                 <ArrowUp className="w-3.5 h-3.5" />
@@ -1438,9 +1559,9 @@ function App() {
                             )}
                           </div>
                         </th>
-                        <th className="sortable" onClick={() => handleSort("inpatient")}>
+                        <th className="sortable col-acute" onClick={() => handleSort("inpatient")}>
                           <div className="th-inner-flex">
-                            <span>Prior acute care</span>
+                            <span>Prior acute</span>
                             {sortField === "inpatient" ? (
                               <motion.span animate={{ rotate: sortOrder === "asc" ? 0 : 180 }} transition={{ duration: 0.15 }}>
                                 <ArrowUp className="w-3.5 h-3.5" />
@@ -1450,9 +1571,11 @@ function App() {
                             )}
                           </div>
                         </th>
-                        <th>Care flags</th>
-                        <th className="sortable text-right" onClick={() => handleSort("prob")} style={{ textAlign: "right" }}>
-                          <div className="th-inner-flex" style={{ justifyContent: "flex-end" }}>
+                        <th ref={careFlagsThCallback} className="col-flags">
+                          <span>Care flags</span>
+                        </th>
+                        <th className="sortable col-risk cell-risk-th" onClick={() => handleSort("prob")}>
+                          <div className="th-inner-flex">
                             <span>Readmission risk</span>
                             <span title="Calibrated 30-day readmission risk predicted by the ensemble (Saved historical score)">
                               <HelpCircle className="w-3 h-3 text-muted" />
@@ -1466,7 +1589,7 @@ function App() {
                             )}
                           </div>
                         </th>
-                        <th style={{ width: 44 }} />
+                        <th className="col-action" style={{ width: 40 }} />
                       </tr>
                     </thead>
                     <tbody>
@@ -1484,8 +1607,10 @@ function App() {
                           const normalized = record.tier?.toLowerCase() || "";
                           const tierClass = normalized.startsWith("high") ? "high" : normalized.startsWith("mod") ? "moderate" : "low";
                           const careFlags = record.resources || [];
-                          const visibleFlags = careFlags.slice(0, 2);
-                          const overflowCount = careFlags.length - 2;
+                          const maxVisible = isWideFlagsCol ? 2 : 1;
+                          const visibleFlags = careFlags.slice(0, maxVisible);
+                          const overflowFlags = careFlags.slice(maxVisible);
+                          const overflowCount = overflowFlags.length;
 
                           return (
                             <motion.tr
@@ -1500,14 +1625,14 @@ function App() {
                               animate={idx < 12 ? { opacity: 1, y: 0 } : false}
                               transition={idx < 12 ? { delay: idx * 0.02, duration: 0.2 } : undefined}
                             >
-                              <td>
+                              <td className="col-enc">
                                 <div className="encounter-cell">
                                   <span className="encounter-id-code">{record.enc_id}</span>
                                   <span className="encounter-subtext">Historical cohort</span>
                                 </div>
                               </td>
 
-                              <td>
+                              <td className="col-profile">
                                 <div className="profile-cell">
                                   <span className="profile-age">{record.age}</span>
                                   <span
@@ -1519,26 +1644,35 @@ function App() {
                                 </div>
                               </td>
 
-                              <td>
+                              <td className="col-stay">
                                 <span className="inline-metric tabular-nums">
                                   {record.stay} <small>{Number(record.stay) === 1 ? "day" : "days"}</small>
                                 </span>
                               </td>
 
-                              <td>
+                              <td className="col-meds">
                                 <div className="flex flex-col">
                                   <span className="inline-metric tabular-nums">
                                     {record.meds} <small>{Number(record.meds) === 1 ? "med" : "meds"}</small>
                                   </span>
                                   {Number(record.meds) >= 10 && (
-                                    <span className="polypharmacy-indicator" title="Polypharmacy: 10 or more active medications">
+                                    <span
+                                      className="polypharmacy-indicator"
+                                      tabIndex={0}
+                                      role="note"
+                                      aria-label="Polypharmacy: 10 or more active medications"
+                                      onMouseEnter={(e) => showTooltip("Encounters with 10+ medications are marked with ● Polypharmacy", e.currentTarget, "top")}
+                                      onMouseLeave={hideTooltip}
+                                      onFocus={(e) => showTooltip("Encounters with 10+ medications are marked with ● Polypharmacy", e.currentTarget, "top")}
+                                      onBlur={hideTooltip}
+                                    >
                                       ● Polypharmacy
                                     </span>
                                   )}
                                 </div>
                               </td>
 
-                              <td>
+                              <td className="col-acute">
                                 <span className="inline-metric tabular-nums">
                                   {record.inpatient}{" "}
                                   <small>
@@ -1547,24 +1681,24 @@ function App() {
                                 </span>
                               </td>
 
-                              <td>
+                              <td className="col-flags">
                                 <div className="care-flags-cell">
                                   {visibleFlags.map((flag) => (
-                                    <span key={flag} className="care-flag-pill">
+                                    <span key={flag} className="care-flag-pill" title={flag}>
                                       {flag.includes("Telehealth") ? (
-                                        <HeartPulse className="w-3.5 h-3.5 text-red-500" />
+                                        <HeartPulse className="w-3.5 h-3.5 text-red-500 shrink-0" />
                                       ) : flag.includes("PharmD") ? (
-                                        <Pill className="w-3.5 h-3.5 text-amber-500" />
+                                        <Pill className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                                       ) : (
-                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                                       )}
-                                      <span>{flag}</span>
+                                      <span className="care-flag-text">{flag}</span>
                                     </span>
                                   ))}
                                   {overflowCount > 0 && (
                                     <span
                                       className="flag-overflow-chip"
-                                      title={careFlags.slice(2).join(", ")}
+                                      title={overflowFlags.join(", ")}
                                     >
                                       +{overflowCount}
                                     </span>
@@ -1572,7 +1706,7 @@ function App() {
                                 </div>
                               </td>
 
-                              <td>
+                              <td className="col-risk cell-risk">
                                 <div className="risk-score-cell">
                                   <div className="risk-score-top">
                                     <span className={`risk-pct-large tabular-nums ${tierClass}`}>
@@ -1584,7 +1718,7 @@ function App() {
                                 </div>
                               </td>
 
-                              <td>
+                              <td className="col-action">
                                 <div className="row-action-ghost">
                                   <ChevronRight className="w-4 h-4" />
                                 </div>
@@ -2937,6 +3071,9 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Shared Portal Tooltip */}
+      <SharedTooltip tooltip={sharedTooltip} />
 
       {/* Global Sonner Toast Notifications */}
       <Toaster position="bottom-right" richColors theme={darkMode ? "dark" : "light"} closeButton />
