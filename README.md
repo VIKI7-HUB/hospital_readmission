@@ -30,7 +30,7 @@ The official **Hackfest 2026 Screening Round Idea Presentation** (strictly adher
 - **Core Clinical Problem:**
   - Over **$26 Billion** in avoidable annual US/global hospital readmission expenses.
   - Punitive CMS HRRP penalties up to **3% Medicare inpatient reimbursement forfeitures** for excess readmissions.
-  - Diabetic comorbidity complexity: **43.8%** of patients present with severe polypharmacy ($\ge 10$ active medications).
+  - Diabetic comorbidity complexity: **79.0%** of patients have 10 or more distinct medications administered during the stay.
   - Triage breakdown: Retrospective, manual discharge planning misses over **45%** of preventable readmission candidates.
 
 ---
@@ -39,10 +39,10 @@ The official **Hackfest 2026 Screening Round Idea Presentation** (strictly adher
 
 | KPI ID | Specification Requirement | Project Deliverable / Evidence | Location |
 | :--- | :--- | :--- | :--- |
-| **KPI 1** | Predictive performance: accuracy, precision, recall (with clinical justification of metric choice) and AUC | Test evaluation benchmarks across held-out cohort ($N=19,870$) with clinical justification prioritizing Recall over Accuracy | [`docs/model_selection_rationale.md`](docs/model_selection_rationale.md) & [`models/model_comparison_results.csv`](models/model_comparison_results.csv) |
-| **KPI 2** | Comparison across $\ge 3$ model types with rationale for the chosen model | Head-to-head comparison of Logistic Regression, Random Forest, XGBoost, LightGBM, CatBoost, and Ensemble; rationale for Soft-Voting Ensemble | [`docs/model_selection_rationale.md`](docs/model_selection_rationale.md) & [`models/model_rationale_summary.json`](models/model_rationale_summary.json) |
+| **KPI 1** | Predictive performance: accuracy, precision, recall (with clinical justification of metric choice) and AUC | Test evaluation benchmarks across held-out cohort (N = 19,870) with clinical justification prioritizing Recall over Accuracy | [`docs/model_selection_rationale.md`](docs/model_selection_rationale.md) & [`models/model_comparison_results.csv`](models/model_comparison_results.csv) |
+| **KPI 2** | Comparison across 3 or more model types with rationale for the chosen model | Head-to-head comparison of Logistic Regression, Random Forest, XGBoost, LightGBM, CatBoost, and Ensemble; rationale for Soft-Voting Ensemble | [`docs/model_selection_rationale.md`](docs/model_selection_rationale.md) & [`models/model_rationale_summary.json`](models/model_rationale_summary.json) |
 | **KPI 3** | Fairness metrics across demographic groups (age, gender, race) and measured disparity | Demographic Parity Ratio (DPR) and Equalized Odds (TPR ratio, difference, and Wilson 95% CIs) audited across all demographic strata | [`docs/fairness_justification.md`](docs/fairness_justification.md) & [`fairness_governance/`](fairness_governance/) |
-| **KPI 4** | Improvement of fairness-aware models over base models (stretch goal) | Gender disparity reduced by 10% (3.70 pp $\to$ 3.33 pp); audited across all demographic subgroups with Wilson 95% confidence intervals | [`docs/fairness_justification.md`](docs/fairness_justification.md) & [`fairness_governance/mitigation_improvement_summary.json`](fairness_governance/mitigation_improvement_summary.json) |
+| **KPI 4** | Improvement of fairness-aware models over base models (stretch goal) | Gender disparity reduced by 10% (3.70 pp to 3.33 pp); audited across all demographic subgroups with Wilson 95% confidence intervals | [`docs/fairness_justification.md`](docs/fairness_justification.md) & [`fairness_governance/mitigation_improvement_summary.json`](fairness_governance/mitigation_improvement_summary.json) |
 | **KPI 5** | Documented data-quality handling: missing values, outliers, and feature-selection decisions | Statistical and clinical audit of missingness, 99th-percentile Winsorization, and ICD-9 organ category mapping | [`docs/data_quality_report.md`](docs/data_quality_report.md) & [`data/processed/data_quality_summary.json`](data/processed/data_quality_summary.json) |
 
 ---

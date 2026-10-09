@@ -189,7 +189,7 @@ def build_executive_deck():
     problems = [
         ("FINANCIAL CRISIS", "Unplanned 30-day hospital readmissions exceed $26 Billion annually in avoidable medical costs across US and global health systems."),
         ("PUNITIVE HRRP PENALTIES", "Under CMS Hospital Readmissions Reduction Program, hospitals face direct Medicare reimbursement forfeitures (up to 3% penalty) for excess readmissions."),
-        ("COMPLEX COMORBIDITY RELAPSE", "Diabetic inpatients face extreme vulnerability: 43.8% suffer from polypharmacy (>=10 active medications), compounding metabolic and cardiovascular relapse risk."),
+        ("COMPLEX COMORBIDITY RELAPSE", "Diabetic inpatients face extreme vulnerability: 79.0% have >=10 distinct medications administered during their stay, compounding metabolic and cardiovascular relapse risk."),
         ("SUBJECTIVE MANUAL TRIAGE", "Current discharge planning relies on subjective intuition or retrospective paper notes, missing over 45% of preventable readmission candidates.")
     ]
     for tag, desc in problems:
@@ -210,7 +210,7 @@ def build_executive_deck():
     draw_container_card(s1, 5.2, 4.65, 7.533, 2.35, "Key Challenge Metrics Addressed", C_NAVY_LIGHT)
     stats1 = [
         ("11.16%", "Actual Readmissions", "Ground truth 30-day readmissions across 101,766 diabetic patient encounters.", C_NAVY),
-        ("43.80%", "Polypharmacy Alert Rate", "Inpatients taking >=10 active medications facing severe adverse drug interactions.", C_RED),
+        ("79.00%", "High Medication Intensity", "Inpatients receiving >=10 distinct medications during stay (79% of sample).", C_RED),
         ("59.45%", "Targeted ML Sensitivity", "Prioritizing recall over accuracy to catch ~60% of all readmissions at point of care.", C_BLUE)
     ]
     for i, (val, title, desc, col) in enumerate(stats1):

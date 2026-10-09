@@ -83,7 +83,7 @@
 - When clicking "Explain Readiness" on any patient card or in the Bedside Calculator, a modal window appears displaying:
   1. Clinical Discharge Recommendation (Discharge Not Recommended vs Conditional Discharge vs Discharge Recommended).
   2. Patient-specific clinical narrative synthesizing risk trajectory.
-  3. Core clinical metrics (Stay length, Active medications, Prior acute hospitalizations, Glycemic marker A1C).
+  3. Core clinical metrics (Stay length, Distinct medications during stay [79% >= 10], Prior acute hospitalizations, Glycemic marker A1C).
   4. Top contributing XGBoost risk drivers visualized via horizontal impact chart.
   5. Targeted care transition protocols (Bedside Pharmacist Recon, CDCES Referral, Home Health Nurse, 48h Telehealth).
   6. In-dialog action confirmation for care coordination orders.

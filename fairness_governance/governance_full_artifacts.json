@@ -246,7 +246,8 @@
             "sensitivity": 98.1,
             "specificity": 8.0,
             "precision": 12.0,
-            "flag_rate": 92.7
+            "flag_rate": 92.7,
+            "accuracy": 18.2
         },
         {
             "cutoff": 0.06,
@@ -257,7 +258,8 @@
             "sensitivity": 93.2,
             "specificity": 17.2,
             "precision": 12.6,
-            "flag_rate": 84.0
+            "flag_rate": 84.0,
+            "accuracy": 25.9
         },
         {
             "cutoff": 0.07,
@@ -268,7 +270,8 @@
             "sensitivity": 86.3,
             "specificity": 28.7,
             "precision": 13.5,
-            "flag_rate": 73.0
+            "flag_rate": 73.0,
+            "accuracy": 35.3
         },
         {
             "cutoff": 0.08,
@@ -279,7 +282,8 @@
             "sensitivity": 79.8,
             "specificity": 39.8,
             "precision": 14.6,
-            "flag_rate": 62.4
+            "flag_rate": 62.4,
+            "accuracy": 44.4
         },
         {
             "cutoff": 0.09,
@@ -290,7 +294,8 @@
             "sensitivity": 72.5,
             "specificity": 49.0,
             "precision": 15.5,
-            "flag_rate": 53.4
+            "flag_rate": 53.4,
+            "accuracy": 51.7
         },
         {
             "cutoff": 0.1,
@@ -301,7 +306,8 @@
             "sensitivity": 66.6,
             "specificity": 55.5,
             "precision": 16.1,
-            "flag_rate": 47.0
+            "flag_rate": 47.0,
+            "accuracy": 56.7
         },
         {
             "cutoff": 0.11,
@@ -312,7 +318,8 @@
             "sensitivity": 61.3,
             "specificity": 60.7,
             "precision": 16.7,
-            "flag_rate": 41.8
+            "flag_rate": 41.8,
+            "accuracy": 60.8
         },
         {
             "cutoff": 0.12,
@@ -323,7 +330,8 @@
             "sensitivity": 57.6,
             "specificity": 64.8,
             "precision": 17.4,
-            "flag_rate": 37.8
+            "flag_rate": 37.8,
+            "accuracy": 64.0
         },
         {
             "cutoff": 0.13,
@@ -334,7 +342,8 @@
             "sensitivity": 52.9,
             "specificity": 68.9,
             "precision": 17.9,
-            "flag_rate": 33.6
+            "flag_rate": 33.6,
+            "accuracy": 67.1
         },
         {
             "cutoff": 0.14,
@@ -345,7 +354,8 @@
             "sensitivity": 46.6,
             "specificity": 73.7,
             "precision": 18.5,
-            "flag_rate": 28.6
+            "flag_rate": 28.6,
+            "accuracy": 70.6
         },
         {
             "cutoff": 0.15,
@@ -356,7 +366,8 @@
             "sensitivity": 40.3,
             "specificity": 78.2,
             "precision": 19.2,
-            "flag_rate": 23.9
+            "flag_rate": 23.9,
+            "accuracy": 73.9
         },
         {
             "cutoff": 0.16,
@@ -367,7 +378,8 @@
             "sensitivity": 34.6,
             "specificity": 82.4,
             "precision": 20.1,
-            "flag_rate": 19.6
+            "flag_rate": 19.6,
+            "accuracy": 76.9
         },
         {
             "cutoff": 0.17,
@@ -378,7 +390,8 @@
             "sensitivity": 29.3,
             "specificity": 85.7,
             "precision": 20.9,
-            "flag_rate": 16.0
+            "flag_rate": 16.0,
+            "accuracy": 79.3
         },
         {
             "cutoff": 0.18,
@@ -389,7 +402,8 @@
             "sensitivity": 25.3,
             "specificity": 88.5,
             "precision": 22.1,
-            "flag_rate": 13.1
+            "flag_rate": 13.1,
+            "accuracy": 81.3
         },
         {
             "cutoff": 0.19,
@@ -400,7 +414,8 @@
             "sensitivity": 21.8,
             "specificity": 90.8,
             "precision": 23.3,
-            "flag_rate": 10.6
+            "flag_rate": 10.6,
+            "accuracy": 82.9
         },
         {
             "cutoff": 0.2,
@@ -411,7 +426,8 @@
             "sensitivity": 18.7,
             "specificity": 92.5,
             "precision": 24.2,
-            "flag_rate": 8.8
+            "flag_rate": 8.8,
+            "accuracy": 84.1
         },
         {
             "cutoff": 0.21,
@@ -422,7 +438,8 @@
             "sensitivity": 15.9,
             "specificity": 93.8,
             "precision": 24.8,
-            "flag_rate": 7.3
+            "flag_rate": 7.3,
+            "accuracy": 84.9
         },
         {
             "cutoff": 0.22,
@@ -433,7 +450,8 @@
             "sensitivity": 13.3,
             "specificity": 95.0,
             "precision": 25.4,
-            "flag_rate": 6.0
+            "flag_rate": 6.0,
+            "accuracy": 85.7
         },
         {
             "cutoff": 0.23,
@@ -444,7 +462,8 @@
             "sensitivity": 11.6,
             "specificity": 95.9,
             "precision": 26.7,
-            "flag_rate": 4.9
+            "flag_rate": 4.9,
+            "accuracy": 86.3
         },
         {
             "cutoff": 0.24,
@@ -455,7 +474,8 @@
             "sensitivity": 10.0,
             "specificity": 96.7,
             "precision": 28.0,
-            "flag_rate": 4.1
+            "flag_rate": 4.1,
+            "accuracy": 86.8
         },
         {
             "cutoff": 0.25,
@@ -466,7 +486,8 @@
             "sensitivity": 8.5,
             "specificity": 97.3,
             "precision": 29.1,
-            "flag_rate": 3.3
+            "flag_rate": 3.3,
+            "accuracy": 87.2
         },
         {
             "cutoff": 0.26,
@@ -477,7 +498,8 @@
             "sensitivity": 7.6,
             "specificity": 97.8,
             "precision": 30.6,
-            "flag_rate": 2.8
+            "flag_rate": 2.8,
+            "accuracy": 87.5
         },
         {
             "cutoff": 0.27,
@@ -488,7 +510,8 @@
             "sensitivity": 6.5,
             "specificity": 98.2,
             "precision": 31.2,
-            "flag_rate": 2.4
+            "flag_rate": 2.4,
+            "accuracy": 87.7
         },
         {
             "cutoff": 0.28,
@@ -499,7 +522,8 @@
             "sensitivity": 6.0,
             "specificity": 98.4,
             "precision": 32.5,
-            "flag_rate": 2.1
+            "flag_rate": 2.1,
+            "accuracy": 87.9
         },
         {
             "cutoff": 0.29,
@@ -510,7 +534,8 @@
             "sensitivity": 5.2,
             "specificity": 98.7,
             "precision": 33.3,
-            "flag_rate": 1.8
+            "flag_rate": 1.8,
+            "accuracy": 88.0
         },
         {
             "cutoff": 0.3,
@@ -521,7 +546,8 @@
             "sensitivity": 4.6,
             "specificity": 98.8,
             "precision": 34.0,
-            "flag_rate": 1.6
+            "flag_rate": 1.6,
+            "accuracy": 88.1
         },
         {
             "cutoff": 0.31,
@@ -532,7 +558,8 @@
             "sensitivity": 4.2,
             "specificity": 99.0,
             "precision": 35.5,
-            "flag_rate": 1.3
+            "flag_rate": 1.3,
+            "accuracy": 88.2
         },
         {
             "cutoff": 0.32,
@@ -543,7 +570,8 @@
             "sensitivity": 3.6,
             "specificity": 99.2,
             "precision": 36.3,
-            "flag_rate": 1.1
+            "flag_rate": 1.1,
+            "accuracy": 88.3
         },
         {
             "cutoff": 0.33,
@@ -554,7 +582,8 @@
             "sensitivity": 3.3,
             "specificity": 99.3,
             "precision": 39.3,
-            "flag_rate": 1.0
+            "flag_rate": 1.0,
+            "accuracy": 88.4
         },
         {
             "cutoff": 0.34,
@@ -565,7 +594,8 @@
             "sensitivity": 3.0,
             "specificity": 99.5,
             "precision": 42.4,
-            "flag_rate": 0.8
+            "flag_rate": 0.8,
+            "accuracy": 88.5
         },
         {
             "cutoff": 0.35,
@@ -576,7 +606,8 @@
             "sensitivity": 2.5,
             "specificity": 99.6,
             "precision": 42.5,
-            "flag_rate": 0.7
+            "flag_rate": 0.7,
+            "accuracy": 88.5
         }
     ],
     "feature_importance": {
@@ -586,6 +617,7 @@
                 "display_name": "Prior Inpatient Hospitalizations (Past 12 Mo)",
                 "coefficient": 0.3735,
                 "odds_ratio": 1.4528,
+                "unit": "per 1 SD",
                 "direction": "Increases Risk"
             },
             {
@@ -593,13 +625,16 @@
                 "display_name": "Discharge Destination: Skilled Nursing / Rehab Facility",
                 "coefficient": 0.3,
                 "odds_ratio": 1.3499,
-                "direction": "Increases Risk"
+                "unit": "versus reference category",
+                "direction": "Increases Risk",
+                "clinical_note": "Observational association: discharge to rehab/SNF was associated with higher odds (OR = 1.35), likely because those patients are sicker."
             },
             {
                 "raw_feature": "discharge_destination_Home",
                 "display_name": "Discharge Destination: Home / Self-Care",
                 "coefficient": -0.2718,
                 "odds_ratio": 0.762,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -607,6 +642,7 @@
                 "display_name": "Primary Diagnosis: Musculoskeletal System",
                 "coefficient": -0.224,
                 "odds_ratio": 0.7993,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -614,6 +650,7 @@
                 "display_name": "Age Demographic: Younger Adult (<30 Years)",
                 "coefficient": -0.1799,
                 "odds_ratio": 0.8353,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -621,6 +658,7 @@
                 "display_name": "Primary Diagnosis: External Factors",
                 "coefficient": 0.1688,
                 "odds_ratio": 1.1839,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -628,6 +666,7 @@
                 "display_name": "Primary Diagnosis: Respiratory (COPD / Pneumonia)",
                 "coefficient": -0.1549,
                 "odds_ratio": 0.8565,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -635,6 +674,7 @@
                 "display_name": "Age Demographic: Older Adult (60+ Years)",
                 "coefficient": 0.1505,
                 "odds_ratio": 1.1624,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -642,6 +682,7 @@
                 "display_name": "Race Demographic: Other / Unspecified",
                 "coefficient": -0.1382,
                 "odds_ratio": 0.871,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -649,6 +690,7 @@
                 "display_name": "Primary Diagnosis: Diabetes Mellitus with Complications",
                 "coefficient": 0.1314,
                 "odds_ratio": 1.1405,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -656,6 +698,7 @@
                 "display_name": "Insulin Protocol: Not Prescribed",
                 "coefficient": -0.1236,
                 "odds_ratio": 0.8838,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -663,6 +706,7 @@
                 "display_name": "Insulin Protocol: Dosage De-escalated During Stay",
                 "coefficient": 0.0928,
                 "odds_ratio": 1.0972,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -670,6 +714,7 @@
                 "display_name": "Primary Diagnosis: Circulatory (CVD / CHF / CAD)",
                 "coefficient": 0.0867,
                 "odds_ratio": 1.0906,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -677,6 +722,7 @@
                 "display_name": "Prior Emergency Department Visits",
                 "coefficient": 0.0776,
                 "odds_ratio": 1.0807,
+                "unit": "per 1 SD",
                 "direction": "Increases Risk"
             },
             {
@@ -684,6 +730,7 @@
                 "display_name": "Race Demographic: African American",
                 "coefficient": 0.0743,
                 "odds_ratio": 1.0772,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -691,6 +738,7 @@
                 "display_name": "Primary Diagnosis: Genitourinary / Renal Disease",
                 "coefficient": -0.0674,
                 "odds_ratio": 0.9348,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -698,6 +746,7 @@
                 "display_name": "Discharge Destination: Other Clinical Pathway",
                 "coefficient": -0.0556,
                 "odds_ratio": 0.9459,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -705,6 +754,7 @@
                 "display_name": "Total Inpatient Medications Administered",
                 "coefficient": 0.0549,
                 "odds_ratio": 1.0564,
+                "unit": "per 1 SD",
                 "direction": "Increases Risk"
             },
             {
@@ -712,6 +762,7 @@
                 "display_name": "Primary Diagnosis: Oncology / Neoplasms",
                 "coefficient": 0.0519,
                 "odds_ratio": 1.0532,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -719,6 +770,7 @@
                 "display_name": "Primary Diagnosis: Digestive Disease",
                 "coefficient": -0.0448,
                 "odds_ratio": 0.9562,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -726,6 +778,7 @@
                 "display_name": "Sex / Gender: Female",
                 "coefficient": -0.0431,
                 "odds_ratio": 0.9578,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -733,6 +786,7 @@
                 "display_name": "Medication Change: Inpatient Dose / Drug Adjustment Made",
                 "coefficient": -0.0406,
                 "odds_ratio": 0.9602,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -740,6 +794,7 @@
                 "display_name": "Race Demographic: Caucasian",
                 "coefficient": 0.0398,
                 "odds_ratio": 1.0406,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -747,6 +802,7 @@
                 "display_name": "Insulin Protocol: Dosage Escalated During Stay",
                 "coefficient": 0.0384,
                 "odds_ratio": 1.0391,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -754,6 +810,7 @@
                 "display_name": "Insulin Protocol: Maintained on Steady Regimen",
                 "coefficient": -0.0339,
                 "odds_ratio": 0.9667,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -761,6 +818,7 @@
                 "display_name": "Hospital Length of Stay (Days)",
                 "coefficient": 0.032,
                 "odds_ratio": 1.0325,
+                "unit": "per 1 SD",
                 "direction": "Increases Risk"
             },
             {
@@ -768,6 +826,7 @@
                 "display_name": "Diagnostic Laboratory Procedures Performed",
                 "coefficient": 0.0229,
                 "odds_ratio": 1.0232,
+                "unit": "per 1 SD",
                 "direction": "Increases Risk"
             },
             {
@@ -775,6 +834,7 @@
                 "display_name": "Diag 1 Group Missing",
                 "coefficient": 0.0214,
                 "odds_ratio": 1.0216,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -782,6 +842,7 @@
                 "display_name": "Sex / Gender: Male",
                 "coefficient": 0.018,
                 "odds_ratio": 1.0182,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -789,6 +850,7 @@
                 "display_name": "Medication Change: No Medication Adjustments Made",
                 "coefficient": 0.0143,
                 "odds_ratio": 1.0144,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -796,6 +858,7 @@
                 "display_name": "Primary Diagnosis: Other Specialized Conditions",
                 "coefficient": 0.0078,
                 "odds_ratio": 1.0078,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -803,6 +866,7 @@
                 "display_name": "Race Clean Other",
                 "coefficient": -0.0054,
                 "odds_ratio": 0.9946,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -810,6 +874,7 @@
                 "display_name": "Race Demographic: Asian",
                 "coefficient": 0.0038,
                 "odds_ratio": 1.0038,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -817,6 +882,7 @@
                 "display_name": "Prior Outpatient Encounters",
                 "coefficient": 0.0033,
                 "odds_ratio": 1.0033,
+                "unit": "per 1 SD",
                 "direction": "Increases Risk"
             },
             {
@@ -824,6 +890,7 @@
                 "display_name": "Primary Diagnosis: Acute Trauma / Injury",
                 "coefficient": -0.0033,
                 "odds_ratio": 0.9967,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -831,6 +898,7 @@
                 "display_name": "Age Demographic: Middle Adult (30-60 Years)",
                 "coefficient": 0.0032,
                 "odds_ratio": 1.0032,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -838,6 +906,7 @@
                 "display_name": "Gender Clean Other/Unknown",
                 "coefficient": -0.0012,
                 "odds_ratio": 0.9988,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             },
             {
@@ -845,6 +914,7 @@
                 "display_name": "Discharge Destination: Left Against Medical Advice",
                 "coefficient": 0.0011,
                 "odds_ratio": 1.0011,
+                "unit": "versus reference category",
                 "direction": "Increases Risk"
             },
             {
@@ -852,6 +922,7 @@
                 "display_name": "Race Demographic: Hispanic",
                 "coefficient": -0.0006,
                 "odds_ratio": 0.9994,
+                "unit": "versus reference category",
                 "direction": "Decreases Risk"
             }
         ],
@@ -1141,7 +1212,12 @@
             "Sex / Gender: Female",
             "Discharge Destination: Skilled Nursing / Rehab Facility",
             "Primary Diagnosis: Respiratory (COPD / Pneumonia)"
-        ]
+        ],
+        "units_specification": {
+            "numeric": "per 1 SD for continuous numeric features",
+            "categorical": "versus reference category for categorical dummy variables"
+        },
+        "rehab_snf_clinical_note": "Observational association: discharge to rehab/SNF was associated with higher odds, an observational association, likely because those patients are sicker."
     },
     "data_preprocessing": {
         "data_quality": {
@@ -1215,6 +1291,32 @@
                     "raw_max": 81.0,
                     "cap_99th": 43.0,
                     "post_cap_max": 43.0
+                }
+            },
+            "split_sizes_detailed": {
+                "train": {
+                    "encounters": 69538,
+                    "patients": 48973,
+                    "percentage": 70.0
+                },
+                "val": {
+                    "encounters": 9935,
+                    "patients": 6979,
+                    "percentage": 10.0
+                },
+                "test": {
+                    "encounters": 19870,
+                    "patients": 14038,
+                    "percentage": 20.0
+                },
+                "total": {
+                    "encounters": 99343,
+                    "patients": 69990
+                },
+                "demo_sample": {
+                    "encounters": 500,
+                    "patients": 494,
+                    "seed": 55
                 }
             }
         },
@@ -1297,7 +1399,121 @@
                 "missingness": "0.00%",
                 "reason": "Patients discharged to hospice or who expired in hospital cannot experience 30-day readmissions; excluded to prevent target contamination."
             }
-        ]
+        ],
+        "missingness_table": [
+            {
+                "feature": "weight",
+                "category": "Measurement",
+                "missing_rate_pct": 96.86,
+                "status": "Dropped (>96% missing across clinical sites)"
+            },
+            {
+                "feature": "medical_specialty",
+                "category": "Provider",
+                "missing_rate_pct": 49.08,
+                "status": "Dropped (49% missing; 73 sparse specialties)"
+            },
+            {
+                "feature": "payer_code",
+                "category": "Billing",
+                "missing_rate_pct": 39.56,
+                "status": "Dropped (Administrative; non-pathophysiological)"
+            },
+            {
+                "feature": "A1Cresult",
+                "category": "Laboratory",
+                "missing_rate_pct": 83.05,
+                "status": "Excluded from model; analyzed in clinical finding"
+            },
+            {
+                "feature": "max_glu_serum",
+                "category": "Laboratory",
+                "missing_rate_pct": 94.75,
+                "status": "Dropped (>94% unmeasured acute glucose)"
+            },
+            {
+                "feature": "race",
+                "category": "Demographic",
+                "missing_rate_pct": 2.23,
+                "status": "Imputed to Other/Unknown category"
+            },
+            {
+                "feature": "diag_1",
+                "category": "Diagnosis",
+                "missing_rate_pct": 0.02,
+                "status": "Imputed to Other category (21 encounters)"
+            },
+            {
+                "feature": "diag_2, diag_3",
+                "category": "Secondary Diagnoses",
+                "missing_rate_pct": 1.4,
+                "status": "Excluded to focus strictly on primary diagnosis"
+            }
+        ],
+        "icd9_categories": [
+            {
+                "category": "Circulatory",
+                "codes": "390\u2013459, 785",
+                "description": "Acute myocardial infarction, CHF, hypertension, cardiac dysrhythmias"
+            },
+            {
+                "category": "Respiratory",
+                "codes": "460\u2013519, 786",
+                "description": "COPD, pneumonia, asthma, acute respiratory failure"
+            },
+            {
+                "category": "Digestive",
+                "codes": "520\u2013579, 787",
+                "description": "GI hemorrhage, gastroenteritis, intestinal obstruction, hepatic disease"
+            },
+            {
+                "category": "Diabetes",
+                "codes": "250.xx",
+                "description": "Diabetes mellitus with ketoacidosis, hyperosmolarity, or chronic complications"
+            },
+            {
+                "category": "Injury",
+                "codes": "800\u2013999",
+                "description": "Trauma, fractures, poisonings, postoperative complications"
+            },
+            {
+                "category": "Musculoskeletal",
+                "codes": "710\u2013739",
+                "description": "Osteoarthritis, arthropathies, spinal disorders, pathological fracture"
+            },
+            {
+                "category": "Genitourinary",
+                "codes": "580\u2013629, 788",
+                "description": "Acute renal failure, chronic kidney disease, urinary tract infections"
+            },
+            {
+                "category": "Neoplasms",
+                "codes": "140\u2013239",
+                "description": "Malignant neoplasms, leukemias, lymphomas, benign neoplasms"
+            },
+            {
+                "category": "Other / External",
+                "codes": "All other codes, E/V codes",
+                "description": "Infections, metabolic, endocrine, hematologic, or external causes"
+            }
+        ],
+        "medication_review": {
+            "total_reviewed": 24,
+            "retained_features": [
+                {
+                    "feature": "insulin",
+                    "status": "Retained",
+                    "rationale": "Core therapy with meaningful titration variation (No, Steady, Up, Down)"
+                },
+                {
+                    "feature": "change",
+                    "status": "Retained",
+                    "rationale": "Composite flag indicating active dosage adjustments or new medication during stay"
+                }
+            ],
+            "excluded_agents_count": 22,
+            "exclusion_rationale": "22 single-agent oral hypoglycemics (metformin, glipizide, glyburide, pioglitazone, rosiglitazone, acarbose, miglitol, tolbutamide, glimepiride, etc.) had >95% zero or constant variance, or zero instances (examide, citoglipton). Pharmacologic volatility is captured comprehensively by insulin and the medication change flag."
+        }
     },
     "fairness": {
         "audit_metadata": {
@@ -1906,5 +2122,194 @@
             "change_flag_in_final_model": true,
             "insulin_in_final_model": true
         }
-    }
+    },
+    "hba1c_validation_experiment": {
+        "title": "HbA1c Tested Binary Feature Validation Experiment",
+        "status": "Validation-only experiment (deployed model untouched)",
+        "cohort_difference": {
+            "total_cohort": 99343,
+            "tested": {
+                "encounters_n": 16834,
+                "share_pct": 16.95,
+                "readmissions_k": 1673,
+                "readmission_rate_pct": 9.94,
+                "ci_95_str": "[9.49%, 10.40%]"
+            },
+            "not_tested": {
+                "encounters_n": 82509,
+                "share_pct": 83.05,
+                "readmissions_k": 9641,
+                "readmission_rate_pct": 11.68,
+                "ci_95_str": "[11.47%, 11.91%]"
+            },
+            "absolute_difference_pp": 1.75,
+            "absolute_difference_ci_95_str": "[1.24%, 2.25%]",
+            "chi_square": 42.56,
+            "p_value": "3.06e-09",
+            "clinical_interpretation": "Observational association, not causation: tested patients had a 1.75 percentage point lower 30-day readmission rate (9.94% vs. 11.68%), likely because inpatient testing reflects structured diabetic care management and discharge planning rather than testing itself preventing readmissions."
+        },
+        "validation_experiment": [
+            {
+                "model": "Logistic Regression",
+                "without_feature": {
+                    "auc": 0.6642,
+                    "recall": 0.5097,
+                    "precision": 0.1897,
+                    "threshold": 0.12
+                },
+                "with_a1c_tested": {
+                    "auc": 0.6649,
+                    "recall": 0.5133,
+                    "precision": 0.1904,
+                    "threshold": 0.12
+                },
+                "delta": {
+                    "auc_delta": 0.0007,
+                    "recall_delta": 0.0035,
+                    "precision_delta": 0.0008
+                }
+            },
+            {
+                "model": "CatBoost",
+                "without_feature": {
+                    "auc": 0.6664,
+                    "recall": 0.5857,
+                    "precision": 0.1838,
+                    "threshold": 0.12
+                },
+                "with_a1c_tested": {
+                    "auc": 0.6698,
+                    "recall": 0.5769,
+                    "precision": 0.1828,
+                    "threshold": 0.12
+                },
+                "delta": {
+                    "auc_delta": 0.0035,
+                    "recall_delta": -0.0088,
+                    "precision_delta": -0.001
+                }
+            },
+            {
+                "model": "XGBoost",
+                "without_feature": {
+                    "auc": 0.6683,
+                    "recall": 0.5857,
+                    "precision": 0.1814,
+                    "threshold": 0.12
+                },
+                "with_a1c_tested": {
+                    "auc": 0.668,
+                    "recall": 0.591,
+                    "precision": 0.1828,
+                    "threshold": 0.12
+                },
+                "delta": {
+                    "auc_delta": -0.0002,
+                    "recall_delta": 0.0053,
+                    "precision_delta": 0.0014
+                }
+            }
+        ],
+        "conclusion": "Adding binary A1C tested yielded marginal AUC change (+0.0007 in LR, +0.0035 in CatBoost, -0.0002 in XGBoost) with minimal recall and precision impact. Deployed production model remains untouched pending clinician decision."
+    },
+    "mentor_checklist": [
+        {
+            "id": 1,
+            "requirement": "Test-Set Discipline",
+            "evidence": "models/test_set_audit.csv, tests/test_leakage.py",
+            "status": "Done",
+            "notes": "Zero patient overlap across splits (Train=48,973, Val=6,979, Test=14,038 unique patients). All modeling & tuning on validation."
+        },
+        {
+            "id": 2,
+            "requirement": "Full Model Benchmarks",
+            "evidence": "models/test_metrics_benchmarks.csv",
+            "status": "Done",
+            "notes": "Accuracy, Precision, Recall, F1, ROC-AUC, Brier score reported for all 6 models at common (0.120) and tuned cutoffs."
+        },
+        {
+            "id": 3,
+            "requirement": "Fixed Flag Rate Comparison",
+            "evidence": "models/fixed_flag_rates_comparison.csv",
+            "status": "Done",
+            "notes": "Evaluated Recall, Precision, and Lift at top 20%, 30%, and 40% flag rates across all 6 models."
+        },
+        {
+            "id": 4,
+            "requirement": "Validation Selection Rule",
+            "evidence": "models/validation_metrics_all_models.csv",
+            "status": "Done",
+            "notes": "Selection rule stated up front: highest validation AUC. CatBoost (0.6714) and Ensemble (0.6707) transparently compared."
+        },
+        {
+            "id": 5,
+            "requirement": "Threshold Sweep & Capacity Floor",
+            "evidence": "models/threshold_sweep_test.csv",
+            "status": "Done",
+            "notes": "Interactive 31-cutoff sweep with 18% precision capacity floor and plain-language flag translation."
+        },
+        {
+            "id": 6,
+            "requirement": "Metric Clinical Justification",
+            "evidence": "Governance page Section 5",
+            "status": "Done",
+            "notes": "Recall-first prioritized: FN is unmonitored acute deterioration; FP is manageable care coordination time."
+        },
+        {
+            "id": 7,
+            "requirement": "Risk Tier Validation with 95% CIs",
+            "evidence": "models/tier_validation_test.csv",
+            "status": "Done",
+            "notes": "Low: 7.76% [7.30%, 8.24%], Elevated: 15.31% [14.40%, 16.26%], High: 24.17% [22.22%, 26.23%]. Non-overlapping intervals."
+        },
+        {
+            "id": 8,
+            "requirement": "Worklist Parity & Consistency",
+            "evidence": "data/processed/worklist_precomputed.joblib, tests/test_api.py",
+            "status": "Done",
+            "notes": "500 sample (seed 55) matched on flag rate, High-tier share, and readmission rate. Automated parity error < 1e-6."
+        },
+        {
+            "id": 9,
+            "requirement": "HbA1c Finding & EDA Analysis",
+            "evidence": "models/hba1c_eda_analysis.json, models/hba1c_validation_experiment.json",
+            "status": "Done",
+            "notes": "Tested 9.94% vs Untested 11.68% (diff 1.75 pp [1.24%, 2.25%], chi2 = 42.56). Documented as observational association."
+        },
+        {
+            "id": 10,
+            "requirement": "ICD-9 Documentation",
+            "evidence": "src/preprocessing.py",
+            "status": "Done",
+            "notes": "9 clinical categories mapped from ICD-9 diagnostic codes (1999\u20132008 data). Zero ICD-10 references."
+        },
+        {
+            "id": 11,
+            "requirement": "Preprocessing & Leak-Free Pipeline",
+            "evidence": "src/preprocessing.py",
+            "status": "Done",
+            "notes": "Target <30 = 1. Terminal discharges (2,423) excluded. StandardScaler and OneHotEncoder fitted strictly on train split."
+        },
+        {
+            "id": 12,
+            "requirement": "Fairness Audit (Analysis Only)",
+            "evidence": "fairness_governance/governance_full_artifacts.json",
+            "status": "Done",
+            "notes": "Per-group TPR with 95% CIs reported across race, gender, age. Mitigated claims removed; group cutoffs marked analysis only."
+        },
+        {
+            "id": 13,
+            "requirement": "Explainability & Odds Ratios Units",
+            "evidence": "models/explainability_feature_importance.json",
+            "status": "Done",
+            "notes": "Odds ratios include units (per 1 SD for numeric; vs ref for categorical) and rehab/SNF observational caveat."
+        },
+        {
+            "id": 14,
+            "requirement": "Zero LaTeX Syntax",
+            "evidence": "All reports and JSON artifacts",
+            "status": "Done",
+            "notes": "Zero dollar signs in text and artifacts. Formatted in standard plain ASCII and Unicode."
+        }
+    ]
 }

@@ -1,0 +1,89 @@
+{
+    "title": "HbA1c Tested Binary Feature Validation Experiment",
+    "status": "Validation-only experiment (deployed model untouched)",
+    "cohort_difference": {
+        "total_cohort": 99343,
+        "tested": {
+            "encounters_n": 16834,
+            "share_pct": 16.95,
+            "readmissions_k": 1673,
+            "readmission_rate_pct": 9.94,
+            "ci_95_str": "[9.49%, 10.40%]"
+        },
+        "not_tested": {
+            "encounters_n": 82509,
+            "share_pct": 83.05,
+            "readmissions_k": 9641,
+            "readmission_rate_pct": 11.68,
+            "ci_95_str": "[11.47%, 11.91%]"
+        },
+        "absolute_difference_pp": 1.75,
+        "absolute_difference_ci_95_str": "[1.24%, 2.25%]",
+        "chi_square": 42.56,
+        "p_value": "3.06e-09",
+        "clinical_interpretation": "Observational association, not causation: tested patients had a 1.75 percentage point lower 30-day readmission rate (9.94% vs. 11.68%), likely because inpatient testing reflects structured diabetic care management and discharge planning rather than testing itself preventing readmissions."
+    },
+    "validation_experiment": [
+        {
+            "model": "Logistic Regression",
+            "without_feature": {
+                "auc": 0.6642,
+                "recall": 0.5097,
+                "precision": 0.1897,
+                "threshold": 0.12
+            },
+            "with_a1c_tested": {
+                "auc": 0.6649,
+                "recall": 0.5133,
+                "precision": 0.1904,
+                "threshold": 0.12
+            },
+            "delta": {
+                "auc_delta": 0.0007,
+                "recall_delta": 0.0035,
+                "precision_delta": 0.0008
+            }
+        },
+        {
+            "model": "CatBoost",
+            "without_feature": {
+                "auc": 0.6664,
+                "recall": 0.5857,
+                "precision": 0.1838,
+                "threshold": 0.12
+            },
+            "with_a1c_tested": {
+                "auc": 0.6698,
+                "recall": 0.5769,
+                "precision": 0.1828,
+                "threshold": 0.12
+            },
+            "delta": {
+                "auc_delta": 0.0035,
+                "recall_delta": -0.0088,
+                "precision_delta": -0.001
+            }
+        },
+        {
+            "model": "XGBoost",
+            "without_feature": {
+                "auc": 0.6683,
+                "recall": 0.5857,
+                "precision": 0.1814,
+                "threshold": 0.12
+            },
+            "with_a1c_tested": {
+                "auc": 0.668,
+                "recall": 0.591,
+                "precision": 0.1828,
+                "threshold": 0.12
+            },
+            "delta": {
+                "auc_delta": -0.0002,
+                "recall_delta": 0.0053,
+                "precision_delta": 0.0014
+            }
+        }
+    ],
+    "conclusion": "Adding binary A1C tested yielded marginal AUC change (+0.0007 in LR, +0.0035 in CatBoost, -0.0002 in XGBoost) with minimal recall and precision impact. Deployed production model remains untouched pending clinician decision."
+}

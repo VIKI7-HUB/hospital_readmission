@@ -5,6 +5,7 @@
             "display_name": "Prior Inpatient Hospitalizations (Past 12 Mo)",
             "coefficient": 0.3735,
             "odds_ratio": 1.4528,
+            "unit": "per 1 SD",
             "direction": "Increases Risk"
         },
         {
@@ -12,13 +13,16 @@
             "display_name": "Discharge Destination: Skilled Nursing / Rehab Facility",
             "coefficient": 0.3,
             "odds_ratio": 1.3499,
-            "direction": "Increases Risk"
+            "unit": "versus reference category",
+            "direction": "Increases Risk",
+            "clinical_note": "Observational association: discharge to rehab/SNF was associated with higher odds (OR = 1.35), likely because those patients are sicker."
         },
         {
             "raw_feature": "discharge_destination_Home",
             "display_name": "Discharge Destination: Home / Self-Care",
             "coefficient": -0.2718,
             "odds_ratio": 0.762,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -26,6 +30,7 @@
             "display_name": "Primary Diagnosis: Musculoskeletal System",
             "coefficient": -0.224,
             "odds_ratio": 0.7993,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -33,6 +38,7 @@
             "display_name": "Age Demographic: Younger Adult (<30 Years)",
             "coefficient": -0.1799,
             "odds_ratio": 0.8353,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -40,6 +46,7 @@
             "display_name": "Primary Diagnosis: External Factors",
             "coefficient": 0.1688,
             "odds_ratio": 1.1839,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -47,6 +54,7 @@
             "display_name": "Primary Diagnosis: Respiratory (COPD / Pneumonia)",
             "coefficient": -0.1549,
             "odds_ratio": 0.8565,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -54,6 +62,7 @@
             "display_name": "Age Demographic: Older Adult (60+ Years)",
             "coefficient": 0.1505,
             "odds_ratio": 1.1624,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -61,6 +70,7 @@
             "display_name": "Race Demographic: Other / Unspecified",
             "coefficient": -0.1382,
             "odds_ratio": 0.871,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -68,6 +78,7 @@
             "display_name": "Primary Diagnosis: Diabetes Mellitus with Complications",
             "coefficient": 0.1314,
             "odds_ratio": 1.1405,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -75,6 +86,7 @@
             "display_name": "Insulin Protocol: Not Prescribed",
             "coefficient": -0.1236,
             "odds_ratio": 0.8838,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -82,6 +94,7 @@
             "display_name": "Insulin Protocol: Dosage De-escalated During Stay",
             "coefficient": 0.0928,
             "odds_ratio": 1.0972,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -89,6 +102,7 @@
             "display_name": "Primary Diagnosis: Circulatory (CVD / CHF / CAD)",
             "coefficient": 0.0867,
             "odds_ratio": 1.0906,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -96,6 +110,7 @@
             "display_name": "Prior Emergency Department Visits",
             "coefficient": 0.0776,
             "odds_ratio": 1.0807,
+            "unit": "per 1 SD",
             "direction": "Increases Risk"
         },
         {
@@ -103,6 +118,7 @@
             "display_name": "Race Demographic: African American",
             "coefficient": 0.0743,
             "odds_ratio": 1.0772,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -110,6 +126,7 @@
             "display_name": "Primary Diagnosis: Genitourinary / Renal Disease",
             "coefficient": -0.0674,
             "odds_ratio": 0.9348,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -117,6 +134,7 @@
             "display_name": "Discharge Destination: Other Clinical Pathway",
             "coefficient": -0.0556,
             "odds_ratio": 0.9459,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -124,6 +142,7 @@
             "display_name": "Total Inpatient Medications Administered",
             "coefficient": 0.0549,
             "odds_ratio": 1.0564,
+            "unit": "per 1 SD",
             "direction": "Increases Risk"
         },
         {
@@ -131,6 +150,7 @@
             "display_name": "Primary Diagnosis: Oncology / Neoplasms",
             "coefficient": 0.0519,
             "odds_ratio": 1.0532,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -138,6 +158,7 @@
             "display_name": "Primary Diagnosis: Digestive Disease",
             "coefficient": -0.0448,
             "odds_ratio": 0.9562,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -145,6 +166,7 @@
             "display_name": "Sex / Gender: Female",
             "coefficient": -0.0431,
             "odds_ratio": 0.9578,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -152,6 +174,7 @@
             "display_name": "Medication Change: Inpatient Dose / Drug Adjustment Made",
             "coefficient": -0.0406,
             "odds_ratio": 0.9602,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -159,6 +182,7 @@
             "display_name": "Race Demographic: Caucasian",
             "coefficient": 0.0398,
             "odds_ratio": 1.0406,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -166,6 +190,7 @@
             "display_name": "Insulin Protocol: Dosage Escalated During Stay",
             "coefficient": 0.0384,
             "odds_ratio": 1.0391,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -173,6 +198,7 @@
             "display_name": "Insulin Protocol: Maintained on Steady Regimen",
             "coefficient": -0.0339,
             "odds_ratio": 0.9667,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -180,6 +206,7 @@
             "display_name": "Hospital Length of Stay (Days)",
             "coefficient": 0.032,
             "odds_ratio": 1.0325,
+            "unit": "per 1 SD",
             "direction": "Increases Risk"
         },
         {
@@ -187,6 +214,7 @@
             "display_name": "Diagnostic Laboratory Procedures Performed",
             "coefficient": 0.0229,
             "odds_ratio": 1.0232,
+            "unit": "per 1 SD",
             "direction": "Increases Risk"
         },
         {
@@ -194,6 +222,7 @@
             "display_name": "Diag 1 Group Missing",
             "coefficient": 0.0214,
             "odds_ratio": 1.0216,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -201,6 +230,7 @@
             "display_name": "Sex / Gender: Male",
             "coefficient": 0.018,
             "odds_ratio": 1.0182,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -208,6 +238,7 @@
             "display_name": "Medication Change: No Medication Adjustments Made",
             "coefficient": 0.0143,
             "odds_ratio": 1.0144,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -215,6 +246,7 @@
             "display_name": "Primary Diagnosis: Other Specialized Conditions",
             "coefficient": 0.0078,
             "odds_ratio": 1.0078,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -222,6 +254,7 @@
             "display_name": "Race Clean Other",
             "coefficient": -0.0054,
             "odds_ratio": 0.9946,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -229,6 +262,7 @@
             "display_name": "Race Demographic: Asian",
             "coefficient": 0.0038,
             "odds_ratio": 1.0038,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -236,6 +270,7 @@
             "display_name": "Prior Outpatient Encounters",
             "coefficient": 0.0033,
             "odds_ratio": 1.0033,
+            "unit": "per 1 SD",
             "direction": "Increases Risk"
         },
         {
@@ -243,6 +278,7 @@
             "display_name": "Primary Diagnosis: Acute Trauma / Injury",
             "coefficient": -0.0033,
             "odds_ratio": 0.9967,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -250,6 +286,7 @@
             "display_name": "Age Demographic: Middle Adult (30-60 Years)",
             "coefficient": 0.0032,
             "odds_ratio": 1.0032,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -257,6 +294,7 @@
             "display_name": "Gender Clean Other/Unknown",
             "coefficient": -0.0012,
             "odds_ratio": 0.9988,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         },
         {
@@ -264,6 +302,7 @@
             "display_name": "Discharge Destination: Left Against Medical Advice",
             "coefficient": 0.0011,
             "odds_ratio": 1.0011,
+            "unit": "versus reference category",
             "direction": "Increases Risk"
         },
         {
@@ -271,6 +310,7 @@
             "display_name": "Race Demographic: Hispanic",
             "coefficient": -0.0006,
             "odds_ratio": 0.9994,
+            "unit": "versus reference category",
             "direction": "Decreases Risk"
         }
     ],
@@ -560,5 +600,10 @@
         "Sex / Gender: Female",
         "Discharge Destination: Skilled Nursing / Rehab Facility",
         "Primary Diagnosis: Respiratory (COPD / Pneumonia)"
-    ]
+    ],
+    "units_specification": {
+        "numeric": "per 1 SD for continuous numeric features",
+        "categorical": "versus reference category for categorical dummy variables"
+    },
+    "rehab_snf_clinical_note": "Observational association: discharge to rehab/SNF was associated with higher odds, an observational association, likely because those patients are sicker."
 }

@@ -253,3 +253,67 @@ def test_worklist_offline_prediction_parity(client):
         expected_tier = "High Risk" if offline_p >= 0.20 else ("Elevated Risk" if offline_p >= 0.12 else "Low Risk")
         assert row["tier"] == expected_tier, f"Tier mismatch for {row['enc_id']}: API={row['tier']}, Expected={expected_tier}"
 
+
+def test_live_scoring_path_parity_50_encounters(client):
+    """
+    Automated parity test: Sends raw feature rows for 50 test encounters through
+    the LIVE scoring path used by the Risk calculator (not the precomputed worklist)
+    and verifies that probabilities match offline test predictions with diff < 1e-6.
+    """
+    import os, joblib, pandas as pd
+    from src.preprocessing import engineer_features
+
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    processed_dir = os.path.join(base_dir, "data", "processed")
+    models_dir = os.path.join(base_dir, "models")
+
+    # Load offline test predictions and precomputed worklist encounters
+    split_data = joblib.load(os.path.join(processed_dir, "train_val_test_data.joblib"))
+    eval_artifacts = joblib.load(os.path.join(models_dir, "evaluation_artifacts.joblib"))
+    worklist_df = joblib.load(os.path.join(processed_dir, "worklist_precomputed.joblib"))
+
+    df_test = split_data["df_test"]
+    p_test = eval_artifacts["test_probs"]["Calibrated Ensemble"]
+    enc_to_offline_prob = dict(zip(df_test["encounter_id"], p_test))
+
+    # Test first 50 encounters
+    sample_50 = worklist_df.iloc[:50]
+    for _, row in sample_50.iterrows():
+        raw_id = int(str(row["enc_id"]).replace("ENC-", ""))
+        assert raw_id in enc_to_offline_prob, f"Encounter {raw_id} not found in offline test set"
+        offline_p = enc_to_offline_prob[raw_id]
+
+        payload = {
+            "enc_id": str(row["enc_id"]),
+            "time_in_hospital": int(row["stay"]),
+            "num_medications": int(row["meds"]),
+            "number_inpatient": int(row["inpatient"]),
+            "number_emergency": int(row["er"]),
+            "A1Cresult": str(row["a1c"]) if str(row["a1c"]) in [">8", ">7", "Norm", "None", "Missing"] else "Missing",
+            "diag_1_cat": str(row["diag"]) if str(row["diag"]) in [
+                "Circulatory", "Respiratory", "Digestive", "Diabetes", "Injury",
+                "Musculoskeletal", "Genitourinary", "Neoplasms", "Other", "Other/External"
+            ] else "Other",
+        }
+
+        # 1. Test via LIVE scoring endpoint (calls engineer_features -> preprocessor.transform -> model.predict_proba)
+        response = client.post("/api/predict", json=payload)
+        assert response.status_code == 200
+        live_prob_api = response.json()["probability"]
+        assert abs(live_prob_api - offline_p) < 1e-6, (
+            f"API live scoring mismatch for {row['enc_id']}: API={live_prob_api}, Offline={offline_p}"
+        )
+
+        # 2. Test raw feature row dictionary directly through the live scoring pipeline components
+        raw_dict = row["row_dict"].copy()
+        raw_df = pd.DataFrame([raw_dict])
+        eng_df = engineer_features(raw_df)
+        model = eval_artifacts["trained_models"]["Calibrated Ensemble"]
+        preproc = joblib.load(os.path.join(processed_dir, "preprocessor.joblib"))
+        x_trans = preproc.transform(eng_df)
+        live_prob_pipeline = float(model.predict_proba(x_trans)[0, 1])
+        assert abs(live_prob_pipeline - offline_p) < 1e-6, (
+            f"Pipeline live scoring mismatch for {row['enc_id']}: Pipeline={live_prob_pipeline}, Offline={offline_p}"
+        )
+
+

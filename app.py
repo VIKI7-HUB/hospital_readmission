@@ -893,7 +893,7 @@ elif app_mode == "Bedside Risk Calculator":
             c1, c2 = st.columns(2)
             with c1:
                 stay = st.slider("Hospital Stay (Days)", 1, 14, int(pt_row.get('time_in_hospital', 4)))
-                meds = st.slider("Active Medications", 1, 50, int(pt_row.get('num_medications', 16)))
+                meds = st.slider("Distinct Medications During Stay (79% >= 10)", 1, 50, int(pt_row.get('num_medications', 16)))
                 inpatient = st.slider("Prior Inpatient Admissions", 0, 10, int(pt_row.get('number_inpatient', 1)))
             with c2:
                 er = st.slider("Prior Emergency Visits", 0, 10, int(pt_row.get('number_emergency', 0)))

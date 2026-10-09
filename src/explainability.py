@@ -89,7 +89,7 @@ def recommend_clinical_interventions(patient_dict, prob):
         interventions.append({
             'Category': 'Medication Safety',
             'Recommendation': 'Clinical Pharmacist Bedside Medication Reconciliation & Teach-Back Session',
-            'Rationale': f'Polypharmacy detected ({int(num_meds)} active medications administered during stay).'
+            'Rationale': f'Polypharmacy detected ({int(num_meds)} distinct medications administered during stay; 79% of sample has ≥10).'
         })
         
     num_inpatient = float(patient_dict.get('number_inpatient', 0))
@@ -138,13 +138,25 @@ def compute_and_save_explainability_artifacts():
     
     lr_records = []
     for col, coef, odds in zip(transformed_cols, lr_coefs, lr_odds_ratios):
-        lr_records.append({
-            'raw_feature': col,
-            'display_name': clean_feature_name(col),
-            'coefficient': round(float(coef), 4),
-            'odds_ratio': round(float(odds), 4),
-            'direction': 'Increases Risk' if coef > 0 else 'Decreases Risk'
-        })
+            is_numeric = col in [
+                'number_inpatient', 'number_outpatient', 'number_emergency',
+                'time_in_hospital', 'num_lab_procedures', 'num_medications'
+            ]
+            unit_str = "per 1 SD" if is_numeric else "versus reference category"
+            record = {
+                'raw_feature': col,
+                'display_name': clean_feature_name(col),
+                'coefficient': round(float(coef), 4),
+                'odds_ratio': round(float(odds), 4),
+                'unit': unit_str,
+                'direction': 'Increases Risk' if coef > 0 else 'Decreases Risk'
+            }
+            if 'Facility_Rehab' in col:
+                record['clinical_note'] = (
+                    "Observational association: discharge to rehab/SNF was associated with higher odds "
+                    "(OR = 1.35), likely because those patients are sicker."
+                )
+            lr_records.append(record)
     lr_records.sort(key=lambda r: abs(r['coefficient']), reverse=True)
     
     # 2. Ensemble & Tree Feature Importances
@@ -171,7 +183,15 @@ def compute_and_save_explainability_artifacts():
     explainability_payload = {
         'logistic_regression_odds_ratios': lr_records,
         'tree_feature_importances': fi_records,
-        'top_ensemble_drivers': [r['display_name'] for r in fi_records[:10]]
+        'top_ensemble_drivers': [r['display_name'] for r in fi_records[:10]],
+        'units_specification': {
+            'numeric': 'per 1 SD for continuous numeric features',
+            'categorical': 'versus reference category for categorical dummy variables'
+        },
+        'rehab_snf_clinical_note': (
+            'Observational association: discharge to rehab/SNF was associated with higher odds, '
+            'an observational association, likely because those patients are sicker.'
+        )
     }
     
     out_path = os.path.join(MODELS_DIR, "explainability_feature_importance.json")

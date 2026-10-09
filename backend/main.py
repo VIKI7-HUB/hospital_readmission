@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -271,27 +272,22 @@ def predict(request: PredictionRequest) -> dict:
         and request.diag_1_cat == orig_diag
     )
 
-    if is_unchanged:
-        probability = float(encounter["prob"])
-        tier = str(encounter["tier"])
-        _, color, guidance = get_clinical_risk_tier(probability, optimal_thresh=0.120)
-        engineered = engineer_features(pd.DataFrame([patient]))
-    else:
-        patient.update(
-            {
-                "time_in_hospital": request.time_in_hospital,
-                "num_medications": request.num_medications,
-                "number_inpatient": request.number_inpatient,
-                "number_emergency": request.number_emergency,
-                "A1Cresult": requested_a1c,
-                "diag_1_cat": request.diag_1_cat,
-                "diag_1_group": request.diag_1_cat,
-            }
-        )
-        engineered = engineer_features(pd.DataFrame([patient]))
-        transformed = assets["preprocessor"].transform(engineered)
-        probability = float(assets["model"].predict_proba(transformed)[0, 1])
-        tier, color, guidance = get_clinical_risk_tier(probability, optimal_thresh=0.120)
+    # Always execute through the live feature engineering and model scoring path
+    patient.update(
+        {
+            "time_in_hospital": request.time_in_hospital,
+            "num_medications": request.num_medications,
+            "number_inpatient": request.number_inpatient,
+            "number_emergency": request.number_emergency,
+            "A1Cresult": requested_a1c,
+            "diag_1_cat": request.diag_1_cat,
+            "diag_1_group": request.diag_1_cat,
+        }
+    )
+    engineered = engineer_features(pd.DataFrame([patient]))
+    transformed = assets["preprocessor"].transform(engineered)
+    probability = float(assets["model"].predict_proba(transformed)[0, 1])
+    tier, color, guidance = get_clinical_risk_tier(probability, optimal_thresh=0.120)
 
     patient_for_interventions = patient.copy()
     patient_for_interventions.update(
@@ -339,6 +335,17 @@ def predict(request: PredictionRequest) -> dict:
     }
 
 
+@app.get("/api/plots/{plot_name}")
+def get_plot(plot_name: str):
+    clean_name = Path(plot_name).name
+    if not clean_name.endswith(".png"):
+        clean_name += ".png"
+    plot_file = MODELS_DIR / clean_name
+    if not plot_file.is_file():
+        raise HTTPException(status_code=404, detail="Plot not found")
+    return FileResponse(plot_file, media_type="image/png")
+
+
 @app.get("/api/governance")
 def get_governance() -> dict:
     assets = load_assets()
@@ -356,6 +363,8 @@ def get_governance() -> dict:
         "fixed_flag_rates_comparison": gov_full.get("fixed_flag_rates_comparison", []),
         "validation_metrics": gov_full.get("validation_metrics", []),
         "hba1c_eda_analysis": gov_full.get("hba1c_eda_analysis", {}),
+        "hba1c_validation_experiment": gov_full.get("hba1c_validation_experiment", {}),
+        "mentor_checklist": gov_full.get("mentor_checklist", []),
         "selected_model": "Calibrated Ensemble",
         "last_audited": "October 2026",
         "model_version": "v2.4.1-calibrated-ensemble",

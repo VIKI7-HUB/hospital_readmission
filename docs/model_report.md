@@ -206,8 +206,8 @@ Saved artifact: `models/tier_validation_test.csv` and `models/tier_validation_te
 
 ### 8.3 Sampling Methodology & Seed Selection
 - **Sampling Specification:** Random sample of 500 encounters drawn from the held-out test set (`df_test`, N = 19,870) using NumPy random seed 55.
-- **Seed Selection Strategy:** Seed 55 was **not the first seed tried**. A candidate seed sweep across random seeds 0 to 99 was performed to select a seed whose empirical distribution most closely matched the full held-out test cohort's flag rate (37.80% vs 37.77%), high-risk tier fraction (8.80% vs 8.81%), and readmission prevalence (10.80% vs 11.39%). This deliberate selection eliminated the severe distribution distortion of the earlier sequential row slice without altering the underlying data or predictions.
-- **Prediction Parity Guarantee:** An automated regression test (`tests/test_api.py::test_worklist_offline_prediction_parity`) asserts that for every one of the 500 worklist encounters, the probability returned by the API matches the offline test-set prediction within 1e-6 (max observed difference = 0.00e+00) and the assigned risk tier matches with 100% agreement.
+- **Seed Selection Strategy:** Seed 55 was **not the first seed tried**. A candidate seed sweep across random seeds 0 to 99 was performed. The sample was matched on flag rate (37.80% vs 37.77%), High-tier share (8.80% vs 8.81%), and readmission rate (10.80% vs 11.39%) only; demographics were not matched.
+- **Prediction Parity Guarantee:** An automated regression test (`tests/test_api.py::test_worklist_offline_prediction_parity`) asserts that for every one of the 500 worklist encounters, the probability returned by the API matches the offline test-set prediction within 1e-6 (max observed difference = 0.00e+00) and the assigned risk tier matches with 100% agreement. An additional live scoring test (`tests/test_api.py::test_live_scoring_path_parity_50_encounters`) tests raw feature rows through the live pipeline with diff < 1e-6.
 
 ---
 
@@ -316,16 +316,19 @@ Performance gaps were evaluated at the deployed single 12.0% threshold across de
 
 ### 12.1 Logistic Regression Odds Ratios
 
-| Clinical Feature | Odds Ratio | 95% Direction | Clinical Interpretation |
-| :--- | :---: | :---: | :--- |
-| **Prior Inpatient Admissions (12 Mo)** | **1.4528** | Increases Risk | Each 1-SD increase in past-year hospitalizations raises readmission odds by 45.3%. |
-| **Discharge: Facility / Rehab** | **1.3499** | Increases Risk | Discharge to skilled nursing or rehab increases readmission odds by 35.0% vs. home. |
-| **Age Demographic: 60+ Years** | **1.1624** | Increases Risk | Older adult age raises readmission odds by 16.2%. |
-| **Prior Emergency Visits (12 Mo)** | **1.1434** | Increases Risk | Prior emergency visits raise readmission odds by 14.3%. |
-| **Time in Hospital (Length of Stay)** | **1.1333** | Increases Risk | Prolonged inpatient stays raise readmission odds by 13.3%. |
-| **Insulin Dosage Titration (Up/Down)** | **1.1120** | Increases Risk | Acute insulin dose titration raises readmission odds by 11.2%. |
-| **Discharge: Home / Self-Care** | **0.7620** | Decreases Risk | Discharge directly to home reduces readmission odds by 23.8%. |
-| **Primary Diagnosis: Musculoskeletal** | **0.7993** | Decreases Risk | Orthopedic admissions have 20.1% lower odds of acute 30-day readmission. |
+- **Units Specification:** Units are **per 1 SD** for continuous numeric features and **versus the reference category** for categorical dummy variables.
+- **Clinical Observational Note on Rehab/SNF:** Discharge to skilled nursing / rehab facility (SNF/rehab) was associated with higher odds of readmission (OR = 1.35). This is an observational association, likely because those patients are sicker, older, and have higher baseline functional impairment and frailty, rather than rehabilitation care causing readmission.
+
+| Clinical Feature | Odds Ratio | Unit | 95% Direction | Clinical Interpretation |
+| :--- | :---: | :---: | :---: | :--- |
+| **Prior Inpatient Admissions (12 Mo)** | **1.4528** | per 1 SD | Increases Risk | Each 1-SD increase in past-year hospitalizations raises readmission odds by 45.3%. |
+| **Discharge: Facility / Rehab** | **1.3499** | vs. Home | Increases Risk | Discharge to skilled nursing or rehab increases readmission odds by 35.0% (observational association; sicker patients). |
+| **Age Demographic: 60+ Years** | **1.1624** | vs. <30 Years | Increases Risk | Older adult age raises readmission odds by 16.2%. |
+| **Prior Emergency Visits (12 Mo)** | **1.1434** | per 1 SD | Increases Risk | Prior emergency visits raise readmission odds by 14.3%. |
+| **Time in Hospital (Length of Stay)** | **1.1333** | per 1 SD | Increases Risk | Prolonged inpatient stays raise readmission odds by 13.3%. |
+| **Insulin Dosage Titration (Up/Down)** | **1.1120** | vs. No | Increases Risk | Acute insulin dose titration raises readmission odds by 11.2%. |
+| **Discharge: Home / Self-Care** | **0.7620** | vs. Reference | Decreases Risk | Discharge directly to home reduces readmission odds by 23.8%. |
+| **Primary Diagnosis: Musculoskeletal** | **0.7993** | vs. Other | Decreases Risk | Orthopedic admissions have 20.1% lower odds of acute 30-day readmission. |
 
 ### 12.2 Tree-Based Feature Importance (Ensemble)
 Top tree gain contributors:
