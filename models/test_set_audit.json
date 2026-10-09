@@ -1,0 +1,44 @@
+[
+    {
+        "decision_point": "1. Choice of model & training strategy",
+        "what_was_chosen": "6 candidate architectures (Logistic Regression, Random Forest, XGBoost, LightGBM, CatBoost, Calibrated Ensemble) and 3 class-weighting/resampling interventions.",
+        "which_split_used": "Fitted strictly on Train split (N=69,538); strategy comparison thresholds tuned on Validation split (N=9,935).",
+        "was_it_clean": "CLEAN",
+        "remediation_status": "Verified. Models and training weights fit exclusively on training data; thresholds tuned on validation."
+    },
+    {
+        "decision_point": "2. Final model selection",
+        "what_was_chosen": "Calibrated Soft-Voting Ensemble (XGBoost 35% + LightGBM 35% + CatBoost 30% with Platt scaling).",
+        "which_split_used": "Validation split (N=9,935). Evaluated on validation Brier score (0.0966, tied top calibration) and validation AUC (0.6707) and variance reduction across tree boosting paradigms.",
+        "was_it_clean": "CLEAN (Remediated)",
+        "remediation_status": "Remediated. Previous documentation cited test AUC (0.6640) post-hoc. Selection is now formally grounded on validation split Brier calibration and stability."
+    },
+    {
+        "decision_point": "3. Calibration",
+        "what_was_chosen": "Platt Scaling (Sigmoid Logistic Regression) calibrated model per candidate learner.",
+        "which_split_used": "Fitted strictly on Validation split (N=9,935, X_val, y_val).",
+        "was_it_clean": "CLEAN",
+        "remediation_status": "Verified. Calibrators fitted strictly on validation split; never touched test data."
+    },
+    {
+        "decision_point": "4. Classification threshold",
+        "what_was_chosen": "Unified operating threshold tau = 0.120 (12.0%) for champion model; individual cutoffs: LR=0.120, RF=0.130, XGB=0.120, LGB=0.120, CAT=0.120.",
+        "which_split_used": "Validation split (N=9,935).",
+        "was_it_clean": "CLEAN",
+        "remediation_status": "Verified. Tuned via sweep on validation set maximizing recall subject to precision >= 18% floor (or F2). Test set was evaluated once post-hoc."
+    },
+    {
+        "decision_point": "5. Tier cutoffs",
+        "what_was_chosen": "Three clinical risk tiers: Low (<12.0%), Elevated (12.0%\u201320.0%), High (>=20.0%).",
+        "which_split_used": "Validation split (N=9,935). Low/Elevated boundary is the validation decision cutoff (12.0%); High tier boundary is the 91.2nd validation risk percentile (~2x population risk).",
+        "was_it_clean": "CLEAN",
+        "remediation_status": "Verified. Boundaries derived from validation distribution and clinical workflow rules; test set used only for one-time empirical tier validation."
+    },
+    {
+        "decision_point": "6. Fairness / mitigation cutoffs",
+        "what_was_chosen": "Caucasian threshold tuned to 12.1% on validation to match AA validation TPR (60.87%) at 12.0%. Deployed system retains single unified 12.0% cutoff.",
+        "which_split_used": "Validation split (N=9,935).",
+        "was_it_clean": "CLEAN (Remediated)",
+        "remediation_status": "Remediated. Historical code tested mitigation cutoffs post-hoc on test. Now fitted strictly on validation, evaluated on test with bootstrap 95% CIs. Mitigated cutoffs labeled 'Analysis only, not deployed'."
+    }
+]

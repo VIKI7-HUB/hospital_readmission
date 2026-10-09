@@ -1444,14 +1444,14 @@ function App() {
 
                 <KpiCard
                   label="Flagged for follow-up (≥ 12%)"
-                  value={summary.flagged ?? "139"}
-                  rawNumber={summary.flagged ?? 139}
+                  value={summary.flagged ?? "189"}
+                  rawNumber={summary.flagged ?? 189}
                   context={
                     summary.cohort_size
                       ? `${((summary.flagged / summary.cohort_size) * 100).toFixed(1)}% of cohort (≥12% cutoff)`
-                      : "27.8% of cohort (≥12% cutoff)"
+                      : "37.8% of cohort (≥12% cutoff)"
                   }
-                  secondLine={`High (≥20%): ${summary.high_risk ?? 25} (5.0%) · Elevated (12–20%): ${summary.elevated_risk ?? 114} (22.8%)`}
+                  secondLine={`High (≥20%): ${summary.high_risk ?? 44} (${summary.cohort_size ? ((summary.high_risk / summary.cohort_size) * 100).toFixed(1) : "8.8"}%) · Elevated (12–20%): ${summary.elevated_risk ?? 145} (${summary.cohort_size ? ((summary.elevated_risk / summary.cohort_size) * 100).toFixed(1) : "29.0"}%)`}
                   icon={AlertTriangle}
                   tone="red"
                   accentRed={true}

@@ -41,19 +41,19 @@ def test_worklist_default(client):
     assert len(data["results"]) == 25
     summary = data["summary"]
     assert summary["cohort_size"] == 500
-    assert summary["flagged"] == 139
-    assert summary["high_risk"] == 25
-    assert summary["elevated_risk"] == 114
-    assert summary["low_risk"] == 361
-    assert summary["polypharmacy"] == 375
-    assert summary["readmissions"] == 64
+    assert summary["flagged"] == 189
+    assert summary["high_risk"] == 44
+    assert summary["elevated_risk"] == 145
+    assert summary["low_risk"] == 311
+    assert summary["polypharmacy"] == 395
+    assert summary["readmissions"] == 54
 
 def test_worklist_filters_and_pagination(client):
     # Tier filter: flagged (all >= 0.12)
-    res_flagged = client.get("/api/worklist", params={"tier": "flagged", "page_size": 150})
+    res_flagged = client.get("/api/worklist", params={"tier": "flagged", "page_size": 200})
     assert res_flagged.status_code == 200
     data_flagged = res_flagged.json()
-    assert data_flagged["total"] == 139
+    assert data_flagged["total"] == 189
     for row in data_flagged["results"]:
         assert row["prob"] >= 0.12
 
@@ -61,15 +61,15 @@ def test_worklist_filters_and_pagination(client):
     res_high = client.get("/api/worklist", params={"tier": "high", "page_size": 100})
     assert res_high.status_code == 200
     data_high = res_high.json()
-    assert data_high["total"] == 25
+    assert data_high["total"] == 44
     for row in data_high["results"]:
         assert row["prob"] >= 0.20
 
     # Tier filter: elevated (0.12 <= prob < 0.20)
-    res_elev = client.get("/api/worklist", params={"tier": "elevated", "page_size": 150})
+    res_elev = client.get("/api/worklist", params={"tier": "elevated", "page_size": 200})
     assert res_elev.status_code == 200
     data_elev = res_elev.json()
-    assert data_elev["total"] == 114
+    assert data_elev["total"] == 145
     for row in data_elev["results"]:
         assert 0.12 <= row["prob"] < 0.20
 
@@ -77,7 +77,7 @@ def test_worklist_filters_and_pagination(client):
     res_low = client.get("/api/worklist", params={"tier": "low", "page_size": 400})
     assert res_low.status_code == 200
     data_low = res_low.json()
-    assert data_low["total"] == 361
+    assert data_low["total"] == 311
     for row in data_low["results"]:
         assert row["prob"] < 0.12
 

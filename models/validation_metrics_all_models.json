@@ -1,0 +1,38 @@
+[
+    {
+        "Model": "Logistic Regression",
+        "Validation AUC-ROC": 0.6645,
+        "Validation PR-AUC": 0.2049,
+        "Validation Brier Score": 0.0973
+    },
+    {
+        "Model": "Random Forest",
+        "Validation AUC-ROC": 0.6664,
+        "Validation PR-AUC": 0.2086,
+        "Validation Brier Score": 0.0971
+    },
+    {
+        "Model": "XGBoost",
+        "Validation AUC-ROC": 0.6694,
+        "Validation PR-AUC": 0.219,
+        "Validation Brier Score": 0.0966
+    },
+    {
+        "Model": "LightGBM",
+        "Validation AUC-ROC": 0.6679,
+        "Validation PR-AUC": 0.2151,
+        "Validation Brier Score": 0.0967
+    },
+    {
+        "Model": "CatBoost",
+        "Validation AUC-ROC": 0.6714,
+        "Validation PR-AUC": 0.2197,
+        "Validation Brier Score": 0.0966
+    },
+    {
+        "Model": "Calibrated Ensemble",
+        "Validation AUC-ROC": 0.6707,
+        "Validation PR-AUC": 0.2194,
+        "Validation Brier Score": 0.0966
+    }
+]

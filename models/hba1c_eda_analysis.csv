@@ -1,0 +1,5 @@
+Category,Description,Encounters (n),Cohort Share (%),Readmissions,Readmission Rate (%),CI 95 String
+>8,HbA1c > 8% (Uncontrolled),8137,8.19,809,9.94,"[9.31%, 10.61%]"
+>7,HbA1c > 7% (Suboptimal),3775,3.8,383,10.15,"[9.22%, 11.15%]"
+Norm,HbA1c Normal (<7%),4922,4.95,481,9.77,"[8.97%, 10.63%]"
+None,None (Test Not Ordered),82509,83.05,9641,11.68,"[11.47%, 11.91%]"

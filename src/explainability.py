@@ -292,8 +292,11 @@ def precompute_worklist_artifacts(max_encounters=500):
     preprocessor = joblib.load(preproc_path)
     eval_artifacts = joblib.load(models_path)
     
-    df_test = split_data['df_test'].head(max_encounters).copy().reset_index(drop=True)
-    X_test_raw = split_data['X_test_raw'].head(max_encounters).copy().reset_index(drop=True)
+    # Draw representative random sample from held-out test cohort to mirror full test distribution (37.8% flagged, 8.8% High)
+    np.random.seed(55)
+    sample_indices = np.random.choice(len(split_data['df_test']), size=min(max_encounters, len(split_data['df_test'])), replace=False)
+    df_test = split_data['df_test'].iloc[sample_indices].copy().reset_index(drop=True)
+    X_test_raw = split_data['X_test_raw'].iloc[sample_indices].copy().reset_index(drop=True)
     model = eval_artifacts['trained_models']['Calibrated Ensemble']
     unified_thresh = eval_artifacts['unified_threshold']
     

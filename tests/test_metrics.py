@@ -100,3 +100,45 @@ def test_subgroup_disparity_gap_calculation():
     assert max_tpr == 60.00
     assert min_tpr == 38.46
     assert gap == 21.54
+
+def test_model_report_and_benchmark_artifacts_integrity():
+    """
+    Verifies that all required model benchmark and audit artifacts are created,
+    contain expected columns, and docs/model_report.md exists.
+    """
+    import os, json, pandas as pd
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    models_dir = os.path.join(base_dir, "models")
+    docs_dir = os.path.join(base_dir, "docs")
+
+    bench_csv = os.path.join(models_dir, "test_metrics_benchmarks.csv")
+    thresh_csv = os.path.join(models_dir, "threshold_sweep_test.csv")
+    roc_png = os.path.join(models_dir, "roc_curve_all_models.png")
+    pr_png = os.path.join(models_dir, "pr_curve_all_models.png")
+    audit_json = os.path.join(models_dir, "test_set_audit.json")
+    report_md = os.path.join(docs_dir, "model_report.md")
+
+    assert os.path.exists(bench_csv), "test_metrics_benchmarks.csv must exist"
+    assert os.path.exists(thresh_csv), "threshold_sweep_test.csv must exist"
+    assert os.path.exists(roc_png), "roc_curve_all_models.png must exist"
+    assert os.path.exists(pr_png), "pr_curve_all_models.png must exist"
+    assert os.path.exists(audit_json), "test_set_audit.json must exist"
+    assert os.path.exists(report_md), "docs/model_report.md must exist"
+
+    df_bench = pd.read_csv(bench_csv)
+    assert len(df_bench) == 12  # 6 models x 2 operating points
+    assert "ROC-AUC" in df_bench.columns
+    assert "Precision" in df_bench.columns
+    assert "Recall" in df_bench.columns
+    assert "Accuracy" in df_bench.columns
+
+    df_th = pd.read_csv(thresh_csv)
+    assert len(df_th) == 46  # 0.05 to 0.50 step 0.01
+    assert "threshold" in df_th.columns
+    assert "false_positives" in df_th.columns
+    assert "false_negatives" in df_th.columns
+
+    with open(audit_json, "r") as f:
+        audit_data = json.load(f)
+    assert len(audit_data) == 6
+

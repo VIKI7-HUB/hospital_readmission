@@ -214,6 +214,7 @@
             "pct_cohort": 62.2,
             "observed_readmissions": 959,
             "observed_rate_pct": 7.76,
+            "ci_95_str": "[7.30%, 8.24%]",
             "clinical_action": "Routine discharge summary and 30-day primary care appointment"
         },
         {
@@ -222,6 +223,7 @@
             "pct_cohort": 29.0,
             "observed_readmissions": 881,
             "observed_rate_pct": 15.31,
+            "ci_95_str": "[14.40%, 16.26%]",
             "clinical_action": "Enhanced transition planning, pharmacy consult, and 7\u201310 day follow-up"
         },
         {
@@ -230,6 +232,7 @@
             "pct_cohort": 8.8,
             "observed_readmissions": 423,
             "observed_rate_pct": 24.17,
+            "ci_95_str": "[22.22%, 26.23%]",
             "clinical_action": "Multidisciplinary care plan, 48-hour telehealth outreach, CDCES educator consult"
         }
     ],
@@ -1604,5 +1607,304 @@
             }
         ]
     },
-    "cohort_size": 19870
+    "cohort_size": 19870,
+    "fixed_flag_rates_comparison": [
+        {
+            "Model": "Logistic Regression",
+            "Flag Rate": "Top 20%",
+            "k_encounters": 3974,
+            "Cutoff": 0.1458,
+            "Recall (%)": 34.69,
+            "Precision (%)": 19.75,
+            "Lift": 1.73,
+            "True Positives": 785,
+            "False Positives": 3189
+        },
+        {
+            "Model": "Logistic Regression",
+            "Flag Rate": "Top 30%",
+            "k_encounters": 5961,
+            "Cutoff": 0.1235,
+            "Recall (%)": 47.24,
+            "Precision (%)": 17.93,
+            "Lift": 1.57,
+            "True Positives": 1069,
+            "False Positives": 4892
+        },
+        {
+            "Model": "Logistic Regression",
+            "Flag Rate": "Top 40%",
+            "k_encounters": 7948,
+            "Cutoff": 0.1059,
+            "Recall (%)": 58.59,
+            "Precision (%)": 16.68,
+            "Lift": 1.46,
+            "True Positives": 1326,
+            "False Positives": 6622
+        },
+        {
+            "Model": "Random Forest",
+            "Flag Rate": "Top 20%",
+            "k_encounters": 3974,
+            "Cutoff": 0.1631,
+            "Recall (%)": 33.85,
+            "Precision (%)": 19.28,
+            "Lift": 1.69,
+            "True Positives": 766,
+            "False Positives": 3208
+        },
+        {
+            "Model": "Random Forest",
+            "Flag Rate": "Top 30%",
+            "k_encounters": 5961,
+            "Cutoff": 0.1389,
+            "Recall (%)": 46.88,
+            "Precision (%)": 17.8,
+            "Lift": 1.56,
+            "True Positives": 1061,
+            "False Positives": 4900
+        },
+        {
+            "Model": "Random Forest",
+            "Flag Rate": "Top 40%",
+            "k_encounters": 7948,
+            "Cutoff": 0.1147,
+            "Recall (%)": 58.95,
+            "Precision (%)": 16.78,
+            "Lift": 1.47,
+            "True Positives": 1334,
+            "False Positives": 6614
+        },
+        {
+            "Model": "XGBoost",
+            "Flag Rate": "Top 20%",
+            "k_encounters": 3974,
+            "Cutoff": 0.1604,
+            "Recall (%)": 35.04,
+            "Precision (%)": 19.95,
+            "Lift": 1.75,
+            "True Positives": 793,
+            "False Positives": 3181
+        },
+        {
+            "Model": "XGBoost",
+            "Flag Rate": "Top 30%",
+            "k_encounters": 5961,
+            "Cutoff": 0.137,
+            "Recall (%)": 48.7,
+            "Precision (%)": 18.49,
+            "Lift": 1.62,
+            "True Positives": 1102,
+            "False Positives": 4859
+        },
+        {
+            "Model": "XGBoost",
+            "Flag Rate": "Top 40%",
+            "k_encounters": 7948,
+            "Cutoff": 0.114,
+            "Recall (%)": 59.66,
+            "Precision (%)": 16.99,
+            "Lift": 1.49,
+            "True Positives": 1350,
+            "False Positives": 6598
+        },
+        {
+            "Model": "LightGBM",
+            "Flag Rate": "Top 20%",
+            "k_encounters": 3974,
+            "Cutoff": 0.1582,
+            "Recall (%)": 35.31,
+            "Precision (%)": 20.11,
+            "Lift": 1.77,
+            "True Positives": 799,
+            "False Positives": 3175
+        },
+        {
+            "Model": "LightGBM",
+            "Flag Rate": "Top 30%",
+            "k_encounters": 5961,
+            "Cutoff": 0.1379,
+            "Recall (%)": 47.5,
+            "Precision (%)": 18.03,
+            "Lift": 1.58,
+            "True Positives": 1075,
+            "False Positives": 4886
+        },
+        {
+            "Model": "LightGBM",
+            "Flag Rate": "Top 40%",
+            "k_encounters": 7948,
+            "Cutoff": 0.1148,
+            "Recall (%)": 58.77,
+            "Precision (%)": 16.73,
+            "Lift": 1.47,
+            "True Positives": 1330,
+            "False Positives": 6618
+        },
+        {
+            "Model": "CatBoost",
+            "Flag Rate": "Top 20%",
+            "k_encounters": 3974,
+            "Cutoff": 0.1592,
+            "Recall (%)": 34.78,
+            "Precision (%)": 19.8,
+            "Lift": 1.74,
+            "True Positives": 787,
+            "False Positives": 3187
+        },
+        {
+            "Model": "CatBoost",
+            "Flag Rate": "Top 30%",
+            "k_encounters": 5961,
+            "Cutoff": 0.1363,
+            "Recall (%)": 47.86,
+            "Precision (%)": 18.17,
+            "Lift": 1.6,
+            "True Positives": 1083,
+            "False Positives": 4878
+        },
+        {
+            "Model": "CatBoost",
+            "Flag Rate": "Top 40%",
+            "k_encounters": 7948,
+            "Cutoff": 0.1141,
+            "Recall (%)": 59.74,
+            "Precision (%)": 17.01,
+            "Lift": 1.49,
+            "True Positives": 1352,
+            "False Positives": 6596
+        },
+        {
+            "Model": "Calibrated Ensemble",
+            "Flag Rate": "Top 20%",
+            "k_encounters": 3974,
+            "Cutoff": 0.1589,
+            "Recall (%)": 35.22,
+            "Precision (%)": 20.06,
+            "Lift": 1.76,
+            "True Positives": 797,
+            "False Positives": 3177
+        },
+        {
+            "Model": "Calibrated Ensemble",
+            "Flag Rate": "Top 30%",
+            "k_encounters": 5961,
+            "Cutoff": 0.1372,
+            "Recall (%)": 48.12,
+            "Precision (%)": 18.27,
+            "Lift": 1.6,
+            "True Positives": 1089,
+            "False Positives": 4872
+        },
+        {
+            "Model": "Calibrated Ensemble",
+            "Flag Rate": "Top 40%",
+            "k_encounters": 7948,
+            "Cutoff": 0.1146,
+            "Recall (%)": 59.57,
+            "Precision (%)": 16.96,
+            "Lift": 1.49,
+            "True Positives": 1348,
+            "False Positives": 6600
+        }
+    ],
+    "validation_metrics": [
+        {
+            "Model": "Logistic Regression",
+            "Validation AUC-ROC": 0.6645,
+            "Validation PR-AUC": 0.2049,
+            "Validation Brier Score": 0.0973
+        },
+        {
+            "Model": "Random Forest",
+            "Validation AUC-ROC": 0.6664,
+            "Validation PR-AUC": 0.2086,
+            "Validation Brier Score": 0.0971
+        },
+        {
+            "Model": "XGBoost",
+            "Validation AUC-ROC": 0.6694,
+            "Validation PR-AUC": 0.219,
+            "Validation Brier Score": 0.0966
+        },
+        {
+            "Model": "LightGBM",
+            "Validation AUC-ROC": 0.6679,
+            "Validation PR-AUC": 0.2151,
+            "Validation Brier Score": 0.0967
+        },
+        {
+            "Model": "CatBoost",
+            "Validation AUC-ROC": 0.6714,
+            "Validation PR-AUC": 0.2197,
+            "Validation Brier Score": 0.0966
+        },
+        {
+            "Model": "Calibrated Ensemble",
+            "Validation AUC-ROC": 0.6707,
+            "Validation PR-AUC": 0.2194,
+            "Validation Brier Score": 0.0966
+        }
+    ],
+    "hba1c_eda_analysis": {
+        "total_clean_encounters": 99343,
+        "hba1c_categories": [
+            {
+                "Category": ">8",
+                "Description": "HbA1c > 8% (Uncontrolled)",
+                "Encounters (n)": 8137,
+                "Cohort Share (%)": 8.19,
+                "Readmissions": 809,
+                "Readmission Rate (%)": 9.94,
+                "CI 95 String": "[9.31%, 10.61%]"
+            },
+            {
+                "Category": ">7",
+                "Description": "HbA1c > 7% (Suboptimal)",
+                "Encounters (n)": 3775,
+                "Cohort Share (%)": 3.8,
+                "Readmissions": 383,
+                "Readmission Rate (%)": 10.15,
+                "CI 95 String": "[9.22%, 11.15%]"
+            },
+            {
+                "Category": "Norm",
+                "Description": "HbA1c Normal (<7%)",
+                "Encounters (n)": 4922,
+                "Cohort Share (%)": 4.95,
+                "Readmissions": 481,
+                "Readmission Rate (%)": 9.77,
+                "CI 95 String": "[8.97%, 10.63%]"
+            },
+            {
+                "Category": "None",
+                "Description": "None (Test Not Ordered)",
+                "Encounters (n)": 82509,
+                "Cohort Share (%)": 83.05,
+                "Readmissions": 9641,
+                "Readmission Rate (%)": 11.68,
+                "CI 95 String": "[11.47%, 11.91%]"
+            }
+        ],
+        "chi_square_test_a1c": {
+            "statistic": 42.56,
+            "dof": 3,
+            "p_value": 3.055224033497052e-09,
+            "p_value_sci": "3.0552e-09",
+            "interpretation": "Statistically significant association between HbA1c ordering status and 30-day readmission."
+        },
+        "chi_square_test_change": {
+            "statistic": 34.13,
+            "dof": 1,
+            "p_value": 5.143967231957416e-09,
+            "p_value_sci": "5.1440e-09",
+            "interpretation": "Statistically significant association between medication change flag and 30-day readmission."
+        },
+        "feature_set_inclusion": {
+            "A1Cresult_in_final_model": false,
+            "rationale": "A1Cresult has 83.05% unmeasured rate (82,509 / 99,343 encounters lacked testing orders). Testing frequency varied by admitting specialty rather than standardized clinical protocol. Therapeutic glycemic volatility is captured without missingness by the medication change flag and insulin regimen.",
+            "change_flag_in_final_model": true,
+            "insulin_in_final_model": true
+        }
+    }
 }
