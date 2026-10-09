@@ -234,8 +234,8 @@ def get_worklist(
             "low_risk": int((all_records["prob"] < 0.12).sum()),
             "polypharmacy": int((all_records["meds"] >= 10).sum()),
             "readmissions": int((all_records["actual"] == 1).sum()),
-            "baseline_readmission_rate_full": 11.2,
-            "baseline_readmission_rate_sample": 12.8,
+            "baseline_readmission_rate_full": 11.39,
+            "baseline_readmission_rate_sample": round(float((all_records["actual"] == 1).sum() / len(all_records) * 100), 1),
         },
     }
 
