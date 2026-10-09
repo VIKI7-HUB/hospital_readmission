@@ -181,17 +181,19 @@ def compute_and_save_explainability_artifacts():
     
     return explainability_payload
 
-def get_clinical_risk_tier(prob, optimal_thresh=0.120):
+def get_clinical_risk_tier(prob, optimal_thresh=0.120, high_thresh=0.200):
     """
-    Categorizes calibrated readmission risk into actionable clinical tiers
-    using the unified optimal threshold (0.120 / 12.0%).
+    Categorizes calibrated readmission risk into validated clinical tiers:
+    - Low Risk: Below cutoff (< 12.0%)
+    - Elevated Risk: At or above cutoff (12.0% - 19.9%)
+    - High Risk: Top decile bracket (>= 20.0%)
     """
-    if prob >= optimal_thresh:
-        return "High Risk", "red", "URGENT INTERVENTION REQUIRED. High 30-day readmission risk! Trigger multidisciplinary discharge care plan, 48-hr telehealth check-in, and pharmacy reconciliation."
-    elif prob >= 0.080:
-        return "Moderate Risk", "orange", "Enhanced discharge planning recommended. Schedule primary care follow-up within 7-10 days, verify prescription access."
+    if prob >= high_thresh:
+        return "High Risk", "red", "URGENT INTERVENTION REQUIRED. High 30-day readmission risk (top risk tier). Trigger multidisciplinary discharge care plan, 48-hr telehealth check-in, and pharmacy reconciliation."
+    elif prob >= optimal_thresh:
+        return "Elevated Risk", "amber", "Elevated readmission risk (meets clinical follow-up cutoff >= 12.0%). Enhanced discharge planning, prescription access verification, and 7-day primary care follow-up recommended."
     else:
-        return "Low Risk", "green", "Standard discharge planning protocol. Patient demonstrates stable recuperation indicators."
+        return "Low Risk", "green", "Standard discharge planning protocol. Patient risk score is below the 12.0% follow-up threshold."
 
 def get_top_drivers_for_encounter(patient_dict, preprocessor, model, top_n=5):
     """
@@ -317,17 +319,17 @@ def precompute_worklist_artifacts(max_encounters=500):
             
         resources = []
         if num_meds >= 10:
-            resources.append("Pharmacist Recon")
+            resources.append("Pharmacist")
         if a1c_raw in ['>8', '>7']:
-            resources.append("CDCES Referral")
+            resources.append("CDCES")
         if stay_val >= 6:
-            resources.append("Home Health Nurse")
+            resources.append("Home nurse")
         if p >= unified_thresh:
-            resources.append("48h Telehealth")
+            resources.append("Telehealth 48h")
         if inpatient_val > 0:
-            resources.append("Care Coordinator")
+            resources.append("Care coord")
         if not resources:
-            resources.append("Routine Outpatient")
+            resources.append("Routine")
             
         top_factors = [d['label'] for d in drivers]
         enc_id_num = int(row.get('encounter_id', idx + 100000))

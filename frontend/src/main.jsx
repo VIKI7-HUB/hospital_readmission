@@ -143,33 +143,63 @@ function AnimatedNumber({ value, duration = 800, format = (v) => Math.round(v).t
   return <span className="tabular-nums">{format(displayValue)}</span>;
 }
 
-function MiniSparkline({ tone = "indigo" }) {
-  const points = useMemo(() => {
-    if (tone === "red") return "0,16 12,14 24,18 36,10 48,12 60,6 72,9 84,3 96,5 110,2";
-    if (tone === "amber") return "0,15 14,14 28,11 42,13 56,8 70,10 84,7 98,9 110,4";
-    if (tone === "green") return "0,6 15,9 30,7 45,12 60,10 75,14 90,12 105,16 110,18";
-    return "0,14 12,11 24,13 36,8 48,10 60,6 72,8 84,4 96,6 110,3";
-  }, [tone]);
+function getCareFlagConfig(flag) {
+  const str = String(flag || "").trim();
+  const lower = str.toLowerCase();
+  if (lower.includes("pharm")) {
+    return { label: "Pharmacist", icon: Pill, color: "text-amber-500" };
+  }
+  if (lower.includes("telehealth")) {
+    return { label: "Telehealth 48h", icon: HeartPulse, color: "text-red-500" };
+  }
+  if (lower.includes("cdces") || lower.includes("educat") || lower.includes("diabetes ed")) {
+    return { label: "CDCES", icon: Activity, color: "text-indigo-500" };
+  }
+  if (lower.includes("home") || lower.includes("nurse")) {
+    return { label: "Home nurse", icon: User, color: "text-teal-500" };
+  }
+  if (lower.includes("coord")) {
+    return { label: "Care coord", icon: CheckCircle2, color: "text-emerald-500" };
+  }
+  return { label: str || "Routine", icon: CheckCircle2, color: "text-emerald-500" };
+}
 
-  const color =
-    tone === "red"
-      ? "var(--risk-high-bar)"
-      : tone === "amber"
-      ? "var(--risk-med-bar)"
-      : tone === "green"
-      ? "var(--risk-low-bar)"
-      : "var(--brand-indigo)";
-
+function KpiMiniCohortDist({ lowPct = 72.2, elevatedPct = 22.8, highPct = 5.0 }) {
   return (
-    <svg className="kpi-sparkline-svg" viewBox="0 0 110 20" preserveAspectRatio="none">
-      <path className="kpi-sparkline-path" d={`M ${points}`} stroke={color} />
-    </svg>
+    <div>
+      <div
+        className="kpi-mini-dist-bar"
+        title={`Cohort risk distribution: ${lowPct.toFixed(1)}% Low (<12%), ${elevatedPct.toFixed(1)}% Elevated (12–20%), ${highPct.toFixed(1)}% High (≥20%)`}
+      >
+        <div className="kpi-dist-seg low" style={{ width: `${lowPct}%` }} />
+        <div className="kpi-dist-seg elevated" style={{ width: `${elevatedPct}%` }} />
+        <div className="kpi-dist-seg high" style={{ width: `${highPct}%` }} />
+      </div>
+      <div className="kpi-dist-labels">
+        <span>{Math.round(lowPct)}% Low</span>
+        <span>{Math.round(elevatedPct)}% Elev</span>
+        <span>{Math.round(highPct)}% High</span>
+      </div>
+    </div>
+  );
+}
+
+function KpiProportionBar({ percentage = 0, tone = "indigo", title = "" }) {
+  const clamped = Math.min(100, Math.max(0, percentage));
+  return (
+    <div className="kpi-proportion-track" title={title || `${clamped.toFixed(1)}%`}>
+      <div className={`kpi-proportion-fill ${tone}`} style={{ width: `${clamped}%` }} />
+    </div>
   );
 }
 
 function RiskBadge({ tier }) {
   const normalized = tier?.toLowerCase() || "";
-  const kind = normalized.startsWith("high") ? "high" : normalized.startsWith("mod") ? "moderate" : "low";
+  const kind = normalized.startsWith("high")
+    ? "high"
+    : normalized.startsWith("elevated") || normalized.startsWith("mod")
+    ? "elevated"
+    : "low";
   return (
     <span className={`risk-badge-pill ${kind}`}>
       <i aria-hidden="true" />
@@ -180,7 +210,11 @@ function RiskBadge({ tier }) {
 
 function RiskBar({ probability, tier }) {
   const normalized = tier?.toLowerCase() || "";
-  const kind = normalized.startsWith("high") ? "high" : normalized.startsWith("mod") ? "moderate" : "low";
+  const kind = normalized.startsWith("high")
+    ? "high"
+    : normalized.startsWith("elevated") || normalized.startsWith("mod")
+    ? "elevated"
+    : "low";
   const pct = Math.min(100, Math.max(0, (Number(probability) || 0) * 100));
 
   return (
@@ -230,6 +264,8 @@ function KpiCard({
   label,
   value,
   context,
+  secondLine = null,
+  miniVisual = null,
   icon: IconComponent,
   tone = "indigo",
   onClick,
@@ -249,7 +285,7 @@ function KpiCard({
           onClick?.();
         }
       }}
-      title={onClick ? "Click to filter worklist (click again to clear)" : undefined}
+      title={onClick ? "Click to toggle filter (click to clear)" : undefined}
       whileHover={{ y: -4, transition: { duration: 0.18, ease: "easeOut" } }}
       whileTap={{ scale: 0.98 }}
     >
@@ -271,7 +307,7 @@ function KpiCard({
         {isActive && <span className="kpi-filtering-chip">Filtering</span>}
       </div>
 
-      <MiniSparkline tone={tone} />
+      {miniVisual}
 
       {context && (
         <div>
@@ -284,6 +320,12 @@ function KpiCard({
           </span>
         </div>
       )}
+
+      {secondLine && (
+        <div className="kpi-second-line">
+          {secondLine}
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -291,8 +333,17 @@ function KpiCard({
 function RiskGauge({ probability, tier }) {
   const pct = Math.min(100, Math.max(0, (Number(probability) || 0) * 100));
   const normalized = tier?.toLowerCase() || "";
-  const kind = normalized.startsWith("high") ? "high" : normalized.startsWith("mod") ? "moderate" : "low";
-  const strokeColor = kind === "high" ? "var(--risk-high-bar)" : kind === "moderate" ? "var(--risk-med-bar)" : "var(--risk-low-bar)";
+  const kind = normalized.startsWith("high")
+    ? "high"
+    : normalized.startsWith("elevated") || normalized.startsWith("mod")
+    ? "elevated"
+    : "low";
+  const strokeColor =
+    kind === "high"
+      ? "var(--risk-high-bar)"
+      : kind === "elevated"
+      ? "var(--risk-med-bar)"
+      : "var(--risk-low-bar)";
 
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
@@ -1044,32 +1095,36 @@ function App() {
           ----------------------------------------------------------------------- */}
       <aside className={`app-sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
         <div className="sidebar-header">
-          {!sidebarCollapsed && (
-            <div className="brand-wrapper">
-              <div className="brand-icon">
-                <Stethoscope className="w-5 h-5 text-white" />
+          {!sidebarCollapsed ? (
+            <>
+              <div className="brand-wrapper">
+                <div className="brand-icon">
+                  <Stethoscope className="w-5 h-5 text-white" />
+                </div>
+                <div className="brand-info">
+                  <span className="brand-title">ClinicalAI</span>
+                  <span className="brand-subtitle">Readmission Insights</span>
+                </div>
               </div>
-              <div className="brand-info">
-                <span className="brand-title">ClinicalAI</span>
-                <span className="brand-subtitle">Readmission Insights</span>
-              </div>
-            </div>
+              <button
+                className="sidebar-collapse-btn"
+                onClick={toggleSidebar}
+                title="Collapse sidebar"
+                aria-label="Collapse sidebar"
+              >
+                <PanelLeftClose className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <button
+              className="sidebar-collapse-btn collapsed-toggle"
+              onClick={toggleSidebar}
+              title="Expand sidebar"
+              aria-label="Expand sidebar"
+            >
+              <Stethoscope className="w-5 h-5 text-white" />
+            </button>
           )}
-          {sidebarCollapsed && (
-            <div className="brand-wrapper">
-              <div className="brand-icon" title="ClinicalAI">
-                <Stethoscope className="w-5 h-5 text-white" />
-              </div>
-            </div>
-          )}
-          <button
-            className="sidebar-collapse-btn"
-            onClick={toggleSidebar}
-            title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {sidebarCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
-          </button>
         </div>
 
         <nav className="sidebar-nav" aria-label="Main sidebar navigation">
@@ -1327,38 +1382,52 @@ function App() {
                   icon={Users}
                   tone="indigo"
                   onClick={() => {
-                    if (tier === "all" && !search && ageGroup === "all") {
+                    if (hasActiveFilters) {
                       resetAllFilters();
-                    } else {
-                      resetAllFilters();
+                      toast.info("Cleared all filters to default neutral view");
                     }
                   }}
-                  isActive={tier === "all" && !search && ageGroup === "all"}
+                  isActive={hasActiveFilters}
+                  miniVisual={
+                    <KpiMiniCohortDist
+                      lowPct={summary.cohort_size ? (summary.low_risk / summary.cohort_size) * 100 : 72.2}
+                      elevatedPct={summary.cohort_size ? (summary.elevated_risk / summary.cohort_size) * 100 : 22.8}
+                      highPct={summary.cohort_size ? (summary.high_risk / summary.cohort_size) * 100 : 5.0}
+                    />
+                  }
                 />
 
                 <KpiCard
-                  label="High-Risk Flags"
-                  value={summary.high_risk ?? "139"}
-                  rawNumber={summary.high_risk ?? 139}
+                  label="Flagged for follow-up (≥ 12%)"
+                  value={summary.flagged ?? "139"}
+                  rawNumber={summary.flagged ?? 139}
                   context={
                     summary.cohort_size
-                      ? `${((summary.high_risk / summary.cohort_size) * 100).toFixed(1)}% of cohort (≥12% risk)`
-                      : "27.8% of cohort (≥12% risk)"
+                      ? `${((summary.flagged / summary.cohort_size) * 100).toFixed(1)}% of cohort (≥12% cutoff)`
+                      : "27.8% of cohort (≥12% cutoff)"
                   }
+                  secondLine={`High (≥20%): ${summary.high_risk ?? 25} (5.0%) · Elevated (12–20%): ${summary.elevated_risk ?? 114} (22.8%)`}
                   icon={AlertTriangle}
                   tone="red"
                   accentRed={true}
                   onClick={() => {
-                    if (tier === "high") {
+                    if (tier === "flagged") {
                       setTier("all");
-                      toast.info("Cleared high risk filter");
+                      toast.info("Cleared follow-up filter");
                     } else {
-                      setTier("high");
-                      toast.info("Filtered worklist to High Risk (≥12%)");
+                      setTier("flagged");
+                      toast.info("Filtered worklist to Flagged Encounters (≥12%)");
                     }
                     setPage(1);
                   }}
-                  isActive={tier === "high"}
+                  isActive={tier === "flagged"}
+                  miniVisual={
+                    <KpiProportionBar
+                      percentage={summary.cohort_size ? (summary.flagged / summary.cohort_size) * 100 : 27.8}
+                      tone="red"
+                      title="27.8% flagged for transition follow-up (≥12% risk cutoff)"
+                    />
+                  }
                 />
 
                 <KpiCard
@@ -1372,6 +1441,13 @@ function App() {
                   }
                   icon={Pill}
                   tone="amber"
+                  miniVisual={
+                    <KpiProportionBar
+                      percentage={summary.cohort_size ? (summary.polypharmacy / summary.cohort_size) * 100 : 75.0}
+                      tone="amber"
+                      title="75.0% of encounters with ≥10 active medications"
+                    />
+                  }
                 />
 
                 <KpiCard
@@ -1379,12 +1455,17 @@ function App() {
                   value={summary.readmissions ?? "64"}
                   rawNumber={summary.readmissions ?? 64}
                   context={
-                    summary.cohort_size
-                      ? `${((summary.readmissions / summary.cohort_size) * 100).toFixed(1)}% historical rate`
-                      : "12.8% historical rate"
+                    `${summary.cohort_size ? ((summary.readmissions / summary.cohort_size) * 100).toFixed(1) : "12.8"}% sample rate · 11.2% full dataset rate`
                   }
                   icon={TrendingUp}
                   tone="green"
+                  miniVisual={
+                    <KpiProportionBar
+                      percentage={summary.cohort_size ? (summary.readmissions / summary.cohort_size) * 100 : 12.8}
+                      tone="green"
+                      title="12.8% readmission rate in 500 sample (11.2% full dataset rate)"
+                    />
+                  }
                 />
               </section>
 
@@ -1425,9 +1506,10 @@ function App() {
                           aria-label="Filter by risk tier"
                         >
                           <option value="all">All risk tiers</option>
-                          <option value="high">High risk (≥12%)</option>
-                          <option value="moderate">Moderate risk (8–12%)</option>
-                          <option value="low">Low risk (&lt;8%)</option>
+                          <option value="flagged">Flagged for follow-up (≥12%)</option>
+                          <option value="high">High risk (≥20%)</option>
+                          <option value="elevated">Elevated risk (12–20%)</option>
+                          <option value="low">Low risk (&lt;12%)</option>
                         </select>
                       </div>
 
@@ -1501,12 +1583,12 @@ function App() {
                   <table className="clinical-data-table">
                     <colgroup>
                       <col className="col-enc" style={{ width: "120px" }} />
-                      <col className="col-profile" style={{ width: "170px" }} />
-                      <col className="col-stay" style={{ width: "90px" }} />
-                      <col className="col-meds" style={{ width: "110px" }} />
-                      <col className="col-acute" style={{ width: "140px" }} />
-                      <col className="col-flags" style={{ width: "220px" }} />
-                      <col className="col-risk" style={{ width: "220px" }} />
+                      <col className="col-profile" style={{ width: "165px" }} />
+                      <col className="col-stay" style={{ width: "85px" }} />
+                      <col className="col-meds" style={{ width: "140px" }} />
+                      <col className="col-acute" style={{ width: "135px" }} />
+                      <col className="col-flags" style={{ width: "215px" }} />
+                      <col className="col-risk" style={{ width: "215px" }} />
                       <col className="col-action" style={{ width: "40px" }} />
                     </colgroup>
                     <thead>
@@ -1607,9 +1689,13 @@ function App() {
                       {!loadingWorklist &&
                         sortedResults.map((record, idx) => {
                           const normalized = record.tier?.toLowerCase() || "";
-                          const tierClass = normalized.startsWith("high") ? "high" : normalized.startsWith("mod") ? "moderate" : "low";
+                          const tierClass = normalized.startsWith("high")
+                            ? "high"
+                            : normalized.startsWith("elevated") || normalized.startsWith("mod")
+                            ? "elevated"
+                            : "low";
                           const careFlags = record.resources || [];
-                          const maxVisible = isWideFlagsCol ? 2 : 1;
+                          const maxVisible = 2;
                           const visibleFlags = careFlags.slice(0, maxVisible);
                           const overflowFlags = careFlags.slice(maxVisible);
                           const overflowCount = overflowFlags.length;
@@ -1685,22 +1771,33 @@ function App() {
 
                               <td className="col-flags">
                                 <div className="care-flags-cell">
-                                  {visibleFlags.map((flag) => (
-                                    <span key={flag} className="care-flag-pill" title={flag}>
-                                      {flag.includes("Telehealth") ? (
-                                        <HeartPulse className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                                      ) : flag.includes("PharmD") ? (
-                                        <Pill className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                                      ) : (
-                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                                      )}
-                                      <span className="care-flag-text">{flag}</span>
-                                    </span>
-                                  ))}
+                                  {visibleFlags.map((rawFlag) => {
+                                    const cfg = getCareFlagConfig(rawFlag);
+                                    const FlagIcon = cfg.icon;
+                                    return (
+                                      <span
+                                        key={rawFlag}
+                                        className="care-flag-pill"
+                                        title={rawFlag}
+                                        onMouseEnter={(e) => showTooltip(rawFlag, e.currentTarget, "top")}
+                                        onMouseLeave={hideTooltip}
+                                      >
+                                        <FlagIcon className={`w-3.5 h-3.5 ${cfg.color} shrink-0`} />
+                                        <span className="care-flag-text">{cfg.label}</span>
+                                      </span>
+                                    );
+                                  })}
                                   {overflowCount > 0 && (
                                     <span
                                       className="flag-overflow-chip"
-                                      title={overflowFlags.join(", ")}
+                                      title={careFlags.join(", ")}
+                                      tabIndex={0}
+                                      role="button"
+                                      aria-label={`All care flags: ${careFlags.join(", ")}`}
+                                      onMouseEnter={(e) => showTooltip(`Care flags: ${careFlags.join(" · ")}`, e.currentTarget, "top")}
+                                      onMouseLeave={hideTooltip}
+                                      onFocus={(e) => showTooltip(`Care flags: ${careFlags.join(" · ")}`, e.currentTarget, "top")}
+                                      onBlur={hideTooltip}
                                     >
                                       +{overflowCount}
                                     </span>
@@ -2239,7 +2336,7 @@ function App() {
                         <dd className="ensemble-stat-dd tabular-nums">
                           {championCutoff}
                         </dd>
-                        <span className="ensemble-stat-sub">High-risk tier trigger</span>
+                        <span className="ensemble-stat-sub">Clinical follow-up trigger (≥ 12%)</span>
                       </div>
                     </dl>
 
@@ -2631,7 +2728,7 @@ function App() {
                       className={`drawer-gauge-pct tabular-nums ${
                         reviewRecord.tier?.toLowerCase().startsWith("high")
                           ? "text-red-600 dark:text-red-400"
-                          : reviewRecord.tier?.toLowerCase().startsWith("mod")
+                          : reviewRecord.tier?.toLowerCase().startsWith("elevated") || reviewRecord.tier?.toLowerCase().startsWith("mod")
                           ? "text-amber-600 dark:text-amber-400"
                           : "text-emerald-600 dark:text-emerald-400"
                       }`}
@@ -2875,30 +2972,44 @@ function App() {
             <Command.Item
               className="cmdk-item"
               onSelect={() => {
+                setTier("flagged");
+                setPage(1);
+                setView("worklist");
+                setOpenPalette(false);
+                toast.info("Filtered worklist to Flagged for follow-up (≥12%)");
+              }}
+            >
+              <AlertTriangle className="w-4 h-4 text-red-500" />
+              <span>Show Flagged Encounters (≥12%)</span>
+              <span className="cmdk-shortcut">F</span>
+            </Command.Item>
+            <Command.Item
+              className="cmdk-item"
+              onSelect={() => {
                 setTier("high");
                 setPage(1);
                 setView("worklist");
                 setOpenPalette(false);
-                toast.info("Filtered worklist to High Risk (≥12%)");
+                toast.info("Filtered worklist to High Risk (≥20%)");
               }}
             >
-              <AlertTriangle className="w-4 h-4 text-red-500" />
-              <span>Show High Risk Encounters (≥12%)</span>
+              <AlertTriangle className="w-4 h-4 text-red-600" />
+              <span>Show High Risk Encounters (≥20%)</span>
               <span className="cmdk-shortcut">H</span>
             </Command.Item>
             <Command.Item
               className="cmdk-item"
               onSelect={() => {
-                setTier("moderate");
+                setTier("elevated");
                 setPage(1);
                 setView("worklist");
                 setOpenPalette(false);
-                toast.info("Filtered worklist to Moderate Risk (8–12%)");
+                toast.info("Filtered worklist to Elevated Risk (12–20%)");
               }}
             >
               <AlertCircle className="w-4 h-4 text-amber-500" />
-              <span>Show Moderate Risk Encounters (8–12%)</span>
-              <span className="cmdk-shortcut">M</span>
+              <span>Show Elevated Risk Encounters (12–20%)</span>
+              <span className="cmdk-shortcut">E</span>
             </Command.Item>
             <Command.Item
               className="cmdk-item"
@@ -3007,9 +3118,9 @@ function App() {
               <div className="p-3 bg-subtle border border-color rounded-control">
                 <strong className="block text-primary text-xs uppercase mb-1">Key Operating Thresholds</strong>
                 <ul className="text-xs space-y-1 pl-4 list-disc text-secondary">
-                  <li><strong>Low Risk (&lt;8%):</strong> Standard discharge summary and routine 30-day primary care appointment.</li>
-                  <li><strong>Moderate Risk (8–12%):</strong> Enhanced discharge planning with 7–10 day follow-up and pharmacy consult.</li>
-                  <li><strong>High Risk (≥12%):</strong> Multidisciplinary discharge care plan, 48-hour telehealth outreach, and pharmacy reconciliation.</li>
+                  <li><strong>Low Risk (&lt;12%):</strong> 72.2% of cohort (361 encounters). Standard discharge summary and routine 30-day primary care appointment.</li>
+                  <li><strong>Elevated Risk (12–20%):</strong> 22.8% of cohort (114 encounters). At or above the validated clinical cutoff; enhanced transition planning, 7–10 day follow-up, and pharmacy consult.</li>
+                  <li><strong>High Risk (≥20%):</strong> 5.0% of cohort (25 encounters). Top risk decile; multidisciplinary discharge care plan, 48-hour telehealth outreach, and CDCES educator consult.</li>
                 </ul>
               </div>
 

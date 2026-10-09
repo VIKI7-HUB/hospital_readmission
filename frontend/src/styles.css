@@ -232,9 +232,12 @@ select:focus-visible {
   top: 0;
   bottom: 0;
   left: 0;
+  margin: 0;
+  transform: none;
   z-index: 30;
   transition: width var(--transition-normal);
   overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .app-sidebar.collapsed {
@@ -321,12 +324,72 @@ select:focus-visible {
 }
 
 .app-sidebar.collapsed .sidebar-header {
-  padding: 0 14px;
+  padding: 0;
   justify-content: center;
 }
 
 .app-sidebar.collapsed .brand-wrapper {
-  flex: none;
+  display: none;
+}
+
+.app-sidebar.collapsed .sidebar-collapse-btn {
+  margin: 0 auto;
+}
+
+.app-sidebar.collapsed .sidebar-collapse-btn.collapsed-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-control);
+  background: var(--brand-indigo);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.app-sidebar.collapsed .sidebar-collapse-btn.collapsed-toggle:hover {
+  background: var(--brand-indigo-hover);
+  transform: scale(1.05);
+}
+
+.app-sidebar.collapsed .sidebar-nav {
+  padding: 16px 0;
+  align-items: center;
+}
+
+.app-sidebar.collapsed .nav-item {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin: 0 auto 4px;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--radius-control);
+}
+
+.app-sidebar.collapsed .nav-item-content {
+  justify-content: center;
+  gap: 0;
+}
+
+.app-sidebar.collapsed .nav-item-active-bar {
+  display: none;
+}
+
+.app-sidebar.collapsed .nav-icon {
+  margin: 0;
+}
+
+.app-sidebar.collapsed .sidebar-footer {
+  padding: 14px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.app-sidebar.collapsed .user-profile-pill {
+  padding: 0;
   justify-content: center;
 }
 
@@ -890,25 +953,63 @@ select:focus-visible {
   to { opacity: 1; transform: scale(1); }
 }
 
-.kpi-sparkline-svg {
+/* Real-data mini visuals for KPI cards */
+.kpi-proportion-track {
   width: 100%;
-  height: 20px;
+  height: 6px;
+  background: var(--border-subtle);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  position: relative;
   margin-top: 4px;
-  overflow: visible;
 }
 
-.kpi-sparkline-path {
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 200;
-  stroke-dashoffset: 200;
-  animation: sparklineDraw 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.kpi-proportion-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes sparklineDraw {
-  to { stroke-dashoffset: 0; }
+.kpi-proportion-fill.indigo { background: var(--brand-indigo); }
+.kpi-proportion-fill.red { background: var(--risk-high-bar); }
+.kpi-proportion-fill.amber { background: var(--risk-med-bar); }
+.kpi-proportion-fill.green { background: var(--risk-low-bar); }
+
+/* Mini cohort risk distribution multi-segment bar */
+.kpi-mini-dist-bar {
+  display: flex;
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--border-subtle);
+  gap: 1px;
+  margin-top: 4px;
+}
+
+.kpi-dist-seg {
+  height: 100%;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kpi-dist-seg.low { background: var(--risk-low-bar); }
+.kpi-dist-seg.elevated,
+.kpi-dist-seg.moderate { background: var(--risk-med-bar); }
+.kpi-dist-seg.high { background: var(--risk-high-bar); }
+
+.kpi-dist-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.kpi-second-line {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin-top: 3px;
 }
 
 .kpi-value-row {
@@ -1151,7 +1252,7 @@ select:focus-visible {
 
 .clinical-data-table {
   width: 100%;
-  min-width: 1110px;
+  min-width: 1115px;
   table-layout: fixed;
   border-collapse: collapse;
   text-align: left;
@@ -1176,6 +1277,7 @@ select:focus-visible {
   white-space: nowrap;
   user-select: none;
   overflow: hidden;
+  text-overflow: ellipsis;
   position: relative;
   box-sizing: border-box;
 }
@@ -1496,24 +1598,24 @@ select:focus-visible {
 .care-flag-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 12px;
+  gap: 4px;
+  font-size: 11px;
   height: 24px;
-  padding: 0 8px;
+  padding: 0 7px;
   border-radius: var(--radius-pill);
   background: var(--bg-subtle);
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
   white-space: nowrap;
-  max-width: 110px;
+  max-width: 100px;
   overflow: hidden;
-  flex-shrink: 1;
+  flex-shrink: 0;
   min-width: 0;
 }
 
 .care-flag-pill svg {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   flex-shrink: 0;
 }
 
@@ -1525,12 +1627,12 @@ select:focus-visible {
 }
 
 .flag-overflow-chip {
-  font-size: 12px;
+  font-size: 11px;
   height: 24px;
   font-weight: 600;
   color: var(--text-muted);
   background: var(--bg-subtle);
-  padding: 0 8px;
+  padding: 0 7px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-color);
   display: inline-flex;
@@ -1567,6 +1669,7 @@ select:focus-visible {
 }
 
 .risk-pct-large.high { color: var(--risk-high-text); }
+.risk-pct-large.elevated,
 .risk-pct-large.moderate { color: var(--risk-med-text); }
 .risk-pct-large.low { color: var(--risk-low-text); }
 
@@ -1591,6 +1694,7 @@ select:focus-visible {
   animation: sheen 3s infinite linear;
 }
 
+.risk-mini-bar-fill.elevated,
 .risk-mini-bar-fill.moderate { background: var(--risk-med-bar); }
 .risk-mini-bar-fill.low { background: var(--risk-low-bar); }
 
@@ -1639,6 +1743,7 @@ select:focus-visible {
   100% { transform: scale(2.4); opacity: 0; }
 }
 
+.risk-badge-pill.elevated,
 .risk-badge-pill.moderate {
   background: var(--risk-med-bg);
   color: var(--risk-med-text);

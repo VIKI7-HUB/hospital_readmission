@@ -181,18 +181,20 @@ def health() -> dict:
 def get_worklist(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=25, ge=1, le=500),
-    tier: Literal["all", "high", "moderate", "low"] = "all",
+    tier: Literal["all", "flagged", "high", "elevated", "moderate", "low"] = "all",
     age_group: str = "all",
     search: str = Query(default="", max_length=80),
 ) -> dict:
     records = load_assets()["worklist"]
     filtered = records
     if tier == "high":
+        filtered = filtered.loc[filtered["prob"] >= 0.20]
+    elif tier in ("elevated", "moderate"):
+        filtered = filtered.loc[(filtered["prob"] >= 0.12) & (filtered["prob"] < 0.20)]
+    elif tier == "flagged":
         filtered = filtered.loc[filtered["prob"] >= 0.12]
-    elif tier == "moderate":
-        filtered = filtered.loc[(filtered["prob"] >= 0.08) & (filtered["prob"] < 0.12)]
     elif tier == "low":
-        filtered = filtered.loc[filtered["prob"] < 0.08]
+        filtered = filtered.loc[filtered["prob"] < 0.12]
     if age_group != "all":
         filtered = filtered.loc[filtered["age_group"].astype(str) == age_group]
     page_num = page if isinstance(page, int) else 1
@@ -219,9 +221,14 @@ def get_worklist(
         "pages": max(1, (total + page_size - 1) // page_size),
         "summary": {
             "cohort_size": len(all_records),
-            "high_risk": int((all_records["prob"] >= 0.12).sum()),
+            "flagged": int((all_records["prob"] >= 0.12).sum()),
+            "high_risk": int((all_records["prob"] >= 0.20).sum()),
+            "elevated_risk": int(((all_records["prob"] >= 0.12) & (all_records["prob"] < 0.20)).sum()),
+            "low_risk": int((all_records["prob"] < 0.12).sum()),
             "polypharmacy": int((all_records["meds"] >= 10).sum()),
             "readmissions": int((all_records["actual"] == 1).sum()),
+            "baseline_readmission_rate_full": 11.2,
+            "baseline_readmission_rate_sample": 12.8,
         },
     }
 
