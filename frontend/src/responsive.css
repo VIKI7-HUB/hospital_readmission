@@ -1,601 +1,151 @@
-/* Tablet and phone layouts. Keep the desktop workspace styling in styles.css. */
+/* ==========================================================================
+   Responsive Utilities & Mobile Navigation for ClinicalAI
+   ========================================================================== */
 
-.mobile-nav {
+.mobile-bottom-nav {
   display: none;
 }
 
-@media (max-width: 960px) {
-  .metric-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .calculator-grid {
-    grid-template-columns: minmax(0, 1fr);
+@media (max-width: 900px) {
+  .topbar-left .breadcrumb-trail {
+    display: none;
   }
 }
 
-@media (max-width: 760px) {
-  #root,
-  .app-shell,
-  .main-area,
-  .page-content {
-    min-width: 0;
-  }
-
-  body {
-    overflow-x: hidden;
-  }
-
-  .sidebar {
+@media (max-width: 768px) {
+  .app-sidebar {
     display: none;
   }
 
-  .main-area {
-    margin-left: 0;
-    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  .main-content {
+    margin-left: 0 !important;
+    padding-bottom: 74px; /* Space for bottom mobile nav */
   }
 
-  .topbar {
-    height: 58px;
-    padding: 0 14px;
+  .app-topbar {
+    padding: 0 16px;
+    height: 56px;
   }
 
-  .mobile-brand {
-    flex: 0 0 auto;
-    gap: 7px;
+  .page-body {
+    padding: 16px 14px 48px;
+    gap: 16px;
   }
 
-  .top-actions {
-    gap: 8px;
-    min-width: 0;
+  .page-title {
+    font-size: 24px;
   }
 
-  .environment-tag {
-    max-width: 132px;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-
-  .help-button {
-    width: 34px;
-    height: 34px;
-    flex: 0 0 34px;
-  }
-
-  .page-content {
-    padding: 22px 14px 30px;
-  }
-
-  .page-title-row {
-    align-items: flex-start;
-    gap: 11px;
-  }
-
-  .page-title-row > div {
-    min-width: 0;
-  }
-
-  .page-title-row p {
-    max-width: 58ch;
-    line-height: 1.5;
-  }
-
-  .dataset-pill {
-    white-space: normal;
-    line-height: 1.35;
-  }
-
-  .notice {
-    font-size: 11px;
-    line-height: 1.55;
-  }
-
-  .metric-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 9px;
-  }
-
-  .metric-card {
-    min-width: 0;
-    min-height: 86px;
-    padding: 11px;
-    gap: 8px;
-  }
-
-  .metric-copy {
-    min-width: 0;
-  }
-
-  .metric-copy > span,
-  .metric-copy small {
-    line-height: 1.35;
-  }
-
-  .worklist-panel > .panel-heading {
-    align-items: flex-start;
-    padding: 15px 13px 12px;
-  }
-
-  .panel-heading > div {
-    min-width: 0;
-  }
-
-  .panel-heading p {
-    line-height: 1.45;
-  }
-
-  .record-count {
-    flex: 0 0 auto;
-  }
-
-  .filters {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-    padding: 0 12px 12px;
-  }
-
-  .search-box {
-    grid-column: 1 / -1;
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-    min-height: 42px;
-  }
-
-  .search-box input {
-    min-width: 0;
+  .page-description {
     font-size: 14px;
   }
 
-  .filter-select {
-    width: 100%;
-    min-width: 0;
-    min-height: 42px;
-    justify-content: space-between;
-    gap: 4px;
-    padding: 0 8px;
-    font-size: 9px;
-  }
-
-  .filter-select select {
-    min-width: 0;
-    max-width: 58%;
-    font-size: 11px;
-  }
-
-  .table-wrap {
-    max-width: 100%;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e2 transparent;
-  }
-
-  table {
-    min-width: 850px;
-  }
-
-  .table-footer {
-    align-items: flex-start;
-    gap: 10px;
-    padding: 12px;
-  }
-
-  .pagination {
-    width: 100%;
-    justify-content: space-between;
-    gap: 6px;
-  }
-
-  .pagination button {
-    min-height: 36px;
-    font-size: 10px;
-  }
-
-  .source-note {
-    align-items: flex-start;
-    font-size: 10px;
-    line-height: 1.5;
-  }
-
-  .calculator-grid {
-    grid-template-columns: minmax(0, 1fr);
+  .kpi-cards-grid {
+    grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  .input-panel,
-  .result-panel,
-  .benchmark-panel,
-  .fairness-panel {
-    min-width: 0;
-    padding: 15px;
+  .toolbar-primary-row {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .field-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px 10px;
+  .search-input-wrapper {
+    max-width: none;
   }
 
-  .field-label {
-    min-width: 0;
-    line-height: 1.4;
-  }
-
-  .field-control {
+  .toolbar-filters-group {
     width: 100%;
-    min-width: 0;
-    min-height: 44px;
-    font-size: 13px;
+    justify-content: space-between;
   }
 
-  .input-suffix {
-    min-width: 0;
+  .filter-select-pill {
+    flex: 1;
+  }
+
+  .calculator-two-col,
+  .governance-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .sticky-result-card {
+    position: static;
+  }
+
+  .slider-number-combo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .number-stepper-box {
     width: 100%;
-    min-height: 44px;
   }
 
-  .input-suffix input {
-    min-width: 0;
-    font-size: 16px;
-  }
-
-  .selected-summary {
-    min-width: 0;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .selected-summary .risk-badge {
-    margin-left: auto;
-  }
-
-  .result-placeholder {
-    min-height: 230px;
-    padding: 24px 14px;
-  }
-
-  .governance-grid {
-    grid-template-columns: minmax(0, 1fr);
+  .benchmark-card-row {
+    grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  .benchmark-panel,
-  .fairness-panel {
-    min-height: 0;
+  .fairness-attribute-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 
-  .benchmark-row {
-    grid-template-columns: minmax(80px, 1fr) minmax(75px, 1.1fr) minmax(75px, 1.1fr);
-    gap: 7px;
+  .fairness-disparity-metric {
+    width: 100%;
+    justify-content: space-between;
   }
 
-  .benchmark-label {
-    flex-wrap: wrap;
-  }
-
-  .fairness-values {
-    gap: 8px;
-  }
-
-  .fairness-values > span:not(.improvement) {
-    min-width: 43px;
-  }
-
-  .mobile-nav {
-    position: fixed;
-    z-index: 7;
-    inset: auto 0 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 4px;
-    padding: 7px 10px calc(7px + env(safe-area-inset-bottom));
-    border-top: 1px solid #e8edf3;
-    background: rgba(255, 255, 255, 0.97);
-    box-shadow: 0 -8px 24px rgba(26, 44, 72, 0.08);
-    backdrop-filter: blur(14px);
-  }
-
-  .mobile-nav button {
+  /* Fixed bottom navigation for mobile SaaS experience */
+  .mobile-bottom-nav {
     display: flex;
-    min-width: 0;
-    min-height: 52px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-color);
+    z-index: 40;
+    padding: 0 8px;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
+  }
+
+  .mobile-nav-btn {
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 4px;
-    border: 0;
-    border-radius: 9px;
-    background: transparent;
-    color: #7b899c;
-    font-size: 10px;
+    flex: 1;
+    height: 100%;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+  }
+
+  .mobile-nav-btn.active {
+    color: var(--brand-indigo);
     font-weight: 600;
   }
 
-  .mobile-nav button.active {
-    background: #edf3ff;
-    color: #3157d5;
+  .mobile-nav-btn svg {
+    width: 20px;
+    height: 20px;
   }
 
-  .mobile-nav .icon {
-    font-size: 18px;
+  .modal-dialog-window {
+    padding: 20px 16px;
+    max-height: 92vh;
   }
 
-  .modal-backdrop {
-    align-items: flex-end;
-    padding: 0;
-  }
-
-  .review-modal {
-    width: 100%;
-    max-height: calc(90dvh - env(safe-area-inset-bottom));
-    padding: 22px 18px calc(18px + env(safe-area-inset-bottom));
-    border-radius: 16px 16px 0 0;
-  }
-}
-
-@media (max-width: 420px) {
-  .topbar {
-    padding-inline: 10px;
-  }
-
-  .mobile-brand {
-    gap: 6px;
-    font-size: 13px;
-  }
-
-  .mobile-brand .brand-mark {
-    width: 27px;
-    height: 27px;
-  }
-
-  .environment-tag {
-    max-width: 108px;
-    font-size: 6px;
-    letter-spacing: 0.25px;
-  }
-
-  .page-content {
-    padding-inline: 10px;
-  }
-
-  .metric-grid {
-    gap: 7px;
-  }
-
-  .metric-card {
-    min-height: 84px;
-    padding: 9px;
-    gap: 7px;
-  }
-
-  .metric-icon {
-    width: 26px;
-    height: 26px;
-    flex: 0 0 26px;
-    font-size: 13px;
-  }
-
-  .metric-copy > span {
-    font-size: 8px;
-  }
-
-  .metric-copy strong {
-    font-size: 16px;
-  }
-
-  .metric-copy small {
-    font-size: 7px;
-  }
-
-  .worklist-panel > .panel-heading {
-    gap: 7px;
-  }
-
-  .filters {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .search-box {
-    grid-column: auto;
-  }
-
-  .filter-select {
-    min-height: 46px;
-    flex-direction: row;
-  }
-
-  .field-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .benchmark-row {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 9px;
-    padding: 10px 0;
-    border-bottom: 1px solid #eef1f5;
-  }
-
-  .benchmark-label strong {
-    font-size: 9px;
-  }
-
-  .bar-metric {
-    grid-template-columns: 42px minmax(40px, 1fr) 38px;
-    gap: 7px;
-  }
-
-  .bar-metric small,
-  .bar-metric b {
-    font-size: 9px;
-  }
-
-  .fairness-row {
-    align-items: flex-start;
-  }
-
-  .fairness-values {
-    gap: 6px;
-  }
-
-  .fairness-values > span:not(.improvement) {
-    min-width: 39px;
-  }
-
-  .pagination button {
-    padding-inline: 6px;
-    font-size: 9px;
-  }
-}
-
-/* Replace the wide worklist table with readable cards on phones. */
-@media (max-width: 760px) {
-  .table-wrap {
-    overflow: visible;
-  }
-
-  .table-wrap table {
-    display: block;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .table-wrap thead {
-    display: none;
-  }
-
-  .table-wrap tbody {
-    display: grid;
-    gap: 10px;
-    padding: 12px;
-  }
-
-  .table-wrap tbody tr {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 7px 12px;
-    min-width: 0;
-    padding: 10px;
-    border: 1px solid #e8edf4;
-    border-radius: 9px;
-    background: #fff;
-    box-shadow: 0 3px 12px rgba(24, 45, 78, 0.04);
-  }
-
-  .table-wrap tbody td {
-    min-width: 0;
-    padding: 3px 0;
-    border: 0;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    font-size: 11px;
-    line-height: 1.4;
-  }
-
-  .table-wrap tbody td::before {
-    display: block;
-    margin-bottom: 3px;
-    color: #8b98a9;
-    content: attr(data-label);
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.35px;
-    text-transform: uppercase;
-  }
-
-  .table-wrap tbody td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .table-wrap tbody td:nth-child(8) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-  }
-
-  .table-wrap tbody td:nth-child(2) {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  .table-wrap tbody td:nth-child(7) {
-    grid-column: 2;
-    grid-row: 2;
-  }
-
-  .table-wrap tbody td:nth-child(3) {
-    grid-column: 1;
-    grid-row: 3;
-  }
-
-  .table-wrap tbody td:nth-child(4) {
-    grid-column: 2;
-    grid-row: 3;
-  }
-
-  .table-wrap tbody td:nth-child(5) {
-    grid-column: 1;
-    grid-row: 4;
-  }
-
-  .table-wrap tbody td:nth-child(6) {
-    grid-column: 2;
-    grid-row: 4;
-  }
-
-  .table-wrap tbody td strong {
-    font-size: 11px;
-  }
-
-  .table-wrap tbody td small {
-    font-size: 9px;
-  }
-
-  .score-cell {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .text-button {
-    min-height: 36px;
-    padding: 5px 0 5px 8px;
-  }
-
-  .empty-state {
-    padding: 28px 12px;
-  }
-}
-
-@media (max-width: 360px) {
-  .table-wrap tbody tr {
-    gap: 7px;
-    padding: 9px;
-  }
-
-  .table-wrap tbody td {
-    font-size: 10px;
-  }
-
-  .table-wrap tbody td::before {
-    font-size: 7px;
-  }
-
-  .risk-badge {
-    font-size: 7px;
-    padding: 4px 6px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .clinical-facts-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
