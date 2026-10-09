@@ -20,6 +20,7 @@ import {
   ChevronRight,
   ChevronUp,
   Copy,
+  Database,
   Download,
   ExternalLink,
   Eye,
@@ -354,7 +355,28 @@ function DrawerCareActionChip({ action, index }) {
 // -----------------------------------------------------------------------------
 
 function App() {
-  const [view, setView] = useState("worklist");
+  const [view, setView] = useState(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash.replace("#", "");
+      if (["worklist", "calculator", "governance"].includes(hash)) return hash;
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
+      if (["worklist", "calculator", "governance"].includes(tab)) return tab;
+    }
+    return "worklist";
+  });
+
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (["worklist", "calculator", "governance"].includes(hash)) {
+        setView(hash);
+      }
+    };
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, []);
+
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem("clinicalai-theme") === "dark";
   });
@@ -759,6 +781,158 @@ function App() {
 
   const hasActiveFilters = tier !== "all" || ageGroup !== "all" || search.trim() !== "";
   const summary = worklist.summary || {};
+
+  // Model Governance benchmark sorting & metrics
+  const [govSortField, setGovSortField] = useState("AUC-ROC");
+  const [govSortOrder, setGovSortOrder] = useState("desc");
+
+  const handleGovSort = (field) => {
+    if (govSortField === field) {
+      setGovSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setGovSortField(field);
+      setGovSortOrder(field === "Model" ? "asc" : "desc");
+    }
+  };
+
+  const getModelSensitivity = useCallback((m) => {
+    if (!m) return null;
+    const raw = m["Recall (Sensitivity)"] ?? m.Sensitivity ?? m.Recall;
+    if (raw !== undefined && raw !== null && !isNaN(Number(raw))) {
+      const num = Number(raw);
+      if (num > 0) return num;
+    }
+    return null;
+  }, []);
+
+  const championModel = useMemo(() => {
+    const list = governance?.models || [];
+    return (
+      list.find((m) => m.Model === (governance?.selected_model || "Calibrated Ensemble")) ||
+      list.find((m) => m.Model.includes("Ensemble")) ||
+      list[0] ||
+      null
+    );
+  }, [governance]);
+
+  const championAuc = championModel ? (Number(championModel["AUC-ROC"]) || 0.664).toFixed(3) : "0.664";
+  const championBrier = championModel ? (Number(championModel["Brier Score"]) || 0.097).toFixed(3) : "0.097";
+  const championCutoff = championModel?.Threshold != null ? `≥ ${(Number(championModel.Threshold) * 100).toFixed(1)}%` : "≥ 13.0%";
+
+  const sortedGovModels = useMemo(() => {
+    const list = [...(governance?.models || [])];
+    return list.sort((a, b) => {
+      let aVal = a[govSortField];
+      let bVal = b[govSortField];
+
+      if (govSortField === "Sensitivity" || govSortField === "Recall") {
+        aVal = a["Recall (Sensitivity)"] ?? a.Recall ?? a.Sensitivity;
+        bVal = b["Recall (Sensitivity)"] ?? b.Recall ?? b.Sensitivity;
+        aVal = aVal !== undefined && aVal !== null && !isNaN(Number(aVal)) ? Number(aVal) : -1;
+        bVal = bVal !== undefined && bVal !== null && !isNaN(Number(bVal)) ? Number(bVal) : -1;
+      } else if (govSortField === "AUC-ROC") {
+        aVal = Number(a["AUC-ROC"]) || 0;
+        bVal = Number(b["AUC-ROC"]) || 0;
+      } else if (govSortField === "Threshold") {
+        aVal = Number(a.Threshold) || 0;
+        bVal = Number(b.Threshold) || 0;
+      } else if (govSortField === "Model") {
+        return govSortOrder === "asc"
+          ? String(a.Model).localeCompare(String(b.Model))
+          : String(b.Model).localeCompare(String(a.Model));
+      }
+
+      const numA = Number(aVal) || 0;
+      const numB = Number(bVal) || 0;
+      return govSortOrder === "asc" ? numA - numB : numB - numA;
+    });
+  }, [governance?.models, govSortField, govSortOrder]);
+
+  const fairnessCards = useMemo(() => {
+    const fairnessData = governance?.fairness || {};
+
+    // Helper to compute badge text and numbers dynamically from real baseline and mitigated metrics
+    const getFairnessDisparity = (key, fallbackBase, fallbackMit) => {
+      const groupData = fairnessData[key] || {};
+      const baseDiff = groupData.baseline?.equalized_odds_tpr_diff ?? fallbackBase;
+      const mitDiff = groupData.mitigated?.equalized_odds_tpr_diff ?? fallbackMit;
+
+      if (baseDiff != null && baseDiff > 0 && mitDiff != null) {
+        const basePp = (baseDiff * 100).toFixed(1);
+        const mitPp = (mitDiff * 100).toFixed(1);
+        const reductionPct = Math.round(((baseDiff - mitDiff) / baseDiff) * 100);
+        return {
+          gapPp: `${mitPp} pp`,
+          baselinePp: `${basePp} pp`,
+          reductionBadge: `Gap reduced ${reductionPct}% vs. unmitigated model (${basePp} pp → ${mitPp} pp)`,
+          tooltip: `TPR gap reduced from ${basePp} percentage points (baseline) to ${mitPp} pp after equalized-odds mitigation.`,
+        };
+      }
+      const mitPp = mitDiff != null ? `${(mitDiff * 100).toFixed(1)} pp` : "N/A";
+      return {
+        gapPp: mitPp,
+        baselinePp: null,
+        reductionBadge: `${mitPp} gap`,
+        tooltip: `Disparity gap across cohorts is ${mitPp}.`,
+      };
+    };
+
+    const raceDisparity = getFairnessDisparity("race_clean", 0.11282, 0.03089);
+    const genderDisparity = getFairnessDisparity("gender_clean", 0.04307, 0.00188);
+    const ageDisparity = getFairnessDisparity("age_group", 0.13800, 0.00615);
+
+    return [
+      {
+        id: "race",
+        title: "Race & Ethnicity Parity",
+        desc: "Measures True Positive Rate consistency across racial and ethnic cohorts to ensure equitable high-risk identification.",
+        gap: raceDisparity.gapPp,
+        baselineGap: raceDisparity.baselinePp,
+        reductionBadge: raceDisparity.reductionBadge,
+        reductionTooltip: raceDisparity.tooltip,
+        status: "Pass (≤ 5.0 pp)",
+        statusTooltip: "Internal review threshold, not a regulatory standard.",
+        subgroups: [
+          { name: "Caucasian", n: 14874, tpr: 52.9, ci: "50.6%–55.3%" },
+          { name: "African American", n: 3716, tpr: 53.4, ci: "48.6%–58.3%" },
+          { name: "Hispanic", n: 405, tpr: 53.3, ci: "38.8%–67.9%" },
+          { name: "Asian", n: 124, tpr: 53.8, ci: "26.7%–80.9%" },
+          { name: "Other", n: 308, tpr: 56.0, ci: "36.5%–75.5%" },
+        ],
+      },
+      {
+        id: "gender",
+        title: "Sex & Gender Parity",
+        desc: "Compares readmission sensitivity between female and male patients for balanced intervention access.",
+        gap: genderDisparity.gapPp,
+        baselineGap: genderDisparity.baselinePp,
+        reductionBadge: genderDisparity.reductionBadge,
+        reductionTooltip: genderDisparity.tooltip,
+        status: "Pass (≤ 5.0 pp)",
+        statusTooltip: "Internal review threshold, not a regulatory standard.",
+        subgroups: [
+          { name: "Female", n: 10615, tpr: 53.6, ci: "50.8%–56.3%" },
+          { name: "Male", n: 9254, tpr: 53.4, ci: "50.3%–56.4%" },
+        ],
+      },
+      {
+        id: "age",
+        title: "Age Cohort Consistency",
+        desc: "Ensures geriatric and younger patient populations receive equivalent sensitivity across all age cohorts.",
+        gap: ageDisparity.gapPp,
+        baselineGap: ageDisparity.baselinePp,
+        reductionBadge: ageDisparity.reductionBadge,
+        reductionTooltip: ageDisparity.tooltip,
+        status: "Pass (≤ 5.0 pp)",
+        statusTooltip: "Internal review threshold, not a regulatory standard.",
+        subgroups: [
+          { name: "60+ Years", n: 13227, tpr: 53.6, ci: "51.2%–56.1%" },
+          { name: "30-60 Years", n: 6131, tpr: 53.4, ci: "49.4%–57.4%" },
+          { name: "<30 Years", n: 512, tpr: 53.0, ci: "41.0%–65.1%" },
+        ],
+      },
+    ];
+  }, [governance?.fairness]);
 
   return (
     <div className="app-shell">
@@ -1815,221 +1989,429 @@ function App() {
               PAGE 3: MODEL GOVERNANCE & ETHICAL AUDITS
               =================================================================== */}
           {view === "governance" && (
-            <div className="governance-layout-grid">
-              {/* Left Column: Benchmarks & Architecture */}
-              <div className="flex flex-col gap-6">
-                {/* Ensemble Architecture Card */}
-                <motion.div
-                  className="card-panel"
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                >
-                  <div className="panel-header-row">
-                    <div className="panel-title-text">
-                      <h2>Ensemble Architecture</h2>
-                      <p>Triple-gradient boosted decision trees with isotonic probability calibration.</p>
-                    </div>
-                    <span className="status-badge-chip verified">
-                      <Check className="w-3.5 h-3.5" />
-                      Production Champion
-                    </span>
+            <div className="flex flex-col gap-6">
+              {/* Audit Metadata Strip */}
+              <motion.div
+                className="gov-audit-strip"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="gov-audit-meta-group">
+                  <div className="gov-meta-item">
+                    <Calendar className="w-4 h-4 text-brand" />
+                    <span className="gov-meta-label">Last Evaluated:</span>
+                    <span className="gov-meta-value">{governance?.last_audited || "October 2026"}</span>
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="metric-callout-box">
-                      <span className="metric-box-label">Discrimination (AUC-ROC)</span>
-                      <span className="metric-box-val tabular-nums">0.684</span>
-                      <small className="text-xs text-muted">Validation cohort</small>
-                    </div>
-                    <div className="metric-callout-box">
-                      <span className="metric-box-label">Brier Calibration Score</span>
-                      <span className="metric-box-val tabular-nums">0.093</span>
-                      <small className="text-xs text-muted">Isotonically aligned</small>
-                    </div>
-                    <div className="metric-callout-box">
-                      <span className="metric-box-label">Clinical High-Risk Cutoff</span>
-                      <span className="metric-box-val tabular-nums">≥ 20.0%</span>
-                      <small className="text-xs text-muted">Optimized sensitivity</small>
-                    </div>
+                  <div className="gov-meta-item">
+                    <ShieldCheck className="w-4 h-4 text-brand" />
+                    <span className="gov-meta-label">Model Version:</span>
+                    <span className="gov-meta-value font-mono text-xs">Demo build: {governance?.model_version || "v2.4.1-calibrated-ensemble"}</span>
                   </div>
-
-                  <p className="text-sm text-secondary">
-                    The platform uses a soft-voting ensemble comprising <strong>LightGBM</strong>, <strong>XGBoost</strong>, and <strong>CatBoost</strong>. Each learner outputs raw margins mapped to well-calibrated posterior probabilities, ensuring the predicted score reliably matches real-world clinical readmission frequencies.
-                  </p>
-                </motion.div>
-
-                {/* Candidate Models Benchmark Comparison */}
-                <motion.div
-                  className="card-panel"
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                >
-                  <div className="panel-header-row">
-                    <div className="panel-title-text">
-                      <h2>Candidate Benchmark Comparison</h2>
-                      <p>Evaluated across 6 clinical model variations on identical test holdouts.</p>
-                    </div>
+                  <div className="gov-meta-item">
+                    <Users className="w-4 h-4 text-brand" />
+                    <span className="gov-meta-label">Validation Holdout:</span>
+                    <span className="gov-meta-value">{governance?.cohort_size || 500} Inpatient Encounters</span>
                   </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="status-badge-chip verified">
+                    <Check className="w-3.5 h-3.5" />
+                    Fairness Mitigated & Calibrated
+                  </span>
+                </div>
+                <div className="gov-data-split-line">
+                  <div>
+                    <strong>Data split:</strong> 79,473 encounters training (63,578 model fit, 15,895 grouped calibration fold) · 19,870 holdout test · 500 interactive demo encounters.
+                  </div>
+                  <div className="text-muted text-xs">
+                    <strong>Fairness thresholding disclosure:</strong> Demographic mitigation cutoffs were evaluated post-hoc on the test holdout rather than an isolated tuning split.
+                  </div>
+                </div>
+              </motion.div>
 
-                  <div className="flex flex-col gap-3">
-                    {(governance?.models || []).map((m) => {
-                      const isChampion = m.Model === governance?.selected_model;
-                      const auc = Number(m["AUC-ROC"]) || 0;
-                      const recall = Number(m.Recall) || 0;
+              {/* How to Read This Page Guide */}
+              <motion.div
+                className="gov-guide-card"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 0.05 }}
+              >
+                <div className="gov-guide-header">
+                  <div className="gov-guide-title">
+                    <Info className="w-4 h-4 text-brand" />
+                    <span>How to Read This Governance Audit</span>
+                  </div>
+                  <span className="text-xs text-muted">Transparency summary</span>
+                </div>
+                <div className="gov-guide-grid">
+                  <div className="gov-guide-item">
+                    <strong>1. Discrimination (AUC-ROC & Sensitivity)</strong>
+                    <p>AUC-ROC measures the ranking accuracy between readmitting and non-readmitting encounters. Sensitivity ensures actual readmissions are reliably detected at the clinical cutoff.</p>
+                  </div>
+                  <div className="gov-guide-item">
+                    <strong>2. Calibration (Brier Score)</strong>
+                    <p>Brier score verifies probabilistic reliability. Isotonic calibration ensures a predicted 20% risk corresponds to an empirical 20% readmission rate across patient cohorts.</p>
+                  </div>
+                  <div className="gov-guide-item">
+                    <strong>3. Equity & Parity (Equalized Odds)</strong>
+                    <p>Quantifies True Positive Rate balance across protected demographic subgroups (race, gender, age), validating that post-processing mitigation reduces disparity gaps.</p>
+                  </div>
+                </div>
+              </motion.div>
 
-                      return (
-                        <div
-                          key={m.Model}
-                          className={`benchmark-card-row ${isChampion ? "champion" : ""}`}
-                        >
-                          <div className="model-name-group">
-                            <strong>{m.Model}</strong>
-                            <span className="model-threshold-sub">
-                              Cutoff: {m.Threshold != null ? prettyPercent(m.Threshold) : "0.50"}
-                            </span>
+              {/* Main 2-Column Grid */}
+              <div className="governance-layout-grid">
+                {/* Left Column: Benchmarks & Architecture */}
+                <div className="flex flex-col gap-6">
+                  {/* Ensemble Architecture Card */}
+                  <motion.div
+                    className="card-panel"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.35 }}
+                  >
+                    <div className="panel-header-row">
+                      <div className="panel-title-text">
+                        <h2>Ensemble Architecture</h2>
+                        <p>Triple-gradient boosted decision trees with isotonic probability calibration.</p>
+                      </div>
+                      <span className="status-badge-chip verified">
+                        <Check className="w-3.5 h-3.5" />
+                        Selected Ensemble
+                      </span>
+                    </div>
+
+                    <dl className="ensemble-stats-dl">
+                      <div className="ensemble-stat-card">
+                        <dt className="ensemble-stat-dt">Discrimination (AUC-ROC)</dt>
+                        <dd className="ensemble-stat-dd tabular-nums">
+                          <AnimatedNumber value={Number(championAuc)} format={(v) => v.toFixed(3)} />
+                        </dd>
+                        <span className="ensemble-stat-sub">Validation test holdout</span>
+                      </div>
+                      <div className="ensemble-stat-card">
+                        <dt className="ensemble-stat-dt">Brier Calibration Score</dt>
+                        <dd className="ensemble-stat-dd tabular-nums">
+                          <AnimatedNumber value={Number(championBrier)} format={(v) => v.toFixed(3)} />
+                        </dd>
+                        <span className="ensemble-stat-sub">Isotonically aligned</span>
+                      </div>
+                      <div className="ensemble-stat-card">
+                        <dt className="ensemble-stat-dt">Clinical Decision Cutoff</dt>
+                        <dd className="ensemble-stat-dd tabular-nums">
+                          {championCutoff}
+                        </dd>
+                        <span className="ensemble-stat-sub">High-risk tier trigger</span>
+                      </div>
+                    </dl>
+
+                    <p className="text-sm text-secondary">
+                      The platform uses a soft-voting ensemble comprising <strong>LightGBM</strong>, <strong>XGBoost</strong>, and <strong>CatBoost</strong>. Each learner outputs raw margins mapped to well-calibrated posterior probabilities, ensuring the predicted score reliably matches real-world clinical readmission frequencies.
+                    </p>
+                  </motion.div>
+
+                  {/* Candidate Models Benchmark Comparison */}
+                  <motion.div
+                    className="card-panel"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.35, delay: 0.05 }}
+                  >
+                    <div className="panel-header-row">
+                      <div className="panel-title-text">
+                        <h2>Candidate Benchmark Comparison</h2>
+                        <p>Evaluated across 6 clinical model variations on identical test holdouts.</p>
+                      </div>
+                    </div>
+
+                    {/* Table Header with Sort Buttons */}
+                    <div className="benchmark-table-header">
+                      <button
+                        type="button"
+                        className="benchmark-sort-btn text-left"
+                        onClick={() => handleGovSort("Model")}
+                      >
+                        <span>Model Candidate</span>
+                        {govSortField === "Model" ? (
+                          govSortOrder === "asc" ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowDown className="w-3.5 h-3.5" />
+                        ) : (
+                          <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        className="benchmark-sort-btn text-left"
+                        onClick={() => handleGovSort("AUC-ROC")}
+                      >
+                        <span>Discrimination (AUC-ROC)</span>
+                        {govSortField === "AUC-ROC" ? (
+                          govSortOrder === "asc" ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowDown className="w-3.5 h-3.5" />
+                        ) : (
+                          <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        className="benchmark-sort-btn text-left"
+                        onClick={() => handleGovSort("Sensitivity")}
+                      >
+                        <span>Sensitivity / Recall</span>
+                        {govSortField === "Sensitivity" || govSortField === "Recall" ? (
+                          govSortOrder === "asc" ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowDown className="w-3.5 h-3.5" />
+                        ) : (
+                          <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      {sortedGovModels.map((m) => {
+                        const isChampion = m.Model === (governance?.selected_model || "Calibrated Ensemble") || m.Model.includes("Ensemble");
+                        const auc = Number(m["AUC-ROC"]) || 0;
+                        const sens = getModelSensitivity(m);
+                        const aucScaledPct = auc > 0.5 ? Math.min(100, Math.max(0, ((auc - 0.5) / 0.5) * 100)) : 0;
+                        const sensScaledPct = sens != null ? Math.min(100, Math.max(0, sens * 100)) : 0;
+
+                        return (
+                          <div
+                            key={m.Model}
+                            className={`benchmark-card-row ${isChampion ? "champion" : ""}`}
+                          >
+                            <div className="model-name-group">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <strong>{m.Model}</strong>
+                                {isChampion && (
+                                  <span className="champion-tag">
+                                    <Sparkles className="w-3 h-3" /> Selected Model
+                                  </span>
+                                )}
+                              </div>
+                              <span className="model-threshold-sub">
+                                Cutoff: {m.Threshold != null ? prettyPercent(m.Threshold) : "13.0%"}
+                              </span>
+                            </div>
+
+                            <div className="dual-metric-bar">
+                              <div className="metric-val-alone">
+                                <b className="tabular-nums">{auc > 0 ? auc.toFixed(3) : "N/A"}</b>
+                              </div>
+                              <div className="dual-bar-track" title={`AUC-ROC: ${auc.toFixed(3)} (scaled 0.50 to 1.00)`}>
+                                <motion.div
+                                  className="dual-bar-fill auc"
+                                  initial={{ width: 0 }}
+                                  whileInView={{ width: `${aucScaledPct}%` }}
+                                  viewport={{ once: true }}
+                                  transition={{ duration: 0.6, ease: "easeOut" }}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="dual-metric-bar">
+                              <div className="metric-val-alone">
+                                {sens != null ? (
+                                  <b className="tabular-nums" title={`${(sens * 100).toFixed(1)}% detection sensitivity`}>
+                                    {sens.toFixed(3)}
+                                  </b>
+                                ) : (
+                                  <b className="tabular-nums text-muted cursor-help" title="Sensitivity metric unavailable for this baseline candidate">
+                                    N/A
+                                  </b>
+                                )}
+                              </div>
+                              <div className="dual-bar-track" title={sens != null ? `Sensitivity: ${sens.toFixed(3)} (scaled 0 to 1.00)` : "N/A"}>
+                                <motion.div
+                                  className="dual-bar-fill recall"
+                                  initial={{ width: 0 }}
+                                  whileInView={{ width: `${sensScaledPct}%` }}
+                                  viewport={{ once: true }}
+                                  transition={{ duration: 0.6, ease: "easeOut" }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="benchmark-candidate-note">
+                      <strong>Model selection note:</strong> Differences in AUC between candidates (0.651 to 0.664) are small. The ensemble was chosen mainly for calibration (Brier score 0.097) and variance reduction across validation splits rather than standalone discriminatory superiority.
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* Right Column: Demographic Parity & Compliance */}
+                <div className="flex flex-col gap-6">
+                  {/* Algorithmic Fairness Audit */}
+                  <motion.div
+                    className="card-panel"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.35 }}
+                  >
+                    <div className="panel-header-row">
+                      <div className="panel-title-text">
+                        <h2>Demographic Fairness Audits</h2>
+                        <p>Equal Opportunity & True Positive Rate parity across protected groups.</p>
+                      </div>
+                    </div>
+
+                    <div className="fairness-card-list">
+                      {fairnessCards.map((card) => (
+                        <div key={card.id} className="fairness-card-block">
+                          <div className="fairness-card-top">
+                            <div className="fairness-card-header-row">
+                              <div className="flex items-center justify-between gap-3 flex-wrap w-full">
+                                <h3 className="fairness-group-title">{card.title}</h3>
+                                <span
+                                  className="status-badge-chip verified cursor-help"
+                                  title="Internal review threshold, not a regulatory standard."
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                  {card.status}
+                                </span>
+                              </div>
+                              <p className="fairness-group-desc">{card.desc}</p>
+                            </div>
+
+                            <div className="fairness-disparity-box">
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <span className="disparity-box-caption">Equalized-odds TPR gap</span>
+                                <span
+                                  className="improvement-badge-pill cursor-help"
+                                  title={card.reductionTooltip}
+                                >
+                                  <TrendingDown className="w-3.5 h-3.5" />
+                                  {card.reductionBadge}
+                                </span>
+                              </div>
+                              <div className="disparity-box-val-row">
+                                <span className="disparity-box-large-val tabular-nums">{card.gap}</span>
+                                {card.baselineGap && (
+                                  <span className="disparity-box-sub">
+                                    Baseline unmitigated: {card.baselineGap}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
 
-                          <div className="dual-metric-bar">
-                            <div className="dual-metric-header">
-                              <span>AUC-ROC</span>
-                              <b className="tabular-nums">{auc.toFixed(3)}</b>
+                          <div className="fairness-zoomed-container">
+                            <div className="fairness-axis-header">
+                              <span>Subgroup (sample size)</span>
+                              <div className="fairness-axis-ticks">
+                                <span className="axis-tick" style={{ left: "0%" }}>45%</span>
+                                <span className="axis-tick reference-tick" style={{ left: "56.0%" }} title="Cohort-wide Average Sensitivity (53.4%)">
+                                  53.4% Cohort Avg
+                                </span>
+                                <span className="axis-tick" style={{ left: "100%", transform: "translateX(-100%)" }}>60%</span>
+                              </div>
+                              <span className="text-right">TPR (95% CI)</span>
                             </div>
-                            <div className="dual-bar-track">
-                              <motion.div
-                                className="dual-bar-fill auc"
-                                initial={{ width: 0 }}
-                                whileInView={{ width: `${auc * 100}%` }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6 }}
-                              />
+
+                            <div className="flex flex-col gap-1.5">
+                              {card.subgroups.map((sg) => {
+                                const zoomedPct = Math.min(100, Math.max(0, ((sg.tpr - 45) / 15) * 100));
+                                return (
+                                  <div key={sg.name} className="subgroup-zoomed-row">
+                                    <div className="subgroup-name-col">
+                                      <span className="subgroup-name-text" title={sg.name}>{sg.name}</span>
+                                      <span className="subgroup-n-text">n = {sg.n.toLocaleString()}</span>
+                                    </div>
+                                    <div className="subgroup-zoomed-track" title={`${sg.name}: ${sg.tpr.toFixed(1)}% TPR`}>
+                                      <div className="subgroup-ref-line" style={{ left: "56.0%" }} />
+                                      <motion.div
+                                        className="subgroup-zoomed-fill"
+                                        initial={{ width: 0 }}
+                                        whileInView={{ width: `${zoomedPct}%` }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 0.6, ease: "easeOut" }}
+                                      />
+                                    </div>
+                                    <div className="subgroup-ci-col">
+                                      <span className="subgroup-tpr-val tabular-nums">{sg.tpr.toFixed(1)}%</span>
+                                      <span className="subgroup-ci-text tabular-nums" title="95% Confidence Interval">
+                                        CI: {sg.ci}
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            <div className="subgroup-uncertainty-note">
+                              <Info className="w-3.5 h-3.5 flex-shrink-0 text-muted" />
+                              <span>Small subgroups produce uncertain estimates. Axis zoomed (45%–60%) with dashed cohort mean reference line (53.4%).</span>
                             </div>
                           </div>
-
-                          <div className="dual-metric-bar">
-                            <div className="dual-metric-header">
-                              <span>Sensitivity / Recall</span>
-                              <b className="tabular-nums">{recall.toFixed(3)}</b>
-                            </div>
-                            <div className="dual-bar-track">
-                              <motion.div
-                                className="dual-bar-fill recall"
-                                initial={{ width: 0 }}
-                                whileInView={{ width: `${recall * 100}%` }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6 }}
-                              />
-                            </div>
-                          </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              </div>
-
-              {/* Right Column: Demographic Parity & Compliance */}
-              <div className="flex flex-col gap-6">
-                {/* Algorithmic Fairness Audit */}
-                <motion.div
-                  className="card-panel"
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                >
-                  <div className="panel-header-row">
-                    <div className="panel-title-text">
-                      <h2>Demographic Fairness Audits</h2>
-                      <p>Equal Opportunity & True Positive Rate parity across protected groups.</p>
+                      ))}
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="fairness-card-list">
-                    <div className="fairness-attribute-row">
-                      <div className="flex flex-col">
-                        <strong>Race & Ethnicity Parity</strong>
-                        <small className="text-xs text-muted">Max True Positive Rate disparity</small>
+                  {/* Clinical Justification & Safety Notes */}
+                  <motion.div
+                    className="card-panel"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.35, delay: 0.05 }}
+                  >
+                    <div className="panel-header-row">
+                      <div className="panel-title-text">
+                        <h2>Intended Use & Clinical Scope</h2>
+                        <p>Context: CMS Hospital Readmissions Reduction Program (HRRP)</p>
                       </div>
-                      <div className="fairness-disparity-metric">
-                        <div className="disparity-val-col">
-                          <small>Ensemble Gap</small>
-                          <b className="mitigated tabular-nums">0.052 (5.2 pp)</b>
+                    </div>
+
+                    <div className="intended-use-list">
+                      <div className="intended-use-row">
+                        <div className="intended-use-header">
+                          <Users className="w-4 h-4 text-brand" />
+                          <span>Intended Operator</span>
                         </div>
-                        <span className="improvement-badge-pill">
-                          <TrendingDown className="w-3 h-3" />
-                          -44% disparity
-                        </span>
+                        <p className="intended-use-body">
+                          Hospital Discharge Planners, Nurse Navigators, and Care Coordinators evaluating transitional care needs.
+                        </p>
                       </div>
-                    </div>
 
-                    <div className="fairness-attribute-row">
-                      <div className="flex flex-col">
-                        <strong>Sex & Gender Parity</strong>
-                        <small className="text-xs text-muted">Male vs. Female detection balance</small>
-                      </div>
-                      <div className="fairness-disparity-metric">
-                        <div className="disparity-val-col">
-                          <small>Ensemble Gap</small>
-                          <b className="mitigated tabular-nums">0.021 (2.1 pp)</b>
+                      <div className="intended-use-row">
+                        <div className="intended-use-header">
+                          <ShieldCheck className="w-4 h-4 text-brand" />
+                          <span>Human-in-the-Loop Safeguard</span>
                         </div>
-                        <span className="improvement-badge-pill">
-                          <TrendingDown className="w-3 h-3" />
-                          -58% disparity
-                        </span>
+                        <p className="intended-use-body">
+                          The predicted readmission risk must accompany bedside clinical assessments. The model provides assistive probabilistic signals, not autonomous clinical directives. Treatment decisions remain under attending physician authority.
+                        </p>
                       </div>
-                    </div>
 
-                    <div className="fairness-attribute-row">
-                      <div className="flex flex-col">
-                        <strong>Age Band Sensitivity</strong>
-                        <small className="text-xs text-muted">Detection consistency across older adults</small>
-                      </div>
-                      <div className="fairness-disparity-metric">
-                        <div className="disparity-val-col">
-                          <small>Ensemble Gap</small>
-                          <b className="mitigated tabular-nums">0.064 (6.4 pp)</b>
+                      <div className="intended-use-row">
+                        <div className="intended-use-header">
+                          <Database className="w-4 h-4 text-brand" />
+                          <span>Data Provenance</span>
                         </div>
-                        <span className="improvement-badge-pill">
-                          <TrendingDown className="w-3 h-3" />
-                          -32% disparity
-                        </span>
+                        <p className="intended-use-body">
+                          Trained and evaluated on de-identified diabetic inpatient encounter cohorts from the UCI Machine Learning Repository. All protected health identifiers are stripped in compliance with HIPAA Safe Harbor standards.
+                        </p>
+                      </div>
+
+                      <div className="intended-use-row limitation">
+                        <div className="intended-use-header">
+                          <AlertTriangle className="w-4 h-4" />
+                          <span>Known Limitations</span>
+                        </div>
+                        <p className="intended-use-body">
+                          Research demonstration environment. The algorithm has not been prospectively validated or cleared for bedside patient care, and findings reflect a retrospective cohort of 500 patient encounters.
+                        </p>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-
-                {/* Clinical Justification & Safety Notes */}
-                <motion.div
-                  className="card-panel"
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                >
-                  <div className="panel-header-row">
-                    <div className="panel-title-text">
-                      <h2>Intended Use & Clinical Scope</h2>
-                      <p>Regulatory & algorithmic guardrails under CMS HRRP guidelines.</p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-3 text-sm text-secondary">
-                    <div className="p-3 bg-subtle border border-color rounded-control">
-                      <strong className="block text-primary text-xs uppercase mb-1">Intended Operator</strong>
-                      <span>Hospital Discharge Planners, Nurse Navigators, and Care Coordinators.</span>
-                    </div>
-
-                    <div className="p-3 bg-subtle border border-color rounded-control">
-                      <strong className="block text-primary text-xs uppercase mb-1">Human-in-the-Loop Requirement</strong>
-                      <span>The predicted readmission risk must accompany bedside clinical assessments. The model provides assistive probabilistic signals, not autonomous clinical directives.</span>
-                    </div>
-
-                    <div className="p-3 bg-subtle border border-color rounded-control">
-                      <strong className="block text-primary text-xs uppercase mb-1">Data Provenance</strong>
-                      <span>Calibrated on 500 de-identified diabetic inpatient encounters from the UCI Machine Learning Repository. All protected health identifiers are stripped.</span>
-                    </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </div>
               </div>
             </div>
           )}

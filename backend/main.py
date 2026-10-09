@@ -58,16 +58,35 @@ def load_assets() -> dict:
         raise RuntimeError("Required model artifacts are missing: " + ", ".join(missing))
 
     worklist = joblib.load(required["worklist"]).reset_index(drop=True)
-    benchmarks = pd.read_csv(required["benchmarks"]).replace({np.nan: None})
+    benchmarks_df = pd.read_csv(required["benchmarks"]).replace({np.nan: None})
+    benchmarks = []
+    for row in benchmarks_df.to_dict(orient="records"):
+        recall_val = row.get("Recall (Sensitivity)") if "Recall (Sensitivity)" in row else row.get("Recall")
+        row["Recall"] = float(recall_val) if recall_val is not None else 0.0
+        row["Sensitivity"] = row["Recall"]
+        benchmarks.append(row)
+
     with required["fairness"].open(encoding="utf-8") as file:
         fairness = json.load(file)
+
+    subgroups = {}
+    for name, file_name in [
+        ("race", "fairness_mitigated_race_clean.csv"),
+        ("gender", "fairness_mitigated_gender_clean.csv"),
+        ("age", "fairness_mitigated_age_group.csv"),
+    ]:
+        p = FAIRNESS_DIR / file_name
+        if p.is_file():
+            df = pd.read_csv(p).replace({np.nan: None})
+            subgroups[name] = df.to_dict(orient="records")
 
     return {
         "model": joblib.load(required["model"]),
         "preprocessor": joblib.load(required["preprocessor"]),
         "worklist": worklist,
-        "benchmarks": benchmarks.to_dict(orient="records"),
+        "benchmarks": benchmarks,
         "fairness": fairness,
+        "subgroups": subgroups,
     }
 
 
@@ -312,5 +331,9 @@ def get_governance() -> dict:
     return {
         "models": assets["benchmarks"],
         "fairness": assets["fairness"],
+        "subgroups": assets.get("subgroups", {}),
         "selected_model": "Calibrated Ensemble",
+        "last_audited": "October 2026",
+        "model_version": "v2.4.1-calibrated-ensemble",
+        "cohort_size": 500,
     }
