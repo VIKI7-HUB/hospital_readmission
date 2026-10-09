@@ -71,7 +71,7 @@ def run_frontend_audit():
         driver.execute_script("arguments[0].click();", collapse_btn)
         time.sleep(0.5)
 
-        assert "collapsed" in sidebar.get_attribute("class")
+        assert "collapsed" in (sidebar.get_attribute("class") or "")
         assert sidebar.rect["width"] == 72, f"Collapsed sidebar width should be 72, got {sidebar.rect['width']}"
         collapsed_toggle = driver.find_element(By.CSS_SELECTOR, ".sidebar-collapse-btn.collapsed-toggle")
         assert collapsed_toggle.rect["x"] >= 10, f"Collapsed button cut off: x={collapsed_toggle.rect['x']}"
@@ -80,7 +80,7 @@ def run_frontend_audit():
         # Restore Expanded State
         driver.execute_script("arguments[0].click();", collapsed_toggle)
         time.sleep(0.5)
-        assert "collapsed" not in sidebar.get_attribute("class")
+        assert "collapsed" not in (sidebar.get_attribute("class") or "")
         print("    [+] Restored expanded sidebar successfully.")
 
         # ---------------------------------------------------------------------
@@ -94,7 +94,7 @@ def run_frontend_audit():
         
         print(f"    - Default card 0 classes: '{card0_classes}'")
         print(f"    - Filtering chips found by default: {len(filtering_chips)}")
-        assert "selected-filter" not in card0_classes, "Card 0 should NOT have 'selected-filter' class by default"
+        assert "selected-filter" not in (card0_classes or ""), "Card 0 should NOT have 'selected-filter' class by default"
         assert len(filtering_chips) == 0, "Card 0 should NOT show 'Filtering' chip by default"
         print("    [+] Default state is strictly neutral (no active border, no Filtering chip).")
 
@@ -188,7 +188,7 @@ def run_frontend_audit():
                 chip_text = overflow_chips[0].text.strip()
                 assert chip_text.startswith("+"), f"Overflow chip text '{chip_text}' should start with '+'"
                 chip_title = overflow_chips[0].get_attribute("title")
-                assert len(chip_title) > 0, "Overflow chip must have tooltip title"
+                assert chip_title is not None and len(chip_title) > 0, "Overflow chip must have tooltip title"
 
         print(f"    [+] Checked first 10 rows: all have <=2 pills with short names & icons. Overflow chip present: {found_overflow}")
 
@@ -247,7 +247,7 @@ def run_frontend_audit():
         # Scored encounters card should now show Filtering chip
         card0_classes_active = scored_card.get_attribute("class")
         filtering_chips_active = scored_card.find_elements(By.CSS_SELECTOR, ".kpi-filtering-chip")
-        assert "selected-filter" in card0_classes_active, "Scored card should have selected-filter when filtered"
+        assert "selected-filter" in (card0_classes_active or ""), "Scored card should have selected-filter when filtered"
         assert len(filtering_chips_active) == 1, "Scored card should display 'Filtering' chip when filtered"
         print("    [+] Card 0 dynamically displays 'Filtering' chip when a filter is active.")
 
@@ -256,7 +256,7 @@ def run_frontend_audit():
         time.sleep(1.0)
         card0_classes_neutral = scored_card.get_attribute("class")
         filtering_chips_neutral = scored_card.find_elements(By.CSS_SELECTOR, ".kpi-filtering-chip")
-        assert "selected-filter" not in card0_classes_neutral, "Card 0 should return to neutral class"
+        assert "selected-filter" not in (card0_classes_neutral or ""), "Card 0 should return to neutral class"
         assert len(filtering_chips_neutral) == 0, "Card 0 should have 0 filtering chips after reset"
         print("    [+] Clicking Card 0 cleanly resets filters back to neutral.")
 
@@ -310,4 +310,4 @@ def run_frontend_audit():
 
 if __name__ == "__main__":
     success = run_frontend_audit()
-    assert success is True
+    assert success

@@ -169,7 +169,7 @@ def clean_and_prepare_dataset(raw_csv_path):
     
     # 2. Exclude terminal / hospice discharges
     dead_mask = df['discharge_disposition_id'].astype(str).isin(TERMINAL_DISCHARGE_IDS)
-    terminal_excluded = int(dead_mask.sum())
+    terminal_excluded = dead_mask.sum()
     df = df[~dead_mask].reset_index(drop=True)
     total_clean = len(df)
     print(f"[+] Excluded {terminal_excluded} terminal/hospice encounters ({total_raw} -> {total_clean} clean encounters)")
@@ -200,7 +200,7 @@ def clean_and_prepare_dataset(raw_csv_path):
         df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
         raw_max = float(df[col].max())
         cap_val = float(df[col].quantile(0.99))
-        df[col] = np.minimum(df[col], cap_val)
+        df[col] = df[col].clip(upper=cap_val)
         winsor_stats[col] = {
             'raw_max': raw_max,
             'cap_99th': cap_val,
@@ -312,10 +312,10 @@ def clean_and_prepare_dataset(raw_csv_path):
         "total_raw_encounters": total_raw,
         "terminal_encounters_excluded": terminal_excluded,
         "total_clean_encounters": total_clean,
-        "unique_patients": int(df['patient_nbr'].nunique()),
+        "unique_patients": df['patient_nbr'].nunique(),
         "target_distribution": {
-            "negative_count": int((df['target'] == 0).sum()),
-            "positive_count": int((df['target'] == 1).sum()),
+            "negative_count": (df['target'] == 0).sum(),
+            "positive_count": (df['target'] == 1).sum(),
             "prevalence_percentage": round(float(df['target'].mean() * 100), 2)
         },
         "split_strategy": "Patient-Grouped Stratified Split (70% Train, 10% Val, 20% Test; 0% leakage)",

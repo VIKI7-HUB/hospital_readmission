@@ -25,8 +25,11 @@ def download_and_extract_data():
     try:
         from ucimlrepo import fetch_ucirepo
         diabetes_data = fetch_ucirepo(id=296)
-        X = diabetes_data.data.features
-        y = diabetes_data.data.targets
+        if diabetes_data is not None and diabetes_data.data is not None:
+            X = diabetes_data.data.features
+            y = diabetes_data.data.targets
+        else:
+            raise ValueError("Failed to fetch UCI repository dataset (data is None)")
         
         # Combine into single DataFrame for standard pipeline
         df = pd.concat([X, y], axis=1)

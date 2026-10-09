@@ -108,7 +108,7 @@ try:
             first_row = driver.find_element(By.CSS_SELECTOR, ".clinical-data-table tbody tr:first-child")
             first_row.click()
             time.sleep(0.3)
-            row_clicked = "row-focused" in first_row.get_attribute("class")
+            row_clicked = "row-focused" in (first_row.get_attribute("class") or "")
 
             # Check console errors
             logs = driver.get_log("browser")

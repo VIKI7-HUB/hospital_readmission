@@ -220,9 +220,9 @@ def train_and_benchmark_models():
         )
     }
     
-    calibrated_models = {}
-    training_runtimes = {}
-    val_probs = {}
+    calibrated_models: dict[str, Any] = {}
+    training_runtimes: dict[str, float] = {}
+    val_probs: dict[str, Any] = {}
     
     print("\n=======================================================")
     print("           TRAINING & CALIBRATING ML ESTIMATORS        ")

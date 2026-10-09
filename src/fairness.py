@@ -68,7 +68,7 @@ def compute_group_metrics(y_true, y_pred, y_prob):
         'ci_lower': round(ci_lower * 100, 1),
         'ci_upper': round(ci_upper * 100, 1),
         'ci_str': f"{ci_lower*100:.1f}%–{ci_upper*100:.1f}%",
-        'is_small_sample': bool(positives < 100)
+        'is_small_sample': positives < 100
     }
 
 def bootstrap_gap_ci(y_true, y_pred, group_mask_a, group_mask_b, n_bootstraps=1000, seed=42):
@@ -304,7 +304,8 @@ def run_comprehensive_fairness_audit():
     
     # C) Downsampled Majority Class on Training Data Only
     rus = RandomUnderSampler(random_state=42)
-    X_tr_down, y_tr_down = rus.fit_resample(X_train, y_train)
+    resampled_train = rus.fit_resample(X_train, y_train)
+    X_tr_down, y_tr_down = resampled_train[0], resampled_train[1]
     m_down = XGBClassifier(n_estimators=100, max_depth=5, learning_rate=0.05, random_state=42, n_jobs=1, eval_metric='logloss')
     m_down.fit(X_tr_down, y_tr_down)
     p_val_d = m_down.predict_proba(X_val)[:, 1]

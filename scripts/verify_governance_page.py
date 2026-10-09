@@ -286,4 +286,4 @@ def verify_governance():
         driver.quit()
 
 if __name__ == "__main__":
-    assert verify_governance() is True
+    assert verify_governance()

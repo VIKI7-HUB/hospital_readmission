@@ -167,7 +167,7 @@ def main():
             'true_positives': tp,
             'true_negatives': tn,
             'flag_rate_pct': round(flag, 2),
-            'is_selected_threshold': bool(abs(t_val - 0.12) < 0.005)
+            'is_selected_threshold': abs(t_val - 0.12) < 0.005
         })
 
     df_thresh = pd.DataFrame(thresh_records)
@@ -216,8 +216,8 @@ def main():
                 linewidth=lw)
 
     ax.plot([0, 1], [0, 1], linestyle='--', color='#64748B', alpha=0.7, label='Chance Baseline (AUC = 0.5000)')
-    ax.set_xlim([0.0, 1.0])
-    ax.set_ylim([0.0, 1.05])
+    ax.set_xlim((0.0, 1.0))
+    ax.set_ylim((0.0, 1.05))
     ax.set_xlabel('False Positive Rate (1 - Specificity)', fontsize=11, fontweight='bold', labelpad=8, color='#E5EAF3')
     ax.set_ylabel('True Positive Rate (Recall / Sensitivity)', fontsize=11, fontweight='bold', labelpad=8, color='#E5EAF3')
     ax.set_title('Receiver Operating Characteristic (ROC) — All Models\nEvaluated on Held-Out Test Split (N = 19,870)',
@@ -258,8 +258,8 @@ def main():
 
     ax.plot([0, 1], [prevalence, prevalence], linestyle='--', color='#64748B', alpha=0.7,
             label=f'Prevalence Baseline ({prevalence*100:.1f}%)')
-    ax.set_xlim([0.0, 1.0])
-    ax.set_ylim([0.0, 0.6])
+    ax.set_xlim((0.0, 1.0))
+    ax.set_ylim((0.0, 0.6))
     ax.set_xlabel('Recall (Sensitivity)', fontsize=11, fontweight='bold', labelpad=8, color='#E5EAF3')
     ax.set_ylabel('Precision (Positive Predictive Value)', fontsize=11, fontweight='bold', labelpad=8, color='#E5EAF3')
     ax.set_title('Precision-Recall (PR) Curves — All Models\nEvaluated on Held-Out Test Split (N = 19,870)',

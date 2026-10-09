@@ -5,7 +5,7 @@ import sys
 import joblib
 import numpy as np
 import pandas as pd
-from scipy.stats import chi2_contingency
+from scipy.stats import chi2_contingency  # type: ignore
 from sklearn.metrics import (
     average_precision_score,
     brier_score_loss,
@@ -63,7 +63,7 @@ def main():
             top_idx = np.argsort(p)[::-1][:k]
             thresh = float(p[top_idx[-1]])
             tp = int(y_test[top_idx].sum())
-            fp = int(k - tp)
+            fp = k - tp
             rec = float(tp / total_pos)
             prec = float(tp / k)
             lift = float(prec / prevalence)

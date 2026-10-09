@@ -4,6 +4,10 @@ from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
+from typing import Any
+
+def set_rgb(color_target: Any, color: RGBColor) -> None:
+    setattr(color_target, "rgb", color)
 
 def build_executive_deck():
     prs = Presentation()
@@ -32,7 +36,7 @@ def build_executive_deck():
     def draw_background(slide):
         bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(7.5))
         bg.fill.solid()
-        bg.fill.fore_color.rgb = C_BG
+        set_rgb(bg.fill.fore_color, C_BG)
         bg.line.fill.background()
         return bg
 
@@ -40,21 +44,21 @@ def build_executive_deck():
         # Header Box
         hdr = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.6), Inches(0.35), Inches(12.133), Inches(0.92))
         hdr.fill.solid()
-        hdr.fill.fore_color.rgb = C_CARD_BG
-        hdr.line.color.rgb = C_BORDER_LIGHT
+        set_rgb(hdr.fill.fore_color, C_CARD_BG)
+        set_rgb(hdr.line.color, C_BORDER_LIGHT)
         hdr.line.width = Pt(1)
 
         # Left Accent Blue Line
         accent = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.6), Inches(0.35), Inches(0.08), Inches(0.92))
         accent.fill.solid()
-        accent.fill.fore_color.rgb = C_BLUE
+        set_rgb(accent.fill.fore_color, C_BLUE)
         accent.line.fill.background()
 
         # Header Text Box
         tx = slide.shapes.add_textbox(Inches(0.85), Inches(0.38), Inches(11.7), Inches(0.85))
         tf = tx.text_frame
         tf.word_wrap = True
-        tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+        tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = Inches(0)
 
         p_tracker = tf.paragraphs[0]
         p_tracker.text = f"HACKFEST 2026 SCREENING ROUND | HEALTHCARE & MEDTECH | SLIDE 0{slide_num} OF 06"
@@ -78,14 +82,14 @@ def build_executive_deck():
         # Footer Line
         foot_line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.6), Inches(7.15), Inches(12.133), Inches(0.015))
         foot_line.fill.solid()
-        foot_line.fill.fore_color.rgb = C_BORDER_LIGHT
+        set_rgb(foot_line.fill.fore_color, C_BORDER_LIGHT)
         foot_line.line.fill.background()
 
         # Footer Text
         ftx = slide.shapes.add_textbox(Inches(0.6), Inches(7.20), Inches(12.133), Inches(0.25))
         ftf = ftx.text_frame
         ftf.word_wrap = True
-        ftf.margin_left = ftf.margin_right = ftf.margin_top = ftf.margin_bottom = 0
+        ftf.margin_left = ftf.margin_right = ftf.margin_top = ftf.margin_bottom = Inches(0)
         fp = ftf.paragraphs[0]
         fp.text = "Project: ClinicalAI Decision Support | Domain: Healthcare & MedTech | Team 8"
         fp.font.size = Pt(8)
@@ -98,8 +102,8 @@ def build_executive_deck():
     def draw_container_card(slide, left, top, width, height, header_title=None, header_bg=C_NAVY):
         card = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(left), Inches(top), Inches(width), Inches(height))
         card.fill.solid()
-        card.fill.fore_color.rgb = C_CARD_BG
-        card.line.color.rgb = C_BORDER
+        set_rgb(card.fill.fore_color, C_CARD_BG)
+        set_rgb(card.line.color, C_BORDER)
         card.line.width = Pt(1)
 
         if header_title:
@@ -107,13 +111,13 @@ def build_executive_deck():
                 MSO_SHAPE.RECTANGLE, Inches(left), Inches(top), Inches(width), Inches(0.42)
             )
             hdr_band.fill.solid()
-            hdr_band.fill.fore_color.rgb = header_bg
+            set_rgb(hdr_band.fill.fore_color, header_bg)
             hdr_band.line.fill.background()
 
             tx = slide.shapes.add_textbox(Inches(left + 0.15), Inches(top + 0.08), Inches(width - 0.3), Inches(0.3))
             tf = tx.text_frame
             tf.word_wrap = True
-            tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+            tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = Inches(0)
             p = tf.paragraphs[0]
             p.text = header_title.upper()
             p.font.size = Pt(9.5)
@@ -138,7 +142,7 @@ def build_executive_deck():
     tx1_l = s1.shapes.add_textbox(Inches(0.8), Inches(1.95), Inches(4.0), Inches(4.9))
     tf1_l = tx1_l.text_frame
     tf1_l.word_wrap = True
-    tf1_l.margin_left = tf1_l.margin_right = tf1_l.margin_top = tf1_l.margin_bottom = 0
+    tf1_l.margin_left = tf1_l.margin_right = tf1_l.margin_top = tf1_l.margin_bottom = Inches(0)
 
     meta_items = [
         ("Selected Domain:", "Healthcare & MedTech / Clinical Decision Support (CDS)"),
@@ -184,7 +188,7 @@ def build_executive_deck():
     tx1_rt = s1.shapes.add_textbox(Inches(5.4), Inches(1.95), Inches(7.1), Inches(2.45))
     tf1_rt = tx1_rt.text_frame
     tf1_rt.word_wrap = True
-    tf1_rt.margin_left = tf1_rt.margin_right = tf1_rt.margin_top = tf1_rt.margin_bottom = 0
+    tf1_rt.margin_left = tf1_rt.margin_right = tf1_rt.margin_top = tf1_rt.margin_bottom = Inches(0)
 
     problems = [
         ("FINANCIAL CRISIS", "Unplanned 30-day hospital readmissions exceed $26 Billion annually in avoidable medical costs across US and global health systems."),
@@ -218,14 +222,14 @@ def build_executive_deck():
             MSO_SHAPE.RECTANGLE, Inches(5.4 + i * 2.38), Inches(5.15), Inches(2.2), Inches(1.7)
         )
         box.fill.solid()
-        box.fill.fore_color.rgb = C_BLUE_LIGHT if i==2 else C_CARD_ALT
-        box.line.color.rgb = C_BLUE_BORDER if i==2 else C_BORDER_LIGHT
+        set_rgb(box.fill.fore_color, C_BLUE_LIGHT if i==2 else C_CARD_ALT)
+        set_rgb(box.line.color, C_BLUE_BORDER if i==2 else C_BORDER_LIGHT)
         box.line.width = Pt(1)
 
         btx = s1.shapes.add_textbox(Inches(5.5 + i * 2.38), Inches(5.25), Inches(2.0), Inches(1.5))
         btf = btx.text_frame
         btf.word_wrap = True
-        btf.margin_left = btf.margin_right = btf.margin_top = btf.margin_bottom = 0
+        btf.margin_left = btf.margin_right = btf.margin_top = btf.margin_bottom = Inches(0)
 
         bp1 = btf.paragraphs[0]
         bp1.text = val
@@ -260,13 +264,13 @@ def build_executive_deck():
     # Top Value Proposition Banner
     top_ban = s2.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.6), Inches(1.4), Inches(12.133), Inches(1.15))
     top_ban.fill.solid()
-    top_ban.fill.fore_color.rgb = C_NAVY
+    set_rgb(top_ban.fill.fore_color, C_NAVY)
     top_ban.line.fill.background()
 
     tx_ban = s2.shapes.add_textbox(Inches(0.8), Inches(1.48), Inches(11.7), Inches(0.95))
     tf_ban = tx_ban.text_frame
     tf_ban.word_wrap = True
-    tf_ban.margin_left = tf_ban.margin_right = tf_ban.margin_top = tf_ban.margin_bottom = 0
+    tf_ban.margin_left = tf_ban.margin_right = tf_ban.margin_top = tf_ban.margin_bottom = Inches(0)
     bp1 = tf_ban.paragraphs[0]
     bp1.text = "THE PROPOSAL: BEDSIDE PREDICTIVE CDS WITH ON-DEMAND CLINICAL AI REASONING"
     bp1.font.size = Pt(11)
@@ -303,7 +307,7 @@ def build_executive_deck():
         tx = s2.shapes.add_textbox(Inches(0.75 + i * 4.1), Inches(3.25), Inches(3.633), Inches(3.2))
         tf = tx.text_frame
         tf.word_wrap = True
-        tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+        tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = Inches(0)
 
         for h, b in items:
             p = tf.add_paragraph() if tf.paragraphs[0].text else tf.paragraphs[0]
@@ -323,11 +327,11 @@ def build_executive_deck():
             MSO_SHAPE.RECTANGLE, Inches(0.75 + i * 4.1), Inches(6.45), Inches(3.633), Inches(0.4)
         )
         s_badge.fill.solid()
-        s_badge.fill.fore_color.rgb = C_BLUE_LIGHT if i==0 else (C_CARD_ALT if i==1 else C_GREEN_LIGHT)
-        s_badge.line.color.rgb = C_BLUE_BORDER if i==0 else (C_BORDER_LIGHT if i==1 else RGBColor(187, 247, 208))
+        set_rgb(s_badge.fill.fore_color, C_BLUE_LIGHT if i==0 else (C_CARD_ALT if i==1 else C_GREEN_LIGHT))
+        set_rgb(s_badge.line.color, C_BLUE_BORDER if i==0 else (C_BORDER_LIGHT if i==1 else RGBColor(187, 247, 208)))
         stf = s_badge.text_frame
         stf.word_wrap = True
-        stf.margin_left = stf.margin_right = stf.margin_top = stf.margin_bottom = 0
+        stf.margin_left = stf.margin_right = stf.margin_top = stf.margin_bottom = Inches(0)
         stp = stf.paragraphs[0]
         stp.text = summary_badge.upper()
         stp.font.size = Pt(9)
@@ -360,7 +364,7 @@ def build_executive_deck():
     for col_idx, text in enumerate(headers):
         cell = table.cell(0, col_idx)
         cell.fill.solid()
-        cell.fill.fore_color.rgb = C_BLUE if col_idx == 3 else C_NAVY_LIGHT
+        set_rgb(cell.fill.fore_color, C_BLUE if col_idx == 3 else C_NAVY_LIGHT)
         p = cell.text_frame.paragraphs[0]
         p.text = text
         p.font.size = Pt(10)
@@ -381,11 +385,11 @@ def build_executive_deck():
             cell = table.cell(row_idx, col_idx)
             cell.fill.solid()
             if col_idx == 3:
-                cell.fill.fore_color.rgb = C_BLUE_LIGHT
+                set_rgb(cell.fill.fore_color, C_BLUE_LIGHT)
             elif row_idx % 2 == 0:
-                cell.fill.fore_color.rgb = C_CARD_ALT
+                set_rgb(cell.fill.fore_color, C_CARD_ALT)
             else:
-                cell.fill.fore_color.rgb = C_CARD_BG
+                set_rgb(cell.fill.fore_color, C_CARD_BG)
             
             p = cell.text_frame.paragraphs[0]
             p.text = val
@@ -403,14 +407,14 @@ def build_executive_deck():
     for i, (head, desc) in enumerate(inno_cards):
         box = s3.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.6 + i * 3.08), Inches(5.35), Inches(2.9), Inches(1.65))
         box.fill.solid()
-        box.fill.fore_color.rgb = C_CARD_BG
-        box.line.color.rgb = C_BLUE_BORDER
+        set_rgb(box.fill.fore_color, C_CARD_BG)
+        set_rgb(box.line.color, C_BLUE_BORDER)
         box.line.width = Pt(1)
 
         tx = s3.shapes.add_textbox(Inches(0.72 + i * 3.08), Inches(5.45), Inches(2.66), Inches(1.45))
         tf = tx.text_frame
         tf.word_wrap = True
-        tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+        tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = Inches(0)
         p1 = tf.paragraphs[0]
         p1.text = head
         p1.font.size = Pt(10)
@@ -467,7 +471,7 @@ def build_executive_deck():
         tx = s4.shapes.add_textbox(Inches(0.72 + i * 3.08), Inches(1.9), Inches(2.65), Inches(3.1))
         tf = tx.text_frame
         tf.word_wrap = True
-        tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+        tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = Inches(0)
 
         for title, desc in items:
             p = tf.add_paragraph() if tf.paragraphs[0].text else tf.paragraphs[0]
@@ -497,14 +501,14 @@ def build_executive_deck():
             MSO_SHAPE.RECTANGLE, Inches(0.75 + i * 2.38), Inches(5.75), Inches(2.2), Inches(1.15)
         )
         s_box.fill.solid()
-        s_box.fill.fore_color.rgb = C_BLUE_LIGHT if i == 3 else C_CARD_BG
-        s_box.line.color.rgb = C_BLUE_BORDER if i == 3 else C_BORDER_LIGHT
+        set_rgb(s_box.fill.fore_color, C_BLUE_LIGHT if i == 3 else C_CARD_BG)
+        set_rgb(s_box.line.color, C_BLUE_BORDER if i == 3 else C_BORDER_LIGHT)
         s_box.line.width = Pt(1)
 
         stx = s4.shapes.add_textbox(Inches(0.82 + i * 2.38), Inches(5.82), Inches(2.05), Inches(1.0))
         stf = stx.text_frame
         stf.word_wrap = True
-        stf.margin_left = stf.margin_right = stf.margin_top = stf.margin_bottom = 0
+        stf.margin_left = stf.margin_right = stf.margin_top = stf.margin_bottom = Inches(0)
 
         p1 = stf.paragraphs[0]
         p1.text = st_title
@@ -534,7 +538,7 @@ def build_executive_deck():
     tx5_l = s5.shapes.add_textbox(Inches(0.8), Inches(1.95), Inches(5.4), Inches(4.9))
     tf5_l = tx5_l.text_frame
     tf5_l.word_wrap = True
-    tf5_l.margin_left = tf5_l.margin_right = tf5_l.margin_top = tf5_l.margin_bottom = 0
+    tf5_l.margin_left = tf5_l.margin_right = tf5_l.margin_top = tf5_l.margin_bottom = Inches(0)
 
     tech_cards = [
         ("Python 3.11+ / Scikit-Learn Pipeline",
@@ -566,7 +570,7 @@ def build_executive_deck():
     tx5_rt = s5.shapes.add_textbox(Inches(6.85), Inches(1.95), Inches(5.7), Inches(2.0))
     tf5_rt = tx5_rt.text_frame
     tf5_rt.word_wrap = True
-    tf5_rt.margin_left = tf5_rt.margin_right = tf5_rt.margin_top = tf5_rt.margin_bottom = 0
+    tf5_rt.margin_left = tf5_rt.margin_right = tf5_rt.margin_top = tf5_rt.margin_bottom = Inches(0)
 
     roles_data = [
         ("ML & Pipeline Lead:", "Data quality auditing, 99th-percentile Winsorization, 3-model benchmark, and Fairlearn demographic disparity mitigation."),
@@ -591,7 +595,7 @@ def build_executive_deck():
     tx5_rb = s5.shapes.add_textbox(Inches(6.85), Inches(4.8), Inches(5.7), Inches(2.1))
     tf5_rb = tx5_rb.text_frame
     tf5_rb.word_wrap = True
-    tf5_rb.margin_left = tf5_rb.margin_right = tf5_rb.margin_top = tf5_rb.margin_bottom = 0
+    tf5_rb.margin_left = tf5_rb.margin_right = tf5_rb.margin_top = tf5_rb.margin_bottom = Inches(0)
 
     timeline_data = [
         ("Hours 00 - 08: Data Ingestion & Benchmark", "UCI cleaning, 99% Winsorization, LogReg vs RF vs XGBoost benchmark."),
@@ -628,7 +632,7 @@ def build_executive_deck():
     tx6_l = s6.shapes.add_textbox(Inches(0.8), Inches(1.95), Inches(5.4), Inches(4.9))
     tf6_l = tx6_l.text_frame
     tf6_l.word_wrap = True
-    tf6_l.margin_left = tf6_l.margin_right = tf6_l.margin_top = tf6_l.margin_bottom = 0
+    tf6_l.margin_left = tf6_l.margin_right = tf6_l.margin_top = tf6_l.margin_bottom = Inches(0)
 
     outcomes = [
         ("Working Hackathon Prototype", "Fully operational web application running locally on port 8501, evaluated on 20,354 real held-out patient encounters."),
@@ -655,7 +659,7 @@ def build_executive_deck():
     tx6_rt = s6.shapes.add_textbox(Inches(6.85), Inches(1.95), Inches(5.7), Inches(2.0))
     tf6_rt = tx6_rt.text_frame
     tf6_rt.word_wrap = True
-    tf6_rt.margin_left = tf6_rt.margin_right = tf6_rt.margin_top = tf6_rt.margin_bottom = 0
+    tf6_rt.margin_left = tf6_rt.margin_right = tf6_rt.margin_top = tf6_rt.margin_bottom = Inches(0)
 
     demo_walkthrough = [
         ("Step 1: Patient Worklist Queue", "Filter 20,354 inpatient encounters by High/Moderate/Low risk tier and search encounter IDs."),
@@ -681,7 +685,7 @@ def build_executive_deck():
     tx6_rb = s6.shapes.add_textbox(Inches(6.85), Inches(4.8), Inches(5.7), Inches(2.1))
     tf6_rb = tx6_rb.text_frame
     tf6_rb.word_wrap = True
-    tf6_rb.margin_left = tf6_rb.margin_right = tf6_rb.margin_top = tf6_rb.margin_bottom = 0
+    tf6_rb.margin_left = tf6_rb.margin_right = tf6_rb.margin_top = tf6_rb.margin_bottom = Inches(0)
 
     dependencies_data = [
         ("Required Datasets & Services:", "UCI 130-US Hospitals (Public, de-identified EHR; zero PHI risk) + Groq API Key (backed by deterministic fallback)."),

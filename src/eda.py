@@ -25,13 +25,13 @@ def run_eda_and_export_notebook():
     missing_counts = {}
     missing_pcts = {}
     for col in df_raw.columns:
-        cnt = int(((df_raw[col] == '?') | (df_raw[col].isna())).sum())
+        cnt = ((df_raw[col] == '?') | (df_raw[col].isna())).sum()
         if cnt > 0:
             missing_counts[col] = cnt
             missing_pcts[col] = round(float(cnt / len(df_raw) * 100), 2)
             
     # 3. Target distribution in raw data (<30 vs >30 vs NO)
-    raw_target_counts = {str(k): int(v) for k, v in df_raw['readmitted'].value_counts().items()}
+    raw_target_counts = {str(k): v for k, v in df_raw['readmitted'].value_counts().items()}
     
     # Binary target choice documentation:
     # Under CMS HRRP (Hospital Readmissions Reduction Program), hospitals face financial penalties
@@ -39,20 +39,20 @@ def run_eda_and_export_notebook():
     # Encounters readmitted after 30 days (>30) or not readmitted (NO) do not trigger CMS penalties.
     target_binary_raw = (df_raw['readmitted'] == '<30').astype(int)
     class_balance_raw = {
-        'negative_count_NO_or_gt30': int((target_binary_raw == 0).sum()),
-        'positive_count_lt30': int((target_binary_raw == 1).sum()),
+        'negative_count_NO_or_gt30': (target_binary_raw == 0).sum(),
+        'positive_count_lt30': (target_binary_raw == 1).sum(),
         'prevalence_pct': round(float(target_binary_raw.mean() * 100), 2)
     }
     
     # 4. Duplicate encounters per patient
     total_encounters = len(df_raw)
-    unique_patients = int(df_raw['patient_nbr'].nunique())
+    unique_patients = df_raw['patient_nbr'].nunique()
     enc_per_patient = df_raw.groupby('patient_nbr')['encounter_id'].count()
     dup_stats = {
         'total_encounters': total_encounters,
         'unique_patients': unique_patients,
-        'multiple_encounter_patients': int((enc_per_patient > 1).sum()),
-        'max_encounters_single_patient': int(enc_per_patient.max()),
+        'multiple_encounter_patients': (enc_per_patient > 1).sum(),
+        'max_encounters_single_patient': enc_per_patient.max(),
         'mean_encounters_per_patient': round(float(enc_per_patient.mean()), 2),
         'leakage_mitigation_strategy': (
             'Patient-Grouped Stratified Splitting (StratifiedGroupKFold on patient_nbr). '
@@ -63,7 +63,7 @@ def run_eda_and_export_notebook():
     
     # 5. Terminal / Hospice Discharges
     dead_mask = df_raw['discharge_disposition_id'].astype(str).isin(TERMINAL_DISCHARGE_IDS)
-    terminal_count = int(dead_mask.sum())
+    terminal_count = dead_mask.sum()
     
     # Filter clean dataset for distribution analysis
     df_clean = df_raw[~dead_mask].copy().reset_index(drop=True)
@@ -166,8 +166,8 @@ def run_eda_and_export_notebook():
         'terminal_encounters_excluded': terminal_count,
         'clean_encounters': len(df_clean),
         'class_balance_clean': {
-            'negative_count (NO or >30)': int((df_clean['target'] == 0).sum()),
-            'positive_count (<30)': int((df_clean['target'] == 1).sum()),
+            'negative_count (NO or >30)': (df_clean['target'] == 0).sum(),
+            'positive_count (<30)': (df_clean['target'] == 1).sum(),
             'prevalence_percentage': round(float(df_clean['target'].mean() * 100), 2)
         },
         'target_definition_rationale': (

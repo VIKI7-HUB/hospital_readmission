@@ -146,7 +146,7 @@ try:
     first_row = driver.find_element(By.CSS_SELECTOR, ".clinical-data-table tbody tr:first-child")
     first_row.click()
     time.sleep(0.3)
-    has_focused = "row-focused" in first_row.get_attribute("class")
+    has_focused = "row-focused" in (first_row.get_attribute("class") or "")
     print(f"Row click sets row-focused: {has_focused}")
 
     shot_focused = os.path.join(SCREENSHOT_DIR, "table_row_focused_dark.png")

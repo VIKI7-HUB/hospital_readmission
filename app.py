@@ -749,9 +749,9 @@ if app_mode == "Discharge Readiness Worklist":
     
     # Calculate Live Summary Stats
     total_encounters = len(precomputed_worklist)
-    high_risk_count = sum(1 for r in precomputed_worklist.itertuples() if r.prob >= 0.20)
-    poly_count = sum(1 for r in precomputed_worklist.itertuples() if r.meds >= 10)
-    readmit_count = sum(1 for r in precomputed_worklist.itertuples() if r.actual == 1)
+    high_risk_count = int((precomputed_worklist['prob'] >= 0.20).sum())
+    poly_count = int((precomputed_worklist['meds'] >= 10).sum())
+    readmit_count = int((precomputed_worklist['actual'] == 1).sum())
     
     # Interactive Animated KPI Bar
     st.markdown(f"""
@@ -827,9 +827,24 @@ if app_mode == "Discharge Readiness Worklist":
     
     # Render Worklist Rows
     for i, c in enumerate(page_records.itertuples()):
-        tier_pill_class = "tier-high" if c.tier == "High Risk" else ("tier-moderate" if c.tier == "Moderate Risk" else "tier-low")
-        score_color = "#DC2626" if c.tier == "High Risk" else ("#D97706" if c.tier == "Moderate Risk" else "#16A34A")
-        tags_html = "".join([f'<span class="protocol-tag">{t}</span>' for t in c.resources])
+        c_prob = float(getattr(c, 'prob', 0.0))
+        c_tier = str(getattr(c, 'tier', 'Low Risk'))
+        c_resources = list(getattr(c, 'resources', []))
+        c_enc_id = getattr(c, 'enc_id', '')
+        c_age = getattr(c, 'age', '')
+        c_gender = getattr(c, 'gender', '')
+        c_race = getattr(c, 'race', '')
+        c_stay = getattr(c, 'stay', '')
+        c_meds = getattr(c, 'meds', '')
+        c_inpatient = getattr(c, 'inpatient', '')
+        c_er = getattr(c, 'er', '')
+        c_a1c = getattr(c, 'a1c', '')
+        c_diag = getattr(c, 'diag', '')
+        c_row_dict = getattr(c, 'row_dict', {})
+
+        tier_pill_class = "tier-high" if c_tier == "High Risk" else ("tier-moderate" if c_tier == "Moderate Risk" else "tier-low")
+        score_color = "#DC2626" if c_tier == "High Risk" else ("#D97706" if c_tier == "Moderate Risk" else "#16A34A")
+        tags_html = "".join([f'<span class="protocol-tag">{t}</span>' for t in c_resources])
         
         col_row, col_act = st.columns([13, 2], vertical_alignment="center")
         
@@ -837,32 +852,32 @@ if app_mode == "Discharge Readiness Worklist":
             st.markdown(f"""
             <div class="patient-row-card">
                 <div class="pt-info-col">
-                    <div class="pt-id">{c.enc_id}</div>
-                    <div class="pt-demo">{c.age} &bull; {c.gender} &bull; {c.race}</div>
+                    <div class="pt-id">{c_enc_id}</div>
+                    <div class="pt-demo">{c_age} &bull; {c_gender} &bull; {c_race}</div>
                 </div>
                 <div class="pt-vitals-col">
-                    <span>Stay: <strong>{c.stay}d</strong></span>
-                    <span>Meds: <strong>{c.meds}</strong></span>
-                    <span>Inpatient: <strong>{c.inpatient}</strong></span>
-                    <span>ER: <strong>{c.er}</strong></span>
-                    <span>A1C: <strong>{c.a1c}</strong></span>
-                    <span>Diag: <strong>{c.diag}</strong></span>
+                    <span>Stay: <strong>{c_stay}d</strong></span>
+                    <span>Meds: <strong>{c_meds}</strong></span>
+                    <span>Inpatient: <strong>{c_inpatient}</strong></span>
+                    <span>ER: <strong>{c_er}</strong></span>
+                    <span>A1C: <strong>{c_a1c}</strong></span>
+                    <span>Diag: <strong>{c_diag}</strong></span>
                 </div>
                 <div class="pt-tags-col">
                     {tags_html}
                 </div>
                 <div class="pt-score-col">
                     <div>
-                        <div class="score-number" style="color: {score_color};">{c.prob*100:.1f}%</div>
-                        <span class="{tier_pill_class}">{c.tier}</span>
+                        <div class="score-number" style="color: {score_color};">{c_prob*100:.1f}%</div>
+                        <span class="{tier_pill_class}">{c_tier}</span>
                     </div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
         with col_act:
-            if st.button("Review", key=f"btn_pop_{c.enc_id}", use_container_width=True):
-                show_patient_reasoning_dialog(c.enc_id, c.row_dict, c.prob)
+            if st.button("Review", key=f"btn_pop_{c_enc_id}", use_container_width=True):
+                show_patient_reasoning_dialog(c_enc_id, c_row_dict, c_prob)
                 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -928,8 +943,11 @@ elif app_mode == "Bedside Risk Calculator":
             from src.preprocessing import engineer_features
             df_single = pd.DataFrame([pt_row])
             df_eng = engineer_features(df_single)
-            X_trans_single = preprocessor.transform(df_eng)
-            live_prob = float(active_model.predict_proba(X_trans_single)[0, 1])
+            if preprocessor is not None and active_model is not None:
+                X_trans_single = preprocessor.transform(df_eng)
+                live_prob = float(active_model.predict_proba(X_trans_single)[0, 1])
+            else:
+                live_prob = 0.0
             tier, _color, _tier_desc = get_clinical_risk_tier(live_prob)
             
             gauge_color = "#DC2626" if live_prob >= 0.20 else ("#D97706" if live_prob >= 0.12 else "#16A34A")
