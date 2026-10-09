@@ -4,6 +4,16 @@
         101766,
         50
     ],
+    "raw_target_distribution": {
+        "NO": 54864,
+        ">30": 35545,
+        "<30": 11357
+    },
+    "class_balance_raw": {
+        "negative_count_NO_or_gt30": 90409,
+        "positive_count_lt30": 11357,
+        "prevalence_pct": 11.16
+    },
     "terminal_encounters_excluded": 2423,
     "clean_encounters": 99343,
     "class_balance_clean": {

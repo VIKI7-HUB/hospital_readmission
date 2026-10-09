@@ -1,13 +1,16 @@
-import os
-import sys
 import json
+import os
+
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score, recall_score, precision_score, confusion_matrix
-from xgboost import XGBClassifier
 from imblearn.under_sampling import RandomUnderSampler
+from sklearn.metrics import (
+    confusion_matrix,
+    recall_score,
+    roc_auc_score,
+)
+from xgboost import XGBClassifier
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROCESSED_DIR = os.path.join(BASE_DIR, "data", "processed")
@@ -15,9 +18,8 @@ MODELS_DIR = os.path.join(BASE_DIR, "models")
 FAIRNESS_DIR = os.path.join(BASE_DIR, "fairness_governance")
 
 def compute_group_metrics(y_true, y_pred, y_prob):
-    n = int(len(y_true))
+    n = len(y_true)
     positives = int((y_true == 1).sum())
-    negatives = int((y_true == 0).sum())
     
     if n == 0 or positives == 0:
         return {'n': n, 'tpr': 0.0, 'fpr': 0.0, 'precision': 0.0, 'ci_lower': 0.0, 'ci_upper': 0.0, 'ci_str': '0.0%–0.0%'}

@@ -19,7 +19,7 @@ def main():
     print(f"[+] Raw dataset ready at: {raw_csv}")
     
     from src.eda import run_eda_and_export_notebook
-    eda_summary = run_eda_and_export_notebook()
+    run_eda_and_export_notebook()
     print("[+] Generated: notebooks/01_eda_and_feature_rationale.ipynb & data/processed/eda_summary.json")
     
     # 2. Preprocessing & Leak-Free Grouped Splitting (70/10/20)
@@ -39,7 +39,10 @@ def main():
     
     # 4. Explainability & Worklist Generation
     print("\n--- STEP 4: EXPLAINABILITY & PRECOMPUTED WORKLIST ---")
-    from src.explainability import compute_and_save_explainability_artifacts, precompute_worklist_artifacts
+    from src.explainability import (
+        compute_and_save_explainability_artifacts,
+        precompute_worklist_artifacts,
+    )
     compute_and_save_explainability_artifacts()
     precompute_worklist_artifacts(max_encounters=500)
     print("[+] Generated: models/explainability_feature_importance.json & data/processed/worklist_precomputed.joblib")

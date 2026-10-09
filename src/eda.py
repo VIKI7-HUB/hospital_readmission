@@ -1,8 +1,8 @@
-import os
 import json
-import numpy as np
-import pandas as pd
+import os
+
 import nbformat as nbf
+import pandas as pd
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_RAW = os.path.join(BASE_DIR, "data", "raw", "diabetic_data.csv")
@@ -74,7 +74,7 @@ def run_eda_and_export_notebook():
     age_rates = {}
     for grp, sub in df_clean.groupby('age'):
         age_rates[str(grp)] = {
-            'count': int(len(sub)),
+            'count': len(sub),
             'readmit_rate_pct': round(float(sub['target'].mean() * 100), 2)
         }
         
@@ -83,7 +83,7 @@ def run_eda_and_export_notebook():
     for grp, sub in df_clean.groupby('gender'):
         if grp in ['Female', 'Male']:
             gender_rates[str(grp)] = {
-                'count': int(len(sub)),
+                'count': len(sub),
                 'readmit_rate_pct': round(float(sub['target'].mean() * 100), 2)
             }
             
@@ -92,7 +92,7 @@ def run_eda_and_export_notebook():
     df_clean['race_clean'] = df_clean['race'].replace('?', 'Other/Unknown')
     for grp, sub in df_clean.groupby('race_clean'):
         race_rates[str(grp)] = {
-            'count': int(len(sub)),
+            'count': len(sub),
             'readmit_rate_pct': round(float(sub['target'].mean() * 100), 2)
         }
         
@@ -105,7 +105,7 @@ def run_eda_and_export_notebook():
     )
     for grp, sub in df_clean.groupby('inpatient_binned', observed=False):
         inpatient_rates[str(grp)] = {
-            'count': int(len(sub)),
+            'count': len(sub),
             'readmit_rate_pct': round(float(sub['target'].mean() * 100), 2)
         }
         
@@ -118,7 +118,7 @@ def run_eda_and_export_notebook():
     )
     for grp, sub in df_clean.groupby('er_binned', observed=False):
         er_rates[str(grp)] = {
-            'count': int(len(sub)),
+            'count': len(sub),
             'readmit_rate_pct': round(float(sub['target'].mean() * 100), 2)
         }
         
@@ -126,7 +126,7 @@ def run_eda_and_export_notebook():
     def map_disp(v):
         try:
             val = int(v)
-        except:
+        except (ValueError, TypeError):
             return 'Other/Unknown'
         if val in [1, 6, 8]:
             return 'Home / Self-Care'
@@ -141,7 +141,7 @@ def run_eda_and_export_notebook():
     disp_rates = {}
     for grp, sub in df_clean.groupby('disp_group'):
         disp_rates[str(grp)] = {
-            'count': int(len(sub)),
+            'count': len(sub),
             'readmit_rate_pct': round(float(sub['target'].mean() * 100), 2)
         }
         
@@ -161,8 +161,10 @@ def run_eda_and_export_notebook():
     eda_summary = {
         'dataset_name': 'Diabetes 130-US Hospitals (1999-2008)',
         'raw_shape': raw_shape,
+        'raw_target_distribution': raw_target_counts,
+        'class_balance_raw': class_balance_raw,
         'terminal_encounters_excluded': terminal_count,
-        'clean_encounters': int(len(df_clean)),
+        'clean_encounters': len(df_clean),
         'class_balance_clean': {
             'negative_count (NO or >30)': int((df_clean['target'] == 0).sum()),
             'positive_count (<30)': int((df_clean['target'] == 1).sum()),

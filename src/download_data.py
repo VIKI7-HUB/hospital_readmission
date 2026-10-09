@@ -1,6 +1,7 @@
 import os
-import zipfile
 import urllib.request
+import zipfile
+
 import pandas as pd
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
@@ -15,7 +16,6 @@ def download_and_extract_data():
     """
     os.makedirs(RAW_DIR, exist_ok=True)
     csv_path = os.path.join(RAW_DIR, "diabetic_data.csv")
-    mapping_path = os.path.join(RAW_DIR, "IDS_mapping.csv")
     
     if os.path.exists(csv_path):
         print(f"[+] Dataset already exists at {csv_path}")
@@ -33,7 +33,7 @@ def download_and_extract_data():
         df.to_csv(csv_path, index=False)
         print(f"[+] Successfully fetched and saved dataset via ucimlrepo ({len(df)} rows)")
         return csv_path
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"[-] ucimlrepo fetch failed: {e}. Falling back to direct URL download...")
     
     zip_path = os.path.join(RAW_DIR, "dataset_diabetes.zip")
@@ -57,7 +57,7 @@ def download_and_extract_data():
             os.remove(zip_path)
         return csv_path
     except Exception as ex:
-        raise RuntimeError(f"Failed to download dataset: {ex}")
+        raise RuntimeError(f"Failed to download dataset: {ex}") from ex
 
 if __name__ == "__main__":
     download_and_extract_data()

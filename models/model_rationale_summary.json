@@ -4,7 +4,7 @@
     "models_evaluated": [
         {
             "Model": "Logistic Regression",
-            "Training Time (s)": 0.13,
+            "Training Time (s)": 0.11,
             "Decision Threshold": 0.12,
             "AUC-ROC": 0.6468,
             "PR-AUC": 0.1877,
@@ -20,7 +20,7 @@
         },
         {
             "Model": "Random Forest",
-            "Training Time (s)": 1.38,
+            "Training Time (s)": 1.32,
             "Decision Threshold": 0.13,
             "AUC-ROC": 0.6467,
             "PR-AUC": 0.1881,
@@ -36,7 +36,7 @@
         },
         {
             "Model": "XGBoost",
-            "Training Time (s)": 0.57,
+            "Training Time (s)": 0.53,
             "Decision Threshold": 0.12,
             "AUC-ROC": 0.6514,
             "PR-AUC": 0.1953,
@@ -52,7 +52,7 @@
         },
         {
             "Model": "LightGBM",
-            "Training Time (s)": 0.41,
+            "Training Time (s)": 0.35,
             "Decision Threshold": 0.12,
             "AUC-ROC": 0.6512,
             "PR-AUC": 0.197,
@@ -68,7 +68,7 @@
         },
         {
             "Model": "CatBoost",
-            "Training Time (s)": 2.04,
+            "Training Time (s)": 2.01,
             "Decision Threshold": 0.12,
             "AUC-ROC": 0.6525,
             "PR-AUC": 0.1981,

@@ -1,13 +1,14 @@
-import os
 import json
+import os
+
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import StratifiedGroupKFold
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
+from sklearn.model_selection import StratifiedGroupKFold
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -22,7 +23,7 @@ def map_icd9_to_category(code):
         return 'Missing'
     
     code_str = str(code).strip()
-    if code_str.startswith('V') or code_str.startswith('E'):
+    if code_str.startswith(('V', 'E')):
         return 'Other/External'
     
     try:
@@ -332,6 +333,79 @@ def clean_and_prepare_dataset(raw_csv_path):
         
     print("[+] Preprocessing and split artifacts successfully saved!")
     return split_artifacts
+
+def engineer_features(df_in):
+    """
+    Prepares a single-row or batch dataframe with the 13 features expected by preprocessor.joblib:
+    ['number_inpatient', 'number_outpatient', 'number_emergency', 'time_in_hospital',
+     'num_lab_procedures', 'num_medications', 'diag_1_group', 'discharge_destination',
+     'insulin_regimen', 'medication_change', 'age_group', 'gender_clean', 'race_clean']
+    """
+    df = df_in.copy()
+    
+    # 1. Primary Diagnosis Group
+    if 'diag_1_group' not in df.columns:
+        if 'diag_1_cat' in df.columns:
+            df['diag_1_group'] = df['diag_1_cat']
+        elif 'diag_1' in df.columns:
+            df['diag_1_group'] = df['diag_1'].apply(map_icd9_to_category)
+        else:
+            df['diag_1_group'] = 'Other'
+    elif 'diag_1_cat' in df.columns:
+        df['diag_1_group'] = df['diag_1_cat']
+            
+    # 2. Discharge Destination
+    if 'discharge_destination' not in df.columns:
+        if 'discharge_disposition_id' in df.columns:
+            df['discharge_destination'] = df['discharge_disposition_id'].apply(map_discharge_disposition)
+        else:
+            df['discharge_destination'] = 'Home'
+            
+    # 3. Medications and Regimens
+    if 'insulin_regimen' not in df.columns:
+        df['insulin_regimen'] = df.get('insulin', 'No')
+        
+    if 'medication_change' not in df.columns:
+        df['medication_change'] = df.get('change', df.get('med_change', 'No'))
+        
+    # 4. Demographic Groupings
+    if 'age_group' not in df.columns:
+        if 'age' in df.columns:
+            df['age_group'] = df['age'].apply(group_age)
+        else:
+            df['age_group'] = '60+ Years'
+            
+    if 'gender_clean' not in df.columns:
+        g = df.get('gender', 'Female')
+        df['gender_clean'] = g.apply(lambda x: x if x in ['Male', 'Female'] else 'Other/Unknown') if hasattr(g, 'apply') else (g if g in ['Male', 'Female'] else 'Other/Unknown')
+        
+    if 'race_clean' not in df.columns:
+        r = df.get('race', 'Caucasian')
+        valid_races = {'Caucasian', 'AfricanAmerican', 'Hispanic', 'Asian'}
+        df['race_clean'] = r.apply(lambda x: x if x in valid_races else 'Other/Unknown') if hasattr(r, 'apply') else (r if r in valid_races else 'Other/Unknown')
+        
+    # 5. Numeric features
+    defaults = {
+        'time_in_hospital': 3.0,
+        'num_medications': 10.0,
+        'number_inpatient': 0.0,
+        'number_emergency': 0.0,
+        'number_outpatient': 0.0,
+        'num_lab_procedures': 40.0,
+    }
+    for col, default_val in defaults.items():
+        if col not in df.columns:
+            df[col] = default_val
+        else:
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(default_val)
+            
+    feature_cols = [
+        'number_inpatient', 'number_outpatient', 'number_emergency',
+        'time_in_hospital', 'num_lab_procedures', 'num_medications',
+        'diag_1_group', 'discharge_destination', 'insulin_regimen',
+        'medication_change', 'age_group', 'gender_clean', 'race_clean'
+    ]
+    return df[feature_cols]
 
 if __name__ == "__main__":
     raw_path = os.path.join(DATA_DIR, "raw", "diabetic_data.csv")

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -21,13 +20,13 @@ MODELS_DIR = BASE_DIR / "models"
 FAIRNESS_DIR = BASE_DIR / "fairness_governance"
 
 # These class definitions are needed to load the saved calibrated ensemble.
-import src.models  # noqa: F401,E402
-from src.explainability import (  # noqa: E402
+import src.models  # noqa: F401
+from src.explainability import (
     clean_feature_label,
     get_clinical_risk_tier,
     recommend_clinical_interventions,
 )
-from src.preprocessing import engineer_features  # noqa: E402
+from src.preprocessing import engineer_features
 
 DIAGNOSIS_CATEGORIES = (
     "Circulatory",
@@ -189,11 +188,11 @@ def get_worklist(
     records = load_assets()["worklist"]
     filtered = records
     if tier == "high":
-        filtered = filtered.loc[filtered["prob"] >= 0.20]
+        filtered = filtered.loc[filtered["prob"] >= 0.12]
     elif tier == "moderate":
-        filtered = filtered.loc[(filtered["prob"] >= 0.12) & (filtered["prob"] < 0.20)]
+        filtered = filtered.loc[(filtered["prob"] >= 0.08) & (filtered["prob"] < 0.12)]
     elif tier == "low":
-        filtered = filtered.loc[filtered["prob"] < 0.12]
+        filtered = filtered.loc[filtered["prob"] < 0.08]
     if age_group != "all":
         filtered = filtered.loc[filtered["age_group"].astype(str) == age_group]
     page_num = page if isinstance(page, int) else 1
@@ -220,7 +219,7 @@ def get_worklist(
         "pages": max(1, (total + page_size - 1) // page_size),
         "summary": {
             "cohort_size": len(all_records),
-            "high_risk": int((all_records["prob"] >= 0.20).sum()),
+            "high_risk": int((all_records["prob"] >= 0.12).sum()),
             "polypharmacy": int((all_records["meds"] >= 10).sum()),
             "readmissions": int((all_records["actual"] == 1).sum()),
         },
@@ -261,8 +260,8 @@ def predict(request: PredictionRequest) -> dict:
     if is_unchanged:
         probability = float(encounter["prob"])
         tier = str(encounter["tier"])
-        _, color, guidance = get_clinical_risk_tier(probability)
-        engineered = pd.DataFrame([patient])
+        _, color, guidance = get_clinical_risk_tier(probability, optimal_thresh=0.120)
+        engineered = engineer_features(pd.DataFrame([patient]))
     else:
         patient.update(
             {
@@ -272,13 +271,13 @@ def predict(request: PredictionRequest) -> dict:
                 "number_emergency": request.number_emergency,
                 "A1Cresult": requested_a1c,
                 "diag_1_cat": request.diag_1_cat,
+                "diag_1_group": request.diag_1_cat,
             }
         )
         engineered = engineer_features(pd.DataFrame([patient]))
-        engineered.loc[:, "diag_1_cat"] = request.diag_1_cat
         transformed = assets["preprocessor"].transform(engineered)
         probability = float(assets["model"].predict_proba(transformed)[0, 1])
-        tier, color, guidance = get_clinical_risk_tier(probability)
+        tier, color, guidance = get_clinical_risk_tier(probability, optimal_thresh=0.120)
 
     patient_for_interventions = patient.copy()
     patient_for_interventions.update(
@@ -289,6 +288,7 @@ def predict(request: PredictionRequest) -> dict:
             "number_emergency": request.number_emergency,
             "A1Cresult": requested_a1c,
             "diag_1_cat": request.diag_1_cat,
+            "diag_1_group": request.diag_1_cat,
         }
     )
     interventions = recommend_clinical_interventions(patient_for_interventions, probability)
@@ -335,5 +335,7 @@ def get_governance() -> dict:
         "selected_model": "Calibrated Ensemble",
         "last_audited": "October 2026",
         "model_version": "v2.4.1-calibrated-ensemble",
-        "cohort_size": 500,
+        "cohort_size": 19870,
+        "demo_cohort_size": 500,
+        "selected_unified_threshold": 0.12,
     }

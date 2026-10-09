@@ -1,20 +1,29 @@
+import json
 import os
 import sys
 import time
-import json
+
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
+from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
 from sklearn.calibration import calibration_curve
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
-    roc_auc_score, average_precision_score, precision_score, recall_score, f1_score,
-    accuracy_score, confusion_matrix, roc_curve, precision_recall_curve, brier_score_loss
+    accuracy_score,
+    average_precision_score,
+    brier_score_loss,
+    confusion_matrix,
+    f1_score,
+    precision_recall_curve,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+    roc_curve,
 )
 from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
-from catboost import CatBoostClassifier
 
 if 'src.models' not in sys.modules:
     sys.modules['src.models'] = sys.modules[__name__]
@@ -249,7 +258,7 @@ def train_and_benchmark_models():
     calibrated_models['Calibrated Ensemble'] = ensemble
     training_runtimes['Calibrated Ensemble'] = round(ens_dur, 2)
     val_probs['Calibrated Ensemble'] = ensemble.predict_proba(X_val)[:, 1]
-    print(f"[+] Soft-Voting Calibrated Ensemble created from top boosters.")
+    print("[+] Soft-Voting Calibrated Ensemble created from top boosters.")
     
     # 3. Unified Threshold Optimization on Validation Set
     print("\n=== Threshold Optimization on Validation Cohort (N=9,935) ===")
@@ -365,7 +374,7 @@ def train_and_benchmark_models():
     
     # Model rationale summary JSON
     model_rationale_summary = {
-        "evaluation_cohort_size": int(len(y_test)),
+        "evaluation_cohort_size": len(y_test),
         "data_leakage_status": "0% patient overlap between train, val, and test via StratifiedGroupKFold on patient_nbr",
         "models_evaluated": results,
         "selected_model": "Calibrated Ensemble",
