@@ -232,6 +232,50 @@ def get_top_drivers_for_encounter(patient_dict, preprocessor, model, top_n=5):
         
     return prob, top_drivers
 
+def explain_patient_risk(patient_dict, model_name=None):
+    """
+    Computes patient-specific readmission risk score, tier, and top contributing risk factors.
+    Uses the production calibrated ensemble model and preprocessor.
+    """
+    preprocessor_path = os.path.join(PROCESSED_DIR, "preprocessor.joblib")
+    model_path = os.path.join(MODELS_DIR, "production_model.joblib")
+    if not os.path.exists(model_path):
+        eval_path = os.path.join(MODELS_DIR, "evaluation_artifacts.joblib")
+        eval_artifacts = joblib.load(eval_path)
+        model = eval_artifacts['trained_models']['Calibrated Ensemble']
+    else:
+        model = joblib.load(model_path)
+    preprocessor = joblib.load(preprocessor_path)
+    prob, drivers = get_top_drivers_for_encounter(patient_dict, preprocessor, model, top_n=5)
+    tier, color, guidance = get_clinical_risk_tier(prob)
+    interventions = recommend_clinical_interventions(patient_dict, prob)
+    return {
+        'Readmission Probability': prob,
+        'Risk Tier': tier,
+        'Tier Color': color,
+        'Tier Guidance': guidance,
+        'Top Risk Factors': drivers,
+        'Interventions': interventions
+    }
+
+def generate_groq_clinical_decision_points(patient_dict, prob, verdict_status, api_key=None):
+    """
+    Deterministic clinical rationale synthesizer based on patient EHR attributes.
+    Complies with classical, explainable ML guidelines.
+    """
+    stay = int(patient_dict.get('time_in_hospital', 1))
+    meds = int(patient_dict.get('num_medications', 0))
+    inpatient = int(patient_dict.get('number_inpatient', 0))
+    er = int(patient_dict.get('number_emergency', 0))
+    a1c = str(patient_dict.get('A1Cresult', 'None'))
+    return (
+        f"- **Clinical Risk Evaluation**: Calibrated predictive model scores {prob*100:.1f}% 30-day readmission risk ({verdict_status}).\n"
+        f"- **Acute Utilization Pattern**: Documented history of {inpatient} prior inpatient admissions and {er} emergency department visits in the preceding 12 months.\n"
+        f"- **Therapeutic Regimen Complexity**: Active count of {meds} concurrent inpatient medications requiring multidisciplinary medication reconciliation.\n"
+        f"- **Glycemic Stability Profile**: Inpatient glycated hemoglobin marker recorded as {a1c}.\n"
+        f"- **Post-Acute Care Transition**: Hospital stay duration of {stay} days warrants structured transitional care coordination."
+    )
+
 def precompute_worklist_artifacts(max_encounters=500):
     """
     Precomputes predictions and top drivers for an indexed sample of 500 encounters

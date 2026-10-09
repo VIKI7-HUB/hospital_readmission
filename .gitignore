@@ -35,3 +35,5 @@ Thumbs.db
 *.log
 catboost_info/
 scratch/
+.pytest_cache/
+.ruff_cache/

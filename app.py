@@ -1,11 +1,11 @@
 import os
 import sys
 import time
+
 import joblib
 import pandas as pd
-import numpy as np
-import streamlit as st
 import plotly.graph_objects as go
+import streamlit as st
 
 # Ensure repository root is in python path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -13,13 +13,12 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
 # Import models classes for unpickling
-import src.models
 from src.explainability import (
     explain_patient_risk,
-    recommend_clinical_interventions,
-    get_clinical_risk_tier,
     generate_groq_clinical_decision_points,
-    precompute_worklist_artifacts
+    get_clinical_risk_tier,
+    precompute_worklist_artifacts,
+    recommend_clinical_interventions,
 )
 
 # Streamlit Page Configuration
@@ -638,18 +637,18 @@ def show_patient_reasoning_dialog(enc_id, pt_row, prob):
             x=impact_values,
             y=feature_names,
             orientation='h',
-            marker=dict(color=bar_colors),
+            marker={"color": bar_colors},
             text=[f"{v:+.3f}" for v in impact_values],
             textposition='auto'
         ))
         fig.update_layout(
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='#FFFFFF',
-            font=dict(color='#0F172A', family='Inter', size=11),
+            font={"color": '#0F172A', "family": 'Inter', "size": 11},
             height=210,
-            margin=dict(l=10, r=10, t=10, b=10),
-            xaxis=dict(gridcolor='#F1F5F9', title="Relative Risk Impact"),
-            yaxis=dict(gridcolor='#F1F5F9'),
+            margin={"l": 10, "r": 10, "t": 10, "b": 10},
+            xaxis={"gridcolor": '#F1F5F9', "title": "Relative Risk Impact"},
+            yaxis={"gridcolor": '#F1F5F9'},
             transition={'duration': 400, 'easing': 'cubic-in-out'}
         )
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -924,7 +923,7 @@ elif app_mode == "Bedside Risk Calculator":
             df_eng = engineer_features(df_single)
             X_trans_single = preprocessor.transform(df_eng)
             live_prob = float(active_model.predict_proba(X_trans_single)[0, 1])
-            tier, color, tier_desc = get_clinical_risk_tier(live_prob)
+            tier, _color, _tier_desc = get_clinical_risk_tier(live_prob)
             
             gauge_color = "#DC2626" if live_prob >= 0.20 else ("#D97706" if live_prob >= 0.12 else "#16A34A")
             
@@ -951,7 +950,7 @@ elif app_mode == "Bedside Risk Calculator":
                 plot_bgcolor='rgba(0,0,0,0)',
                 font={'color': "#0F172A", 'family': "Inter"},
                 height=185,
-                margin=dict(l=15, r=15, t=10, b=10),
+                margin={"l": 15, "r": 15, "t": 10, "b": 10},
                 transition={'duration': 600, 'easing': 'cubic-in-out'}
             )
             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -964,7 +963,7 @@ elif app_mode == "Bedside Risk Calculator":
             """, unsafe_allow_html=True)
             
             if st.button("Open Clinical Reasoning Modal", use_container_width=True):
-                show_patient_reasoning_dialog(f"ENC-CALC", pt_row, live_prob)
+                show_patient_reasoning_dialog("ENC-CALC", pt_row, live_prob)
             
         st.markdown("---")
         st.markdown("<div style='font-size: 14px; font-weight: 700; color: #0F172A; margin-bottom: 8px;'>Targeted Clinical Care Bundles</div>", unsafe_allow_html=True)
@@ -1036,9 +1035,9 @@ elif app_mode == "Clinical Governance & Benchmarks":
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='#FFFFFF',
             font={'color': "#0F172A", 'family': "Inter"},
-            yaxis=dict(gridcolor='#F1F5F9', range=[0, 0.8]),
-            xaxis=dict(gridcolor='#F1F5F9'),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            yaxis={"gridcolor": '#F1F5F9', "range": [0, 0.8]},
+            xaxis={"gridcolor": '#F1F5F9'},
+            legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1},
             height=280,
             transition={'duration': 400, 'easing': 'cubic-in-out'}
         )
