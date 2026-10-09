@@ -465,7 +465,8 @@ function App() {
   }, []);
 
   const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("clinicalai-theme") === "dark";
+    const saved = localStorage.getItem("clinicalai-theme");
+    return saved !== null ? saved === "dark" : true;
   });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     return localStorage.getItem("clinicalai-sidebar-collapsed") === "true";
@@ -589,7 +590,7 @@ function App() {
       document.documentElement.setAttribute("data-theme", "dark");
       localStorage.setItem("clinicalai-theme", "dark");
     } else {
-      document.documentElement.removeAttribute("data-theme");
+      document.documentElement.setAttribute("data-theme", "light");
       localStorage.setItem("clinicalai-theme", "light");
     }
   }, [darkMode]);
@@ -1009,14 +1010,14 @@ function App() {
     if (!list.length) {
       return {
         cutoff: 0.12,
-        tp: 1304,
-        fp: 6201,
-        tn: 11406,
-        fn: 959,
-        sensitivity: 57.6,
+        tp: 1296,
+        fp: 6196,
+        tn: 11411,
+        fn: 967,
+        sensitivity: 57.3,
         specificity: 64.8,
-        precision: 17.4,
-        flag_rate: 37.8,
+        precision: 17.3,
+        flag_rate: 37.7,
       };
     }
     const rounded = Math.round(govThresholdSlider * 100) / 100;
@@ -1433,23 +1434,23 @@ function App() {
                   isActive={hasActiveFilters}
                   miniVisual={
                     <KpiMiniCohortDist
-                      lowPct={summary.cohort_size ? (summary.low_risk / summary.cohort_size) * 100 : 62.2}
-                      elevatedPct={summary.cohort_size ? (summary.elevated_risk / summary.cohort_size) * 100 : 29.0}
-                      highPct={summary.cohort_size ? (summary.high_risk / summary.cohort_size) * 100 : 8.8}
+                      lowPct={summary.cohort_size ? (summary.low_risk / summary.cohort_size) * 100 : 62.4}
+                      elevatedPct={summary.cohort_size ? (summary.elevated_risk / summary.cohort_size) * 100 : 28.6}
+                      highPct={summary.cohort_size ? (summary.high_risk / summary.cohort_size) * 100 : 9.0}
                     />
                   }
                 />
 
                 <KpiCard
                   label="Flagged for follow-up (≥ 12%)"
-                  value={summary.flagged ?? "189"}
-                  rawNumber={summary.flagged ?? 189}
+                  value={summary.flagged ?? "188"}
+                  rawNumber={summary.flagged ?? 188}
                   context={
                     summary.cohort_size
                       ? `${((summary.flagged / summary.cohort_size) * 100).toFixed(1)}% of cohort (≥12% cutoff)`
-                      : "37.8% of cohort (≥12% cutoff)"
+                      : "37.6% of cohort (≥12% cutoff)"
                   }
-                  secondLine={`High (≥20%): ${summary.high_risk ?? 44} (${summary.cohort_size ? ((summary.high_risk / summary.cohort_size) * 100).toFixed(1) : "8.8"}%) · Elevated (12–20%): ${summary.elevated_risk ?? 145} (${summary.cohort_size ? ((summary.elevated_risk / summary.cohort_size) * 100).toFixed(1) : "29.0"}%)`}
+                  secondLine={`High (≥20%): ${summary.high_risk ?? 45} (${summary.cohort_size ? ((summary.high_risk / summary.cohort_size) * 100).toFixed(1) : "9.0"}%) · Elevated (12–20%): ${summary.elevated_risk ?? 143} (${summary.cohort_size ? ((summary.elevated_risk / summary.cohort_size) * 100).toFixed(1) : "28.6"}%)`}
                   icon={AlertTriangle}
                   tone="red"
                   accentRed={true}
@@ -1466,9 +1467,9 @@ function App() {
                   isActive={tier === "flagged"}
                   miniVisual={
                     <KpiProportionBar
-                      percentage={summary.cohort_size ? (summary.flagged / summary.cohort_size) * 100 : 37.8}
+                      percentage={summary.cohort_size ? (summary.flagged / summary.cohort_size) * 100 : 37.6}
                       tone="red"
-                      title={`${summary.cohort_size ? ((summary.flagged / summary.cohort_size) * 100).toFixed(1) : "37.8"}% flagged for transition follow-up (≥12% risk cutoff)`}
+                      title={`${summary.cohort_size ? ((summary.flagged / summary.cohort_size) * 100).toFixed(1) : "37.6"}% flagged for transition follow-up (≥12% risk cutoff)`}
                     />
                   }
                 />
@@ -1937,7 +1938,7 @@ function App() {
 
                 {/* Sampling Footnote */}
                 <div style={{ padding: "8px 16px 12px 16px", fontSize: "0.75rem", color: "var(--text-muted)", borderTop: "1px solid var(--border-subtle)" }}>
-                  Random sample of 500 from the held-out test set (seed 55). Seed 55 was selected from a candidate sweep (seeds 0–99) matched on flag rate (37.8%), High-tier share (8.8%), and readmission rate (10.8% vs. 11.39% test-set rate) only; demographics were not matched.
+                  Random sample of 500 from the held-out test set (seed 55). Seed 55 was selected from a candidate sweep (seeds 0–99) matched on flag rate (37.6%), High-tier share (9.0%), and readmission rate (10.8% vs. 11.39% test-set rate) only; demographics were not matched.
                 </div>
               </section>
             </>
@@ -2702,7 +2703,7 @@ function App() {
                       <dd className="ensemble-stat-dd tabular-nums">
                         <AnimatedNumber value={Number(championBrier)} format={(v) => v.toFixed(4)} />
                       </dd>
-                      <span className="ensemble-stat-sub">Sigmoid Platt aligned</span>
+                      <span className="ensemble-stat-sub">Sigmoid Platt aligned (CatBoost achieves an identical Brier score (0.0976))</span>
                     </div>
                     <div className="ensemble-stat-card">
                       <dt className="ensemble-stat-dt">Decision Threshold</dt>
@@ -2746,7 +2747,7 @@ function App() {
                     <table className="benchmark-dense-table">
                       <thead>
                         <tr>
-                          <th className="sortable-th" onClick={() => handleGovSort("Model")}>Model</th>
+                          <th className="sortable-th" onClick={() => handleGovSort("Model")}>Model Candidate</th>
                           <th className="sortable-th" onClick={() => handleGovSort("Cutoff")}>Cutoff</th>
                           <th className="sortable-th" onClick={() => handleGovSort("AUC-ROC")}>AUC-ROC</th>
                           <th className="sortable-th" onClick={() => handleGovSort("Accuracy")}>Accuracy</th>
@@ -2755,19 +2756,27 @@ function App() {
                           <th className="sortable-th" onClick={() => handleGovSort("F1-Score")}>F1-Score</th>
                           <th className="sortable-th" onClick={() => handleGovSort("Flag Rate (%)")}>Flag Rate</th>
                           <th className="sortable-th" onClick={() => handleGovSort("Brier Score")}>Brier Score</th>
+                          <th className="sortable-th" onClick={() => handleGovSort("Training Time (s)")}>Train Time</th>
                         </tr>
                       </thead>
                       <tbody>
                         {sortedGovModels.map((m) => {
                           const isChampion = m.Model === (governance?.selected_model || "Calibrated Ensemble") || m.Model.includes("Ensemble");
-                          const cutoff = m.Cutoff ?? m.Threshold ?? 0.12;
+                          const cutoff = m["Decision Threshold"] ?? m.Cutoff ?? m.Threshold ?? 0.12;
                           const auc = Number(m["AUC-ROC"] || 0);
                           const acc = Number(m.Accuracy || 0);
                           const prec = Number(m.Precision || 0);
                           const rec = Number(m["Recall (Sensitivity)"] ?? m.Recall ?? m.Sensitivity ?? 0);
                           const f1 = Number(m["F1-Score"] || 0);
-                          const flagRate = Number(m["Flag Rate (%)"] || (m["Flag Rate"] ? m["Flag Rate"] * 100 : 0));
+                          const flagRate = Number(
+                            m["Flag Rate (%)"] ||
+                            (m["Flag Rate"] ? m["Flag Rate"] * 100 :
+                            (m["True Positives (TP)"] != null && m["False Positives (FP)"] != null
+                              ? ((m["True Positives (TP)"] + m["False Positives (FP)"]) / 19870) * 100
+                              : 0))
+                          );
                           const brier = Number(m["Brier Score"] || 0);
+                          const trainTime = m["Training Time (s)"] ?? m["Fit Time (s)"];
 
                           return (
                             <tr key={m.Model} className={isChampion ? "champion-row" : ""}>
@@ -2789,6 +2798,7 @@ function App() {
                               <td className="tabular-nums">{f1 > 0 ? f1.toFixed(3) : "—"}</td>
                               <td className="tabular-nums">{flagRate > 0 ? `${flagRate.toFixed(1)}%` : "—"}</td>
                               <td className="tabular-nums font-mono">{brier > 0 ? brier.toFixed(4) : "—"}</td>
+                              <td className="tabular-nums font-mono">{trainTime != null ? `${Number(trainTime).toFixed(2)}s` : "—"}</td>
                             </tr>
                           );
                         })}
@@ -3068,7 +3078,7 @@ function App() {
                   </div>
 
                   <div className="benchmark-candidate-note mt-3">
-                    <strong>Monotonic validation note:</strong> Observed readmissions separate with statistical significance from <strong>7.76%</strong> [7.30%, 8.24%] in Low Risk to <strong>15.31%</strong> [14.40%, 16.26%] in Elevated Risk and <strong>24.17%</strong> [22.22%, 26.23%] in High Risk (a 3.1x risk gradient across non-overlapping 95% confidence intervals). This empirical ordering validates the mathematical boundary choices of the 12.0% and 20.0% operational cutoffs.
+                    <strong>Monotonic validation note:</strong> Observed readmissions separate with statistical significance from <strong>7.81%</strong> [7.35%, 8.30%] in Low Risk to <strong>15.24%</strong> [14.33%, 16.19%] in Elevated Risk and <strong>24.20%</strong> [22.24%, 26.28%] in High Risk (a 3.1x risk gradient across non-overlapping 95% confidence intervals). This empirical ordering validates the mathematical boundary choices of the 12.0% and 20.0% operational cutoffs.
                   </div>
                 </motion.div>
 
@@ -3194,9 +3204,14 @@ function App() {
                       <h2>8. Demographic Fairness Audits (Optional Extension)</h2>
                       <p>Per-group True Positive Rates with 95% bootstrap confidence intervals across Race, Sex, and Age.</p>
                     </div>
-                    <span className="status-badge-chip neutral">
-                      Analysis Only, Not Deployed
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="status-badge-chip neutral">
+                        Fairness audited, gaps reported with confidence intervals
+                      </span>
+                      <span className="status-badge-chip neutral">
+                        Analysis Only, Not Deployed
+                      </span>
+                    </div>
                   </div>
 
                   {/* Deployed Policy Disclosure Banner */}
@@ -3227,6 +3242,11 @@ function App() {
                           <div className="fairness-disparity-box">
                             <div className="flex items-center justify-between gap-2 flex-wrap">
                               <span className="disparity-box-caption">Headline Disparity Gap ({card.headlineComparison})</span>
+                              {card.status && (
+                                <span className={`status-badge-chip ${card.statusTone}`}>
+                                  {card.status}
+                                </span>
+                              )}
                             </div>
                             <div className="disparity-box-val-row">
                               <span className="disparity-box-large-val tabular-nums">{card.gap}</span>
@@ -3261,7 +3281,7 @@ function App() {
                                       <span className="subgroup-name-text" title={sg.name}>{sg.name}</span>
                                       {sg.isSmall && (
                                         <span className="small-sample-badge">
-                                          Sample &lt;100 readmissions
+                                          Sample too small to conclude (&lt;100 readmissions)
                                         </span>
                                       )}
                                     </div>
@@ -3317,33 +3337,102 @@ function App() {
                         <tbody>
                           <tr>
                             <td><strong>Overall Cohort Recall (Sensitivity)</strong></td>
-                            <td className="tabular-nums font-semibold">57.62%</td>
-                            <td className="tabular-nums font-semibold text-amber-600 dark:text-amber-400">57.05%</td>
-                            <td className="text-xs text-muted">-0.57 pp overall sensitivity loss</td>
+                            <td className="tabular-nums font-semibold">57.27%</td>
+                            <td className="tabular-nums font-semibold text-amber-600 dark:text-amber-400">57.18%</td>
+                            <td className="text-xs text-muted">-0.09 pp overall sensitivity loss</td>
                           </tr>
                           <tr>
                             <td><strong>Overall Cohort Precision</strong></td>
-                            <td className="tabular-nums">17.38%</td>
-                            <td className="tabular-nums">17.37%</td>
-                            <td className="text-xs text-muted">-0.01 pp</td>
+                            <td className="tabular-nums">17.30%</td>
+                            <td className="tabular-nums">17.33%</td>
+                            <td className="text-xs text-muted">+0.03 pp</td>
                           </tr>
                           <tr>
                             <td><strong>Overall Cohort Flag Rate (% Flagged)</strong></td>
-                            <td className="tabular-nums">37.77%</td>
-                            <td className="tabular-nums">37.41%</td>
-                            <td className="text-xs text-muted">-0.36 pp (71 fewer patients flagged)</td>
+                            <td className="tabular-nums">37.71%</td>
+                            <td className="tabular-nums">37.58%</td>
+                            <td className="text-xs text-muted">-0.13 pp (26 fewer patients flagged)</td>
                           </tr>
                           <tr>
                             <td>Caucasian Sensitivity (TPR) / False Positive (FPR)</td>
-                            <td className="tabular-nums">58.67% / 36.16%</td>
-                            <td className="tabular-nums">57.93% / 35.72%</td>
-                            <td className="text-xs text-amber-600 dark:text-amber-400">-0.74 pp recall drop in largest group</td>
+                            <td className="tabular-nums">58.39% / 36.21%</td>
+                            <td className="tabular-nums">58.27% / 36.03%</td>
+                            <td className="text-xs text-amber-600 dark:text-amber-400">-0.12 pp recall drop in largest group</td>
                           </tr>
                           <tr>
                             <td>African American Sensitivity (TPR) / FPR</td>
-                            <td className="tabular-nums">53.69% / 34.86%</td>
-                            <td className="tabular-nums">53.69% / 34.86%</td>
+                            <td className="tabular-nums">52.71% / 34.47%</td>
+                            <td className="tabular-nums">52.71% / 34.47%</td>
                             <td className="text-xs text-muted">0.00 pp change (cutoff kept at 12.0%)</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Training Strategies Stretch Comparison Table */}
+                  <div className="mt-8">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-muted mb-2">Training Strategies Stretch Comparison</h3>
+                    <p className="text-xs text-muted mb-3">Comparing alternative training-time disparity reduction strategies on training split only, each tuned on validation data.</p>
+                    <div className="clean-data-table-wrap">
+                      <table className="clean-data-table">
+                        <thead>
+                          <tr>
+                            <th>Training Strategy</th>
+                            <th>Description</th>
+                            <th>Threshold</th>
+                            <th>AUC-ROC</th>
+                            <th>Brier</th>
+                            <th>Recall</th>
+                            <th>Precision</th>
+                            <th>Flag Rate</th>
+                            <th>Race Gap (pp)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><strong>Baseline Unweighted XGBoost</strong></td>
+                            <td className="text-xs text-muted">Unweighted gradient boosting on train split</td>
+                            <td className="tabular-nums">12.0%</td>
+                            <td className="tabular-nums">0.6521</td>
+                            <td className="tabular-nums">0.0976</td>
+                            <td className="tabular-nums">43.53%</td>
+                            <td className="tabular-nums">18.51%</td>
+                            <td className="tabular-nums">26.78%</td>
+                            <td className="tabular-nums">2.54 pp</td>
+                          </tr>
+                          <tr>
+                            <td><strong>Class-Weighted XGBoost</strong></td>
+                            <td className="text-xs text-muted">scale_pos_weight inverse class frequencies on train split</td>
+                            <td className="tabular-nums">55.0%</td>
+                            <td className="tabular-nums">0.6517</td>
+                            <td className="tabular-nums">0.2262</td>
+                            <td className="tabular-nums">45.51%</td>
+                            <td className="tabular-nums">18.74%</td>
+                            <td className="tabular-nums">27.66%</td>
+                            <td className="tabular-nums">2.51 pp</td>
+                          </tr>
+                          <tr>
+                            <td><strong>Resampling (RUS on Train)</strong></td>
+                            <td className="text-xs text-muted">Random under-sampling applied strictly to training split</td>
+                            <td className="tabular-nums">54.0%</td>
+                            <td className="tabular-nums">0.6494</td>
+                            <td className="tabular-nums">0.2328</td>
+                            <td className="tabular-nums">51.17%</td>
+                            <td className="tabular-nums">17.93%</td>
+                            <td className="tabular-nums">32.51%</td>
+                            <td className="tabular-nums">3.06 pp</td>
+                          </tr>
+                          <tr className="bg-primary/5 dark:bg-primary/10">
+                            <td><strong>Calibrated Ensemble (Deployed)</strong></td>
+                            <td className="text-xs text-muted">Platt-calibrated soft voting ensemble with unified 12% cutoff</td>
+                            <td className="tabular-nums font-bold">12.0%</td>
+                            <td className="tabular-nums font-bold">0.6531</td>
+                            <td className="tabular-nums font-bold">0.0976</td>
+                            <td className="tabular-nums font-bold">57.27%</td>
+                            <td className="tabular-nums">17.30%</td>
+                            <td className="tabular-nums">37.71%</td>
+                            <td className="tabular-nums">5.68 pp</td>
                           </tr>
                         </tbody>
                       </table>
@@ -3394,7 +3483,7 @@ function App() {
                         <span>HIPAA & Data Provenance</span>
                       </div>
                       <p className="intended-use-body">
-                        Published as de-identified by its source (UCI Machine Learning Repository / Strack et al., 130 US hospitals, data years 1999–2008); not independently verified.
+                        Published as de-identified by its source (UCI Machine Learning Repository, 130 US hospitals, 1999-2008). We did not independently verify de-identification.
                       </p>
                     </div>
 
@@ -3404,7 +3493,7 @@ function App() {
                         <span>Known Clinical Limitations</span>
                       </div>
                       <p className="intended-use-body">
-                        Retrospective dataset of {dataQuality?.total_clean_encounters?.toLocaleString() || "99,343"} inpatient encounters ({dataQuality?.unique_patients?.toLocaleString() || "69,990"} unique patients; training n = {splitDetails?.train?.encounters?.toLocaleString() || "69,538"}, validation n = {splitDetails?.val?.encounters?.toLocaleString() || "9,935"}, holdout test n = {splitDetails?.test?.encounters?.toLocaleString() || "19,870"}; {splitDetails?.demo_sample?.encounters || 500} interactive demo sample). Historical data years (1999–2008) from diabetic inpatients only. Modest discrimination (ROC-AUC ~0.65 on untouched test holdout; validation AUC ~0.67), reflecting historical administrative EHR data constraints. No prospective bedside clinical trial or external validation in modern EHR systems has been performed. Research demonstration only; not cleared by the FDA for standalone diagnostic or triage use.
+                        Retrospective dataset of {dataQuality?.total_clean_encounters?.toLocaleString() || "99,343"} inpatient encounters ({dataQuality?.unique_patients?.toLocaleString() || "69,990"} unique patients; training n = {splitDetails?.train?.encounters?.toLocaleString() || "69,538"}, validation n = {splitDetails?.val?.encounters?.toLocaleString() || "9,935"}, holdout test n = {splitDetails?.test?.encounters?.toLocaleString() || "19,870"}; 500 = interactive demo sample). Historical data collected between 1999 and 2008 from diabetic inpatients only. Modest discrimination (AUC ~0.65) on untouched test holdout (validation AUC ~0.67), reflecting historical administrative EHR data constraints. No prospective bedside clinical trial or external validation in modern EHR systems has been performed. Research demonstration only; not cleared by the FDA for standalone diagnostic or triage use.
                       </p>
                     </div>
                   </div>

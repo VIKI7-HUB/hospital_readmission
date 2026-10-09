@@ -53,14 +53,14 @@ The official **Hackfest 2026 Screening Round Idea Presentation** (strictly adher
 
 | Model Architecture | Threshold (tau) | AUC-ROC | PR-AUC | Accuracy | Recall (Sensitivity) | Precision | F1-Score | Brier Score Loss |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Logistic Regression (Calibrated)** | 0.120 | 0.6468 | 0.1877 | 68.24% | 49.98% | 17.93% | 0.2639 | 0.0982 |
+| **Logistic Regression (Calibrated)** | 0.120 | 0.6468 | 0.1877 | **68.24%** | 49.98% | **17.93%** | 0.2639 | 0.0982 |
 | **Random Forest (Calibrated)** | 0.130 | 0.6467 | 0.1881 | 66.75% | 51.66% | 17.50% | 0.2614 | 0.0980 |
-| **XGBoost (Calibrated)** | 0.120 | 0.6514 | 0.1953 | 64.12% | 56.96% | 17.31% | 0.2656 | 0.0977 |
+| **XGBoost (Calibrated)** | 0.120 | 0.6516 | 0.1976 | 64.18% | 56.65% | 17.28% | 0.2648 | 0.0977 |
 | **LightGBM (Calibrated)** | 0.120 | 0.6512 | 0.1970 | 63.76% | 56.56% | 17.07% | 0.2623 | 0.0977 |
-| **CatBoost (Calibrated)** | 0.120 | 0.6525 | 0.1981 | 64.37% | 57.84% | 17.61% | 0.2700 | 0.0976 |
-| **Calibrated Ensemble (Champion)** | **0.120** | **0.6530** | **0.1975** | **63.97%** | **57.62%** | **17.38%** | **0.2670** | **0.0976** |
+| **CatBoost (Calibrated)** | 0.120 | 0.6526 | **0.2001** | 64.22% | **57.76%** | 17.52% | **0.2688** | **0.0976** |
+| **Calibrated Ensemble (Champion)** | **0.120** | **0.6531** | 0.1987 | 63.95% | 57.27% | 17.30% | 0.2657 | **0.0976** |
 
-> **Clinical Decision Rationale:** In discharge triage, a **False Negative** (discharging a patient who will experience acute decompensation and readmission) is orders of magnitude more catastrophic than a **False Positive** (providing a high-touch post-discharge phone call or pharmacist review). Hence, the **Calibrated Soft-Voting Ensemble (blending XGBoost, LightGBM, and CatBoost with Platt scaling)** was selected at cutoff tau = 0.120 for achieving the highest discriminative power (AUC 0.6530, PR-AUC 0.1975), robust Sensitivity (57.62%), and state-of-the-art calibration (Brier score 0.0976).
+> **Clinical Decision Rationale:** In discharge triage, a **False Negative** (discharging a patient who will experience acute decompensation and readmission) is orders of magnitude more catastrophic than a **False Positive** (providing a high-touch post-discharge phone call or pharmacist review). Hence, the **Calibrated Soft-Voting Ensemble (blending XGBoost, LightGBM, and CatBoost with Platt scaling)** was selected at cutoff tau = 0.120 for achieving the highest discriminative power (AUC 0.6531, PR-AUC 0.1987), robust Sensitivity (57.27%), and state-of-the-art calibration (Brier score 0.0976).
 
 ### Demographic Fairness Audits (Analysis Only, Not Deployed; Deployed Cutoff: 12.0%)
 
@@ -68,9 +68,9 @@ The deployed clinical system applies a uniform 12.0% threshold across all patien
 
 | Demographic Dimension | Evaluated Groups (Test Set N = 19,870) | Deployed Sensitivity (TPR) Range | Headline Disparity Gap (95% CI) | Status / Notes |
 | :--- | :--- | :---: | :---: | :--- |
-| **Gender / Sex** | Female (n=10,615), Male (n=9,254) | 55.80% - 59.13% | 3.32 pp [-1.0 pp to 7.4 pp] | Both groups >=100 readmissions; difference not statistically significant |
-| **Race / Ethnicity** | Caucasian (n=14,874), African American (n=3,716) | 53.69% - 58.67% | 4.98 pp [-0.4 pp to 10.4 pp] | Subgroups with <100 readmissions (Asian, Hispanic, Other) flagged as underpowered |
-| **Age Brackets** | 30-60 Years (n=6,131), 60+ Years (n=13,227) | 54.39% - 58.32% | 3.93 pp [-0.9 pp to 8.6 pp] | <30 Years cohort (n=512, 66 readmissions) flagged as small sample |
+| **Gender / Sex** | Female (n=10,615), Male (n=9,254) | 55.41% - 58.80% | 3.39 pp [-0.9 pp to 7.5 pp] | Both groups >=100 readmissions; difference not statistically significant |
+| **Race / Ethnicity** | Caucasian (n=14,874), African American (n=3,716) | 52.71% - 58.39% | 5.68 pp [0.3 pp to 10.9 pp] | Subgroups with <100 readmissions (Asian, Hispanic, Other) flagged as underpowered |
+| **Age Brackets** | 30-60 Years (n=6,131), 60+ Years (n=13,227) | 53.72% - 58.13% | 4.41 pp [-0.4 pp to 9.2 pp] | <30 Years cohort (n=512, 66 readmissions) flagged as small sample |
 
 ---
 

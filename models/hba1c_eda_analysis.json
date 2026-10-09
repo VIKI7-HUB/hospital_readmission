@@ -41,7 +41,7 @@
     "chi_square_test_a1c": {
         "statistic": 42.56,
         "dof": 3,
-        "p_value": 3.055224033497052e-09,
+        "p_value": 3.0552240334970525e-09,
         "p_value_sci": "3.0552e-09",
         "interpretation": "Statistically significant association between HbA1c ordering status and 30-day readmission."
     },

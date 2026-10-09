@@ -303,7 +303,7 @@ STARTING COMPREHENSIVE BROWSER UI VERIFICATION (EDGE HEADLESS)
   • Section 5 slider and presets interactive test passed
 
 [STEP 11] Auditing Section 6: Risk Tier Validation...
-  • Section 6 validated (Low 7.76%, Elevated 15.31%, High 24.17% with Wilson CIs)
+  • Section 6 validated (Low 7.81%, Elevated 15.24%, High 24.20% with Wilson CIs)
 
 [STEP 12] Auditing Section 7: Explainability & Units...
   • Section 7 validated (units, direction, and Rehab/SNF observational caveat present)

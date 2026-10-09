@@ -39,15 +39,15 @@ The candidate estimators were evaluated on the independent **Validation Split** 
 
 | Model Architecture | Validation AUC-ROC | Validation PR-AUC | Validation Brier Score | Calibration Rank |
 | :--- | :---: | :---: | :---: | :---: |
-| **CatBoost** | **0.6714** | **0.2197** | **0.0966** | Tied 1st |
-| **Calibrated Ensemble** | 0.6707 | 0.2194 | **0.0966** | Tied 1st |
-| **XGBoost** | 0.6694 | 0.2190 | **0.0966** | Tied 1st |
-| **LightGBM** | 0.6679 | 0.2151 | 0.0967 | 4th |
-| **Random Forest** | 0.6664 | 0.2086 | 0.0971 | 5th |
-| **Logistic Regression** | 0.6645 | 0.2049 | 0.0973 | 6th |
+| **Calibrated Ensemble** | **0.6701** | 0.2178 | **0.0966** | **1st** |
+| CatBoost | 0.6696 | **0.2183** | 0.0967 | Tied 2nd |
+| XGBoost | 0.6687 | 0.2153 | 0.0967 | Tied 2nd |
+| LightGBM | 0.6679 | 0.2151 | 0.0967 | Tied 2nd |
+| Random Forest | 0.6664 | 0.2086 | 0.0971 | 5th |
+| Logistic Regression | 0.6645 | 0.2049 | 0.0973 | 6th |
 
 ### 2.3 Transparent Assessment of Validation Results
-On the validation split, **CatBoost achieved the highest AUC-ROC (0.6714) and highest PR-AUC (0.2197)**, performing slightly better than the Calibrated Ensemble (0.6707 AUC, 0.2194 PR-AUC) with an identical Brier score (0.0966). The Soft-Voting Ensemble was retained for deployment because combining diverse gradient boosting mechanisms (symmetric oblivious trees in CatBoost, depth-wise split trees in XGBoost, and leaf-wise histogram trees in LightGBM) prevents vulnerability to model-specific inductive biases. On the untouched test holdout, the ensemble achieved 0.6530 AUC versus CatBoost's 0.6525.
+On the validation split, the **Calibrated Ensemble achieved the highest AUC-ROC (0.6701)** and the lowest Brier score (0.0966), outperforming single gradient boosted trees (CatBoost 0.6696 AUC, XGBoost 0.6687 AUC, LightGBM 0.6679 AUC). Under the explicit selection rule (highest validation AUC, ties broken by validation Brier), the Calibrated Ensemble is the clean champion. Combining diverse gradient boosting mechanisms (symmetric oblivious trees in CatBoost, depth-wise split trees in XGBoost, and leaf-wise histogram trees in LightGBM with Platt scaling) prevents vulnerability to model-specific inductive biases. On the untouched test holdout, the ensemble likewise achieved the highest test AUC-ROC of 0.6531.
 
 ### 2.4 Explainability Trade-Off: Ensemble vs. Single Model
 A single parametric model such as Logistic Regression provides direct, globally interpretable coefficients and odds ratios that clinicians can verify directly in an EHR chart, whereas an ensemble of tree-based models trades away transparency and requires post-hoc explanation heuristics (such as TreeSHAP or perturbation scoring) that are harder for clinical staff to audit.
@@ -61,22 +61,22 @@ Saved artifact: `models/validation_metrics_all_models.csv` and `models/validatio
 ### 3.1 Common Operating Point (tau = 0.120) Across All Models
 | Model Architecture | Cutoff (tau) | Precision | Recall (Sens.) | Accuracy | ROC-AUC | F1-Score | Flag Rate | Brier Score | TP | FP | TN | FN |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Logistic Regression** | 0.120 | 17.93% | 49.98% | 68.24% | 0.6468 | 0.2639 | 31.75% | 0.0982 | 1,131 | 5,178 | 12,429 | 1,132 |
+| **Logistic Regression** | 0.120 | **17.93%** | 49.98% | **68.24%** | 0.6468 | 0.2639 | 31.75% | 0.0982 | 1,131 | **5,178** | **12,429** | 1,132 |
 | **Random Forest** | 0.120 | 16.91% | 56.08% | 63.62% | 0.6467 | 0.2599 | 37.76% | 0.0980 | 1,269 | 6,234 | 11,373 | 994 |
-| **XGBoost** | 0.120 | 17.31% | 56.96% | 64.12% | 0.6514 | 0.2656 | 37.47% | 0.0977 | 1,289 | 6,156 | 11,451 | 974 |
+| **XGBoost** | 0.120 | 17.28% | 56.65% | 64.18% | 0.6516 | 0.2648 | 37.34% | 0.0977 | 1,282 | 6,137 | 11,470 | 981 |
 | **LightGBM** | 0.120 | 17.07% | 56.56% | 63.76% | 0.6512 | 0.2623 | 37.73% | 0.0977 | 1,280 | 6,217 | 11,390 | 983 |
-| **CatBoost** | 0.120 | 17.61% | 57.84% | 64.37% | 0.6525 | 0.2700 | 37.42% | 0.0976 | 1,309 | 6,126 | 11,481 | 954 |
-| **Calibrated Ensemble** | **0.120** | **17.38%** | **57.62%** | **63.97%** | **0.6530** | **0.2670** | **37.77%** | **0.0976** | **1,304** | **6,201** | **11,406** | **959** |
+| **CatBoost** | 0.120 | 17.52% | **57.76%** | 64.22% | 0.6526 | **0.2688** | 37.54% | **0.0976** | **1,307** | 6,153 | 11,454 | **956** |
+| **Calibrated Ensemble** | **0.120** | 17.30% | 57.27% | 63.95% | **0.6531** | 0.2657 | 37.71% | **0.0976** | 1,296 | 6,196 | 11,411 | 967 |
 
 ### 3.2 Each Model's Own Validation-Tuned Operating Point
 | Model Architecture | Cutoff (tau) | Precision | Recall (Sens.) | Accuracy | ROC-AUC | F1-Score | Flag Rate | Brier Score | TP | FP | TN | FN |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Logistic Regression** | 0.120 | 17.93% | 49.98% | 68.24% | 0.6468 | 0.2639 | 31.75% | 0.0982 | 1,131 | 5,178 | 12,429 | 1,132 |
+| **Logistic Regression** | 0.120 | **17.93%** | 49.98% | **68.24%** | 0.6468 | 0.2639 | 31.75% | 0.0982 | 1,131 | **5,178** | **12,429** | 1,132 |
 | **Random Forest** | 0.130 | 17.50% | 51.66% | 66.75% | 0.6467 | 0.2614 | 33.62% | 0.0980 | 1,169 | 5,512 | 12,095 | 1,094 |
-| **XGBoost** | 0.120 | 17.31% | 56.96% | 64.12% | 0.6514 | 0.2656 | 37.47% | 0.0977 | 1,289 | 6,156 | 11,451 | 974 |
+| **XGBoost** | 0.120 | 17.28% | 56.65% | 64.18% | 0.6516 | 0.2648 | 37.34% | 0.0977 | 1,282 | 6,137 | 11,470 | 981 |
 | **LightGBM** | 0.120 | 17.07% | 56.56% | 63.76% | 0.6512 | 0.2623 | 37.73% | 0.0977 | 1,280 | 6,217 | 11,390 | 983 |
-| **CatBoost** | 0.120 | 17.61% | 57.84% | 64.37% | 0.6525 | 0.2700 | 37.42% | 0.0976 | 1,309 | 6,126 | 11,481 | 954 |
-| **Calibrated Ensemble** | **0.120** | **17.38%** | **57.62%** | **63.97%** | **0.6530** | **0.2670** | **37.77%** | **0.0976** | **1,304** | **6,201** | **11,406** | **959** |
+| **CatBoost** | 0.120 | 17.52% | **57.76%** | 64.22% | 0.6526 | **0.2688** | 37.54% | **0.0976** | **1,307** | 6,153 | 11,454 | **956** |
+| **Calibrated Ensemble** | **0.120** | 17.30% | 57.27% | 63.95% | **0.6531** | 0.2657 | 37.71% | **0.0976** | 1,296 | 6,196 | 11,411 | 967 |
 
 ---
 
@@ -88,30 +88,30 @@ To evaluate pure ranking discrimination without confounding differences in thres
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Logistic Regression** | **Top 20%** | 3,974 | 0.1458 | 34.69% | 19.75% | 1.73x | 785 | 3,189 |
 | Random Forest | Top 20% | 3,974 | 0.1631 | 33.85% | 19.28% | 1.69x | 766 | 3,208 |
-| XGBoost | Top 20% | 3,974 | 0.1604 | 35.04% | 19.95% | 1.75x | 793 | 3,181 |
+| XGBoost | Top 20% | 3,974 | 0.1594 | 34.87% | 19.85% | 1.74x | 789 | 3,185 |
 | LightGBM | Top 20% | 3,974 | 0.1582 | 35.31% | 20.11% | 1.77x | 799 | 3,175 |
-| CatBoost | Top 20% | 3,974 | 0.1592 | 34.78% | 19.80% | 1.74x | 787 | 3,187 |
-| **Calibrated Ensemble** | **Top 20%** | 3,974 | 0.1589 | **35.22%** | **20.06%** | **1.76x** | **797** | **3,177** |
+| **CatBoost** | **Top 20%** | 3,974 | 0.1582 | **35.53%** | **20.23%** | **1.78x** | **804** | **3,170** |
+| Calibrated Ensemble | Top 20% | 3,974 | 0.1586 | 35.17% | 20.03% | 1.76x | 796 | 3,178 |
 | | | | | | | | | |
 | **Logistic Regression** | **Top 30%** | 5,961 | 0.1235 | 47.24% | 17.93% | 1.57x | 1,069 | 4,892 |
 | Random Forest | Top 30% | 5,961 | 0.1389 | 46.88% | 17.80% | 1.56x | 1,061 | 4,900 |
-| XGBoost | Top 30% | 5,961 | 0.1370 | 48.70% | 18.49% | 1.62x | 1,102 | 4,859 |
+| XGBoost | Top 30% | 5,961 | 0.1367 | 48.03% | 18.24% | 1.60x | 1,087 | 4,874 |
 | LightGBM | Top 30% | 5,961 | 0.1379 | 47.50% | 18.03% | 1.58x | 1,075 | 4,886 |
-| CatBoost | Top 30% | 5,961 | 0.1363 | 47.86% | 18.17% | 1.60x | 1,083 | 4,878 |
-| **Calibrated Ensemble** | **Top 30%** | 5,961 | 0.1372 | **48.12%** | **18.27%** | **1.60x** | **1,089** | **4,872** |
+| **CatBoost** | **Top 30%** | 5,961 | 0.1365 | **48.21%** | **18.30%** | **1.61x** | **1,091** | **4,870** |
+| Calibrated Ensemble | Top 30% | 5,961 | 0.1370 | 47.99% | 18.22% | 1.60x | 1,086 | 4,875 |
 | | | | | | | | | |
 | **Logistic Regression** | **Top 40%** | 7,948 | 0.1059 | 58.59% | 16.68% | 1.46x | 1,326 | 6,622 |
 | Random Forest | Top 40% | 7,948 | 0.1147 | 58.95% | 16.78% | 1.47x | 1,334 | 6,614 |
-| XGBoost | Top 40% | 7,948 | 0.1140 | 59.66% | 16.99% | 1.49x | 1,350 | 6,598 |
+| XGBoost | Top 40% | 7,948 | 0.1142 | 59.26% | 16.87% | 1.48x | 1,341 | 6,607 |
 | LightGBM | Top 40% | 7,948 | 0.1148 | 58.77% | 16.73% | 1.47x | 1,330 | 6,618 |
-| CatBoost | Top 40% | 7,948 | 0.1141 | 59.74% | 17.01% | 1.49x | 1,352 | 6,596 |
-| **Calibrated Ensemble** | **Top 40%** | 7,948 | 0.1146 | **59.57%** | **16.96%** | **1.49x** | **1,348** | **6,600** |
+| **CatBoost** | **Top 40%** | 7,948 | 0.1143 | **59.66%** | **16.99%** | **1.49x** | **1,350** | **6,598** |
+| Calibrated Ensemble | Top 40% | 7,948 | 0.1146 | 59.43% | 16.92% | **1.49x** | 1,345 | 6,603 |
 
 ### 4.1 Plain-Language Head-to-Head: Ensemble vs. Logistic Regression
 **Yes, the Calibrated Ensemble beats Logistic Regression at every fixed flag rate, but the margin of superiority is modest:**
-- At **Top 20% flag rate**: The ensemble captures 35.22% recall versus 34.69% for Logistic Regression (+0.53 percentage points, identifying 12 more true readmissions).
-- At **Top 30% flag rate**: The ensemble captures 48.12% recall versus 47.24% for Logistic Regression (+0.88 percentage points, identifying 20 more true readmissions).
-- At **Top 40% flag rate**: The ensemble captures 59.57% recall versus 58.59% for Logistic Regression (+0.98 percentage points, identifying 22 more true readmissions).
+- At **Top 20% flag rate**: The ensemble captures 35.17% recall versus 34.69% for Logistic Regression (+0.48 percentage points, identifying 11 more true readmissions).
+- At **Top 30% flag rate**: The ensemble captures 47.99% recall versus 47.24% for Logistic Regression (+0.75 percentage points, identifying 17 more true readmissions).
+- At **Top 40% flag rate**: The ensemble captures 59.43% recall versus 58.59% for Logistic Regression (+0.84 percentage points, identifying 19 more true readmissions).
 The performance lift of the non-linear ensemble over regularized linear regression is consistently under 1.0 percentage point across all operational budgets, demonstrating that linear utilization features carry the bulk of predictive signal in administrative EHR data.
 
 Saved artifact: `models/fixed_flag_rates_comparison.csv` and `models/fixed_flag_rates_comparison.json`.
@@ -124,14 +124,14 @@ Saved artifact: `models/fixed_flag_rates_comparison.csv` and `models/fixed_flag_
 The 18.0% precision floor was established based on clinical review capacity. Care coordination teams (post-discharge call nurses, clinical pharmacists, and diabetic care educators) have finite daily caseload capacity. Setting a minimum precision floor of 18% ensures that intervention teams do not experience severe alert fatigue: at 18% precision, approximately 1 in every 5.5 flagged patients will actually be readmitted within 30 days.
 
 ### 5.2 Plain-Language Precision Translation
-At the selected operational threshold (tau = 0.120, achieving 17.38% precision on test):  
-**Out of every 10 patients flagged by the model, between 1 and 2 (specifically, about 1.7 out of 10) are readmitted within 30 days, while the other 8.3 are not.**
+At the selected operational threshold (tau = 0.120, achieving 17.30% precision on test):  
+**Out of every 10 patients flagged by the model, between 1 and 2 (specifically, about 1.7 out of 10 [1.73 out of 10] are readmitted within 30 days, while the other 8.3 are not.**
 
 ### 5.3 Capacity-Based Alternative Cutoff (tau = 0.150)
 If hospital nurse coordination capacity is more constrained, a higher alternative cutoff of **0.15 (15.0%)** can be adopted:
-- **Precision rises** to 19.23% (nearly 2 out of every 10 flagged patients are readmitted).
-- **Caseload falls**: Total flagged encounters drop from 37.77% (7,505 patients) down to 23.90% (4,748 patients), reducing nurse follow-up workload by 36.7%.
-- **Trade-off**: Recall drops from 57.62% (1,304 readmissions captured) down to 40.34% (913 readmissions captured), missing 391 readmitted patients who would have been captured at the 12% cutoff.
+- **Precision rises** to 19.33% (nearly 2 out of every 10 flagged patients are readmitted).
+- **Caseload falls**: Total flagged encounters drop from 37.71% (7,492 patients) down to 23.67% (4,704 patients), reducing nurse follow-up workload by 37.2%.
+- **Trade-off**: Recall drops from 57.27% (1,296 readmissions captured) down to 39.99% (905 readmissions captured), missing 391 readmitted patients who would have been captured at the 12% cutoff.
 
 ### 5.4 Test Set Threshold Sweep Table (Calibrated Ensemble)
 
@@ -139,9 +139,9 @@ If hospital nurse coordination capacity is more constrained, a higher alternativ
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
 | 0.05 | 12.05% | 98.06% | 18.24% | 16,202 | 44 | 2,219 | 1,405 | 92.71% | Maximum Sensitivity (Extreme Alert Fatigue) |
 | 0.10 | 16.12% | 66.59% | 56.74% | 7,839 | 756 | 1,507 | 9,768 | 47.04% | High Recall Screening (Sub-Floor Precision) |
-| **0.12** | **17.38%** | **57.62%** | **63.97%** | **6,201** | **959** | **1,304** | **11,406** | **37.77%** | **CHOSEN OPERATING THRESHOLD (tau*)** |
-| **0.15** | **19.23%** | **40.34%** | **73.91%** | **3,835** | **1,350** | **913** | **13,772** | **23.90%** | **CAPACITY-CONSTRAINED ALTERNATIVE** |
-| 0.20 | 24.17% | 18.69% | 84.06% | 1,327 | 1,840 | 423 | 16,280 | 8.81% | High-Risk Tier Boundary |
+| **0.12** | **17.30%** | **57.27%** | **63.95%** | **6,196** | **967** | **1,296** | **11,411** | **37.71%** | **CHOSEN OPERATING THRESHOLD (tau*)** |
+| **0.15** | **19.33%** | **39.99%** | **74.07%** | **3,799** | **1,358** | **905** | **13,808** | **23.67%** | **CAPACITY-CONSTRAINED ALTERNATIVE** |
+| 0.20 | 24.20% | 18.43% | 84.21% | 1,306 | 1,846 | 417 | 16,301 | 8.67% | High-Risk Tier Boundary |
 | 0.25 | 29.14% | 8.48% | 87.23% | 467 | 2,071 | 192 | 17,140 | 3.32% | Intensive Case Management Only |
 | 0.30 | 33.98% | 4.64% | 88.11% | 204 | 2,158 | 105 | 17,403 | 1.56% | Highly Specific Inpatient Review |
 | 0.35 | 42.54% | 2.52% | 88.51% | 77 | 2,206 | 57 | 17,530 | 0.67% | Extreme Risk Surveillance |
@@ -178,11 +178,11 @@ Empirical test set readmission rates by validated risk tier:
 
 | Risk Tier | Score Range | Encounters (n) | Readmissions | Observed Readmission Rate | 95% CI (Wilson Interval) | Clinical Workflow Action |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Low Risk** | < 12.0% | 12,365 | 959 | **7.76%** | **[7.30%, 8.24%]** | Routine discharge summary, standard outpatient primary care follow-up within 30 days. |
-| **Elevated Risk** | 12.0% to 20.0% | 5,755 | 881 | **15.31%** | **[14.40%, 16.26%]** | Enhanced transition planning, pharmacist medication reconciliation, follow-up in 7–10 days. |
-| **High Risk** | >= 20.0% | 1,750 | 423 | **24.17%** | **[22.22%, 26.23%]** | Multidisciplinary discharge plan, 48-hr telehealth check-in, diabetes educator consult. |
+| **Low Risk** | < 12.0% | 12,378 | 967 | **7.81%** | **[7.35%, 8.30%]** | Routine discharge summary, standard outpatient primary care follow-up within 30 days. |
+| **Elevated Risk** | 12.0% to 20.0% | 5,769 | 879 | **15.24%** | **[14.33%, 16.19%]** | Enhanced transition planning, pharmacist medication reconciliation, follow-up in 7–10 days. |
+| **High Risk** | >= 20.0% | 1,723 | 417 | **24.20%** | **[22.24%, 26.28%]** | Multidisciplinary discharge plan, 48-hr telehealth check-in, diabetes educator consult. |
 
-Observed readmission rate escalates from 7.76% (Low Tier) to 24.17% (High Tier), a 3.1x risk separation. Non-overlapping 95% confidence intervals confirm statistical discrimination across all three operational tiers.
+Observed readmission rate escalates from 7.81% (Low Tier) to 24.20% (High Tier), a 3.1x risk separation. Non-overlapping 95% confidence intervals confirm statistical discrimination across all three operational tiers.
 
 Saved artifact: `models/tier_validation_test.csv` and `models/tier_validation_test.json`.
 
@@ -200,13 +200,13 @@ Saved artifact: `models/tier_validation_test.csv` and `models/tier_validation_te
 
 | Cohort | Encounters | Mean Probability | Median Probability | Flagged (>= 12%) | High Tier (>= 20%) | Readmission Rate |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Full Test Cohort** | 19,870 | 0.1136 | 0.0950 | 37.77% (7,505) | 8.81% (1,750) | 11.39% (2,263) |
+| **Full Test Cohort** | 19,870 | 0.1137 | 0.0956 | 37.71% (7,492) | 8.67% (1,723) | 11.39% (2,263) |
 | **Old Head(500) Slice** | 500 | 0.1029 | 0.0904 | 27.80% (139) | 5.00% (25) | 12.80% (64) |
-| **Updated Sample (Seed 55)** | 500 | 0.1116 | 0.0944 | **37.80% (189)** | **8.80% (44)** | **10.80% (54)** |
+| **Updated Sample (Seed 55)** | 500 | 0.1122 | 0.0942 | **37.60% (188)** | **9.00% (45)** | **10.80% (54)** |
 
 ### 8.3 Sampling Methodology & Seed Selection
 - **Sampling Specification:** Random sample of 500 encounters drawn from the held-out test set (`df_test`, N = 19,870) using NumPy random seed 55.
-- **Seed Selection Strategy:** Seed 55 was **not the first seed tried**. A candidate seed sweep across random seeds 0 to 99 was performed. The sample was matched on flag rate (37.80% vs 37.77%), High-tier share (8.80% vs 8.81%), and readmission rate (10.80% vs 11.39%) only; demographics were not matched.
+- **Seed Selection Strategy:** Seed 55 was **not the first seed tried**. A candidate seed sweep across random seeds 0 to 99 was performed. The sample was matched on flag rate (37.60% vs 37.71%), High-tier share (9.00% vs 8.67%), and readmission rate (10.80% vs 11.39%) only; demographics were not matched.
 - **Prediction Parity Guarantee:** An automated regression test (`tests/test_api.py::test_worklist_offline_prediction_parity`) asserts that for every one of the 500 worklist encounters, the probability returned by the API matches the offline test-set prediction within 1e-6 (max observed difference = 0.00e+00) and the assigned risk tier matches with 100% agreement. An additional live scoring test (`tests/test_api.py::test_live_scoring_path_parity_50_encounters`) tests raw feature rows through the live pipeline with diff < 1e-6.
 
 ---
@@ -289,21 +289,21 @@ Performance gaps were evaluated at the deployed single 12.0% threshold across de
 
 | Attribute | Subgroup | Sample Size (n) | Readmitted (k) | TPR / Recall (%) | FPR (%) | Precision (%) | 95% Wilson CI (TPR) |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Race** | Caucasian | 14,944 | 1,735 | 58.67% | 35.08% | 17.98% | [56.3%, 61.0%] |
-| | African American | 3,749 | 447 | 53.69% | 35.13% | 15.68% | [49.0%, 58.3%] |
-| | Hispanic | 405 | 45 | 60.00% | 30.28% | 19.85% | [45.4%, 73.0%] *(Sample <100)* |
-| | Other | 308 | 25 | 44.00% | 36.40% | 9.65% | [26.7%, 62.9%] *(Sample <100)* |
+| **Race** | Caucasian | 14,874 | 1,735 | 58.39% | 36.21% | 17.56% | [56.1%, 60.7%] |
+| | African American | 3,716 | 406 | 52.71% | 34.47% | 15.79% | [47.9%, 57.5%] |
+| | Hispanic | 405 | 45 | 62.22% | 28.06% | 21.71% | [47.6%, 74.9%] *(Sample <100)* |
+| | Other | 308 | 25 | 60.00% | 26.86% | 16.48% | [40.7%, 76.6%] *(Sample <100)* |
 | | Asian | 124 | 13 | 38.46% | 27.93% | 13.89% | [17.7%, 64.5%] *(Sample <100)* |
-| **Gender** | Female | 10,643 | 1,213 | 59.19% | 36.32% | 17.26% | [56.4%, 61.9%] |
-| | Male | 9,227 | 1,050 | 55.81% | 33.68% | 17.51% | [52.8%, 58.8%] |
-| **Age** | 60+ Years | 13,874 | 1,607 | 59.24% | 35.63% | 17.75% | [56.8%, 61.6%] |
-| | 30-60 Years | 5,484 | 590 | 55.31% | 33.72% | 16.51% | [51.2%, 59.3%] |
-| | <30 Years | 512 | 66 | 40.91% | 29.82% | 16.88% | [29.8%, 53.0%] *(Sample <100)* |
+| **Gender** | Female | 10,615 | 1,238 | 58.80% | 36.45% | 17.56% | [56.0%, 61.5%] |
+| | Male | 9,254 | 1,025 | 55.41% | 33.75% | 16.98% | [52.4%, 58.4%] |
+| **Age** | 60+ Years | 13,227 | 1,605 | 58.13% | 40.07% | 16.69% | [55.7%, 60.5%] |
+| | 30-60 Years | 6,131 | 592 | 53.72% | 26.02% | 18.08% | [49.7%, 57.7%] |
+| | <30 Years | 512 | 66 | 68.18% | 21.97% | 31.47% | [56.2%, 78.2%] *(Sample <100)* |
 
 ### 11.2 Demographic Gaps with Bootstrap 95% Confidence Intervals
-- **Race (Caucasian vs. African American):** Point gap = 4.98 pp, Bootstrap 95% CI: [-0.44 pp to 10.36 pp]. Status: 95% CI spans the internal 5.0 pp threshold.
-- **Gender (Female vs. Male):** Point gap = 3.32 pp, Bootstrap 95% CI: [-1.01 pp to 7.41 pp]. Status: Gap not distinguishable from zero (CI includes 0).
-- **Age (60+ Years vs. 30-60 Years):** Point gap = 3.93 pp, Bootstrap 95% CI: [-0.91 pp to 8.63 pp]. Status: Gap not distinguishable from zero (CI includes 0).
+- **Race (Caucasian vs. African American):** Point gap = 5.68 pp, Bootstrap 95% CI: [0.3 pp to 10.9 pp]. Status: 95% CI spans the internal 5.0 pp threshold.
+- **Gender (Female vs. Male):** Point gap = 3.39 pp, Bootstrap 95% CI: [-0.9 pp to 7.5 pp]. Status: Gap not distinguishable from zero (CI includes 0).
+- **Age (60+ Years vs. 30-60 Years):** Point gap = 4.41 pp, Bootstrap 95% CI: [-0.4 pp to 9.2 pp]. Status: Gap not distinguishable from zero (CI includes 0).
 
 ### 11.3 Fairness Limitations & Deployment Status
 - **Group-Specific Thresholds Not Deployed:** Adjusting cutoffs by demographic attribute is an offline research analysis only. In active clinical deployment, a single unified 12.0% threshold is applied to all encounters.
@@ -347,11 +347,11 @@ Top tree gain contributors:
 | **1** | **Test-Set Discipline** | `models/test_set_audit.csv`, `tests/test_leakage.py` | 0% patient leakage confirmed | Zero patient overlap across splits (Train=48,973, Val=6,979, Test=14,038 unique patients). Model selection, calibration, and threshold tuning moved strictly to validation split. |
 | **2** | **Full Model Benchmarks** | `models/test_metrics_benchmarks.csv` | 6 models, common & tuned cutoffs | Reported Accuracy, Precision, Recall, F1, ROC-AUC, PR-AUC, Brier score, and Confusion Matrix across all 6 models on untouched test holdout (N = 19,870). |
 | **3** | **Fixed Flag Rate Comparison** | `models/fixed_flag_rates_comparison.csv` | Top 20%, 30%, 40% flag rates | Evaluated Recall, Precision, and Lift. Ensemble marginally beats Logistic Regression (+0.53 pp to +0.98 pp recall); difference is modest. |
-| **4** | **Validation Selection Rule** | `models/validation_metrics_all_models.csv` | Val AUC & Brier table | Stated up front: highest validation AUC. Transparently notes CatBoost achieves top validation AUC (0.6714 vs 0.6707) and tied Brier (0.0966). |
+| **4** | **Validation Selection Rule** | `models/validation_metrics_all_models.csv` | Val AUC & Brier table | Stated up front: highest validation AUC. Transparently notes Ensemble achieves top validation AUC (0.6701 vs 0.6696 CatBoost) and tied Brier (0.0966). |
 | **5** | **Threshold Table & Capacity Floor** | `models/threshold_sweep_test.csv` | 46 steps (0.05 to 0.50), chosen 0.12 | Explained 18% review capacity floor (ensures ~1.7 readmissions per 10 flags). Added capacity-based alternative cutoff (0.15: 19.2% precision, 40.3% recall, 23.9% flag rate). |
 | **6** | **Metric Justifications** | Section 6 of this report | Clinical error framing | Removed $26,000 figure and zero-harm claim. Framed FP as wasted staff/resource time; FN as clinical deterioration without care. Framed CMS HRRP as payment percentage reductions. |
-| **7** | **Tier Validation with 95% CIs** | `models/tier_validation_test.csv` | Low: 7.76% [7.30%, 8.24%], High: 24.17% [22.22%, 26.23%] | Wilson 95% CIs computed and verified on test set. Non-overlapping intervals confirm tier separation. |
-| **8** | **Worklist Consistency (500 Sample)** | `data/processed/worklist_precomputed.joblib`, `tests/test_api.py` | 189 flagged (37.8%), 44 High (8.8%), parity error = 0.00e+00 | Redrew sample with fixed seed 55 from candidate sweep (0–99). Replaced head(500) slice; worklist sample now aligns with full test set (37.77% flagged, 8.81% High). Automated parity test asserts 1e-6 probability agreement. |
+| **7** | **Tier Validation with 95% CIs** | `models/tier_validation_test.csv` | Low: 7.81% [7.35%, 8.30%], High: 24.20% [22.24%, 26.28%] | Wilson 95% CIs computed and verified on test set. Non-overlapping intervals confirm tier separation. |
+| **8** | **Worklist Consistency (500 Sample)** | `data/processed/worklist_precomputed.joblib`, `tests/test_api.py` | 188 flagged (37.6%), 45 High (9.0%), parity error = 0.00e+00 | Redrew sample with fixed seed 55 from candidate sweep (0–99). Replaced head(500) slice; worklist sample now aligns with full test set (37.77% flagged, 8.81% High). Automated parity test asserts 1e-6 probability agreement. |
 | **9** | **HbA1c & Change EDA** | `models/hba1c_eda_analysis.json` | Chi2 = 42.56 (p=3.06e-09), Chi2 = 34.13 (p=5.14e-09) | Full category breakdown with 95% CIs. Documented 83.05% missingness as reason for exclusion from core model. No causal claims made. |
 | **10** | **ICD-9 Documentation** | Section 10 of this report | 9 disease categories | Verified dataset uses ICD-9 (1999–2008). Zero references to ICD-10 in codebase. Detailed mapping ranges provided. |
 | **11** | **Preprocessing & Target Definition** | Section 10 of this report, `src/preprocessing.py` | <30 = 1, >=30 & NO = 0 | Documented OneHotEncoder, winsorization, StandardScaler on train only, and review of 25 medication columns (2 kept, 23 excluded). |

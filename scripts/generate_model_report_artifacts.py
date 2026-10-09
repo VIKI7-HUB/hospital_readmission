@@ -176,17 +176,24 @@ def main():
         json.dump(thresh_records, f, indent=4)
     print("[+] Saved threshold_sweep_test.csv and .json")
 
-    # 4. Generate ROC Curve Chart for All Models
-    plt.figure(figsize=(8.5, 6.5), dpi=300)
-    plt.style.use('seaborn-v0_8-whitegrid' if 'seaborn-v0_8-whitegrid' in plt.style.available else 'default')
+    import shutil
+
+    # 4. Generate ROC Curve Chart for All Models (Dark Navy + Coral Theme)
+    fig, ax = plt.subplots(figsize=(8.5, 6.5), dpi=300)
+    fig.patch.set_facecolor('#111727')
+    ax.set_facecolor('#1E293C')
+    ax.grid(True, color='#263348', linestyle='--', linewidth=0.7, alpha=0.8)
+    for spine in ax.spines.values():
+        spine.set_color('#334155')
+    ax.tick_params(colors='#94A3B8', which='both')
 
     colors = {
-        'Logistic Regression': '#64748b',
-        'Random Forest': '#0284c7',
-        'XGBoost': '#d97706',
-        'LightGBM': '#16a34a',
-        'CatBoost': '#9333ea',
-        'Calibrated Ensemble': '#0d9488'
+        'Logistic Regression': '#94A3B8',
+        'Random Forest': '#38BDF8',
+        'XGBoost': '#F5B94A',
+        'LightGBM': '#34D399',
+        'CatBoost': '#818CF8',
+        'Calibrated Ensemble': '#FF7471'
     }
 
     linestyles = {
@@ -202,54 +209,72 @@ def main():
         p_te = test_probs[name]
         fpr, tpr, _ = roc_curve(y_test, p_te)
         auc_val = roc_auc_score(y_test, p_te)
-        lw = 2.5 if name == 'Calibrated Ensemble' else 1.5
-        plt.plot(fpr, tpr, label=f"{name} (AUC = {auc_val:.4f})",
-                 color=colors.get(name, '#000000'),
-                 linestyle=linestyles.get(name, '-'),
-                 linewidth=lw)
+        lw = 2.8 if name == 'Calibrated Ensemble' else 1.6
+        ax.plot(fpr, tpr, label=f"{name} (AUC = {auc_val:.4f})",
+                color=colors.get(name, '#FFFFFF'),
+                linestyle=linestyles.get(name, '-'),
+                linewidth=lw)
 
-    plt.plot([0, 1], [0, 1], 'k--', alpha=0.5, label='Chance Baseline (AUC = 0.5000)')
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
-    plt.xlabel('False Positive Rate (1 - Specificity)', fontsize=11, fontweight='bold', labelpad=8)
-    plt.ylabel('True Positive Rate (Recall / Sensitivity)', fontsize=11, fontweight='bold', labelpad=8)
-    plt.title('Receiver Operating Characteristic (ROC) — All Models\nEvaluated on Held-Out Test Split (N = 19,870)',
-              fontsize=13, fontweight='bold', pad=12)
-    plt.legend(loc="lower right", frameon=True, facecolor='white', framealpha=0.9, fontsize=9.5)
+    ax.plot([0, 1], [0, 1], linestyle='--', color='#64748B', alpha=0.7, label='Chance Baseline (AUC = 0.5000)')
+    ax.set_xlim([0.0, 1.0])
+    ax.set_ylim([0.0, 1.05])
+    ax.set_xlabel('False Positive Rate (1 - Specificity)', fontsize=11, fontweight='bold', labelpad=8, color='#E5EAF3')
+    ax.set_ylabel('True Positive Rate (Recall / Sensitivity)', fontsize=11, fontweight='bold', labelpad=8, color='#E5EAF3')
+    ax.set_title('Receiver Operating Characteristic (ROC) — All Models\nEvaluated on Held-Out Test Split (N = 19,870)',
+                 fontsize=13, fontweight='bold', pad=12, color='#E5EAF3')
+    leg = ax.legend(loc="lower right", frameon=True, facecolor='#1E293C', edgecolor='#334155', fontsize=9.5)
+    for text in leg.get_texts():
+        text.set_color('#E5EAF3')
     plt.tight_layout()
     roc_chart_path = os.path.join(MODELS_DIR, "roc_curve_all_models.png")
-    plt.savefig(roc_chart_path)
+    plt.savefig(roc_chart_path, facecolor=fig.get_facecolor(), edgecolor='none')
     plt.close()
-    print(f"[+] Saved ROC curve chart to {roc_chart_path}")
+    print(f"[+] Saved dark-theme ROC curve chart to {roc_chart_path}")
 
-    # 5. Generate Precision-Recall Curve Chart for All Models
-    plt.figure(figsize=(8.5, 6.5), dpi=300)
+    # Copy to frontend public folder
+    pub_models_dir = os.path.join(BASE_DIR, "frontend", "public", "models")
+    if os.path.exists(pub_models_dir):
+        shutil.copy(roc_chart_path, os.path.join(pub_models_dir, "roc_curve_all_models.png"))
+
+    # 5. Generate Precision-Recall Curve Chart for All Models (Dark Navy + Coral Theme)
+    fig, ax = plt.subplots(figsize=(8.5, 6.5), dpi=300)
+    fig.patch.set_facecolor('#111727')
+    ax.set_facecolor('#1E293C')
+    ax.grid(True, color='#263348', linestyle='--', linewidth=0.7, alpha=0.8)
+    for spine in ax.spines.values():
+        spine.set_color('#334155')
+    ax.tick_params(colors='#94A3B8', which='both')
     prevalence = float((y_test == 1).sum() / len(y_test))
 
     for name in model_names:
         p_te = test_probs[name]
         pr_prec, pr_rec, _ = precision_recall_curve(y_test, p_te)
         pr_auc_val = average_precision_score(y_test, p_te)
-        lw = 2.5 if name == 'Calibrated Ensemble' else 1.5
-        plt.plot(pr_rec, pr_prec, label=f"{name} (PR-AUC = {pr_auc_val:.4f})",
-                 color=colors.get(name, '#000000'),
-                 linestyle=linestyles.get(name, '-'),
-                 linewidth=lw)
+        lw = 2.8 if name == 'Calibrated Ensemble' else 1.6
+        ax.plot(pr_rec, pr_prec, label=f"{name} (PR-AUC = {pr_auc_val:.4f})",
+                color=colors.get(name, '#FFFFFF'),
+                linestyle=linestyles.get(name, '-'),
+                linewidth=lw)
 
-    plt.plot([0, 1], [prevalence, prevalence], 'k--', alpha=0.5,
-             label=f'Prevalence Baseline ({prevalence*100:.1f}%)')
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 0.6])
-    plt.xlabel('Recall (Sensitivity)', fontsize=11, fontweight='bold', labelpad=8)
-    plt.ylabel('Precision (Positive Predictive Value)', fontsize=11, fontweight='bold', labelpad=8)
-    plt.title('Precision-Recall (PR) Curves — All Models\nEvaluated on Held-Out Test Split (N = 19,870)',
-              fontsize=13, fontweight='bold', pad=12)
-    plt.legend(loc="upper right", frameon=True, facecolor='white', framealpha=0.9, fontsize=9.5)
+    ax.plot([0, 1], [prevalence, prevalence], linestyle='--', color='#64748B', alpha=0.7,
+            label=f'Prevalence Baseline ({prevalence*100:.1f}%)')
+    ax.set_xlim([0.0, 1.0])
+    ax.set_ylim([0.0, 0.6])
+    ax.set_xlabel('Recall (Sensitivity)', fontsize=11, fontweight='bold', labelpad=8, color='#E5EAF3')
+    ax.set_ylabel('Precision (Positive Predictive Value)', fontsize=11, fontweight='bold', labelpad=8, color='#E5EAF3')
+    ax.set_title('Precision-Recall (PR) Curves — All Models\nEvaluated on Held-Out Test Split (N = 19,870)',
+                 fontsize=13, fontweight='bold', pad=12, color='#E5EAF3')
+    leg = ax.legend(loc="upper right", frameon=True, facecolor='#1E293C', edgecolor='#334155', fontsize=9.5)
+    for text in leg.get_texts():
+        text.set_color('#E5EAF3')
     plt.tight_layout()
     pr_chart_path = os.path.join(MODELS_DIR, "pr_curve_all_models.png")
-    plt.savefig(pr_chart_path)
+    plt.savefig(pr_chart_path, facecolor=fig.get_facecolor(), edgecolor='none')
     plt.close()
-    print(f"[+] Saved Precision-Recall curve chart to {pr_chart_path}")
+    print(f"[+] Saved dark-theme Precision-Recall curve chart to {pr_chart_path}")
+
+    if os.path.exists(pub_models_dir):
+        shutil.copy(pr_chart_path, os.path.join(pub_models_dir, "pr_curve_all_models.png"))
 
     # 6. Test-Set Discipline Audit Table
     audit_table = [
@@ -265,7 +290,7 @@ def main():
             "what_was_chosen": "Calibrated Soft-Voting Ensemble (XGBoost 35% + LightGBM 35% + CatBoost 30% with Platt scaling).",
             "which_split_used": "Validation split (N=9,935). Evaluated on validation Brier score (0.0966, tied top calibration) and validation AUC (0.6707) and variance reduction across tree boosting paradigms.",
             "was_it_clean": "CLEAN (Remediated)",
-            "remediation_status": "Remediated. Previous documentation cited test AUC (0.6640) post-hoc. Selection is now formally grounded on validation split Brier calibration and stability."
+            "remediation_status": "Remediated. Previous documentation cited post-hoc test AUC without split discipline. Selection is now formally grounded on validation split Brier calibration and stability."
         },
         {
             "decision_point": "3. Calibration",

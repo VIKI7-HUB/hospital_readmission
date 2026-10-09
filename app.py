@@ -707,11 +707,11 @@ if artifacts is not None:
         </div>
         <div class="status-card-row">
             <span class="status-row-label">Sensitivity (Recall)</span>
-            <span class="status-row-value" style="color: #2563EB;">57.62%</span>
+            <span class="status-row-value" style="color: #2563EB;">57.27%</span>
         </div>
         <div class="status-card-row">
             <span class="status-row-label">AUC-ROC</span>
-            <span class="status-row-value">0.6530</span>
+            <span class="status-row-value">0.6531</span>
         </div>
         <div class="status-card-row">
             <span class="status-row-label">Brier Score</span>

@@ -57,11 +57,11 @@ def main():
     print(f"  • Total cohort size: {n_total} (UI displays 500)")
     assert n_total == 500, "Cohort size mismatch"
 
-    print(f"  • Flagged encounters: {n_flagged} ({flag_rate*100:.1f}%) (UI displays 189 / 37.8%)")
-    assert n_flagged == 189, "Flagged count mismatch"
+    print(f"  • Flagged encounters: {n_flagged} ({flag_rate*100:.1f}%) (UI displays 188 / 37.6%)")
+    assert n_flagged == 188, "Flagged count mismatch"
 
-    print(f"  • High-tier count: {n_high} ({high_rate*100:.1f}%) (UI displays 44 / 8.8%)")
-    assert n_high == 44, "High risk count mismatch"
+    print(f"  • High-tier count: {n_high} ({high_rate*100:.1f}%) (UI displays 45 / 9.0%)")
+    assert n_high == 45, "High risk count mismatch"
 
     print(f"  • Polypharmacy count (>=10 distinct meds): {n_poly} ({poly_rate*100:.1f}%) (UI displays 395 / 79.0%)")
     assert n_poly == 395, "Polypharmacy count mismatch"
@@ -128,10 +128,10 @@ def main():
     test_models = gov["models_common_cutoff"]
     assert len(test_models) == 6, "Expected 6 candidate models in benchmark"
     ensemble_test = next(m for m in test_models if "Ensemble" in m["Model"])
-    print(f"  • Calibrated Ensemble (12% cutoff): AUC = {ensemble_test['AUC-ROC']:.3f}, Recall = {ensemble_test['Recall']*100:.2f}%, Precision = {ensemble_test['Precision']*100:.2f}%, Brier = {ensemble_test['Brier Score']:.4f}")
-    assert round(ensemble_test['AUC-ROC'], 3) == 0.653, "Ensemble test AUC mismatch"
-    assert round(ensemble_test['Recall'] * 100, 2) == 57.62, "Ensemble test recall mismatch"
-    assert round(ensemble_test['Precision'] * 100, 2) == 17.38, "Ensemble test precision mismatch"
+    print(f"  • Calibrated Ensemble (12% cutoff): AUC = {ensemble_test['AUC-ROC']:.4f}, Recall = {ensemble_test['Recall (Sensitivity)']*100:.2f}%, Precision = {ensemble_test['Precision']*100:.2f}%, Brier = {ensemble_test['Brier Score']:.4f}")
+    assert round(ensemble_test['AUC-ROC'], 4) == 0.6531, "Ensemble test AUC mismatch"
+    assert round(ensemble_test['Recall (Sensitivity)'] * 100, 2) == 57.27, "Ensemble test recall mismatch"
+    assert round(ensemble_test['Precision'] * 100, 2) == 17.30, "Ensemble test precision mismatch"
     assert round(ensemble_test['Brier Score'], 4) == 0.0976, "Ensemble test Brier mismatch"
 
     # Fixed Flag Rates
@@ -145,7 +145,7 @@ def main():
     print("\n[CHECK 5] Auditing Threshold Sweep (Slider Driven)...")
     sweep = gov["threshold_tradeoff"]
     print(f"  • Threshold sweep steps: {len(sweep)} (range {sweep[0]['cutoff']} to {sweep[-1]['cutoff']})")
-    assert len(sweep) == 31, f"Expected 31 sweep steps, got {len(sweep)}"
+    assert len(sweep) == 46, f"Expected 46 sweep steps, got {len(sweep)}"
     step_12 = next(s for s in sweep if round(s["cutoff"], 2) == 0.12)
     print(f"  • Step 0.12: TP={step_12['tp']}, FP={step_12['fp']}, TN={step_12['tn']}, FN={step_12['fn']}")
     assert step_12["tp"] + step_12["fn"] == 2263, "Total positive cases in test holdout must be 2,263"

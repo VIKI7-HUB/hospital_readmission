@@ -195,28 +195,28 @@ def train_and_benchmark_models():
     imbalance_ratio = float((y_train == 0).sum() / (y_train == 1).sum())
     print(f"[*] Training class imbalance ratio (0:1) = {imbalance_ratio:.2f}")
     
-    # 1. Instantiate Candidate Estimators
+    # 1. Instantiate Candidate Estimators (Deterministic Single-Thread Settings)
     candidate_estimators = {
         'Logistic Regression': LogisticRegression(
             C=0.5, max_iter=1000, class_weight='balanced', random_state=42
         ),
         'Random Forest': RandomForestClassifier(
             n_estimators=120, max_depth=10, class_weight='balanced_subsample',
-            random_state=42, n_jobs=-1
+            random_state=42, n_jobs=1
         ),
         'XGBoost': XGBClassifier(
             n_estimators=140, max_depth=5, learning_rate=0.05,
             subsample=0.8, colsample_bytree=0.8, scale_pos_weight=imbalance_ratio,
-            eval_metric='logloss', random_state=42, n_jobs=-1, tree_method='hist'
+            eval_metric='logloss', random_state=42, n_jobs=1, tree_method='hist'
         ),
         'LightGBM': LGBMClassifier(
             n_estimators=160, num_leaves=31, max_depth=6, learning_rate=0.04,
             subsample=0.85, colsample_bytree=0.75, scale_pos_weight=imbalance_ratio,
-            random_state=42, n_jobs=-1, verbose=-1
+            random_state=42, n_jobs=1, deterministic=True, verbose=-1
         ),
         'CatBoost': CatBoostClassifier(
             iterations=250, depth=5, learning_rate=0.05, l2_leaf_reg=4.0,
-            scale_pos_weight=imbalance_ratio, random_seed=42, thread_count=-1, verbose=False
+            scale_pos_weight=imbalance_ratio, random_seed=42, thread_count=1, verbose=False
         )
     }
     
@@ -252,13 +252,13 @@ def train_and_benchmark_models():
         'LightGBM': calibrated_models['LightGBM'],
         'CatBoost': calibrated_models['CatBoost']
     }
-    t_ens = time.time()
     ensemble = SoftVotingEnsemble(top_boosters, weights=[0.35, 0.35, 0.30])
-    ens_dur = time.time() - t_ens
     calibrated_models['Calibrated Ensemble'] = ensemble
-    training_runtimes['Calibrated Ensemble'] = round(ens_dur, 2)
+    # Ensemble fit time is the sum of its component models' fit times
+    ens_sum_time = round(training_runtimes['XGBoost'] + training_runtimes['LightGBM'] + training_runtimes['CatBoost'], 2)
+    training_runtimes['Calibrated Ensemble'] = ens_sum_time
     val_probs['Calibrated Ensemble'] = ensemble.predict_proba(X_val)[:, 1]
-    print("[+] Soft-Voting Calibrated Ensemble created from top boosters.")
+    print(f"[+] Soft-Voting Calibrated Ensemble created from top boosters (fit time sum: {ens_sum_time:.2f}s).")
     
     # 3. Unified Threshold Optimization on Validation Set
     print("\n=== Threshold Optimization on Validation Cohort (N=9,935) ===")
@@ -381,7 +381,7 @@ def train_and_benchmark_models():
         "selected_unified_threshold": final_selected_threshold,
         "threshold_justification": final_threshold_rationale,
         "model_selection_rationale": (
-            "Differences in AUC between candidates are modest (0.6467 to 0.6530 across single learners vs. ensemble). "
+            "Differences in AUC between candidates are modest (0.6467 to 0.6531 across single learners vs. ensemble). "
             "The soft-voting ensemble was chosen mainly for calibration (Brier score 0.0976) and variance reduction across validation splits "
             "rather than standalone discriminatory superiority."
         )

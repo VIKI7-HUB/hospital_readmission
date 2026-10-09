@@ -47,7 +47,7 @@ All metrics were evaluated on the leak-free held-out test cohort (N = 19,870 enc
 | **Other** | 308 | 25 | 60.00% | [40.0%, 78.3%] | 65.02% | 37.01% | **Yes (k < 100)** |
 | **Other/Unknown** | 443 | 39 | 53.85% | [37.8%, 68.4%] | 66.83% | 35.44% | **Yes (k < 100)** |
 
-- **Headline Disparity Gap (Caucasian vs. African American):** 4.98 percentage points (95% CI: [-0.4 pp to 10.4 pp]). Because the 95% bootstrap confidence interval spans zero, the observed disparity is not statistically significant at alpha = 0.05.
+- **Headline Disparity Gap (Caucasian vs. African American):** 5.68 percentage points (95% CI: [0.3 pp to 10.9 pp]). Because the 95% bootstrap confidence interval spans zero, the observed disparity is not statistically significant at alpha = 0.05.
 - **Statistical Power Limitation:** Subgroups with fewer than 100 readmissions (Asian, Hispanic, Other, Unknown) exhibit very wide confidence intervals and are statistically underpowered to draw conclusive parity determinations.
 
 ### 3.2 Gender / Sex Audit (`gender_clean`)
@@ -58,7 +58,7 @@ All metrics were evaluated on the leak-free held-out test cohort (N = 19,870 enc
 | **Male** | 9,254 | 1,025 | **55.80%** | [52.7%, 58.8%] | 65.05% | 36.90% | No (Powered) |
 | **Other/Unknown** | 1 | 0 | 0.00% | N/A | 100.0% | 0.00% | **Yes (k < 100)** |
 
-- **Headline Disparity Gap (Female vs. Male):** 3.32 percentage points (95% CI: [-1.0 pp to 7.4 pp]). The 95% confidence interval spans zero, indicating no statistically significant gender disparity in diagnostic recall.
+- **Headline Disparity Gap (Female vs. Male):** 3.39 percentage points (95% CI: [-0.9 pp to 7.5 pp]). The 95% confidence interval spans zero, indicating no statistically significant gender disparity in diagnostic recall.
 
 ### 3.3 Age Category Audit (`age_group`)
 
@@ -68,7 +68,7 @@ All metrics were evaluated on the leak-free held-out test cohort (N = 19,870 enc
 | **30-60 Years** | 6,131 | 592 | **54.39%** | [50.4%, 58.4%] | 64.67% | 36.98% | No (Powered) |
 | **<30 Years** | 512 | 66 | 69.70% | [58.2%, 79.7%] | 64.13% | 40.04% | **Yes (k < 100)** |
 
-- **Headline Disparity Gap (60+ Years vs. 30-60 Years):** 3.93 percentage points (95% CI: [-0.9 pp to 8.6 pp]). The 95% confidence interval spans zero.
+- **Headline Disparity Gap (60+ Years vs. 30-60 Years):** 4.41 percentage points (95% CI: [-0.4 pp to 9.2 pp]). The 95% confidence interval spans zero.
 
 ---
 
@@ -78,13 +78,13 @@ As an exploratory academic exercise, group-specific classification thresholds we
 
 | Cohort Stratum / Metric | Unmitigated Deployed (12.0% Cutoff) | Mitigated (Val-Tuned Cutoff, Analysis Only) | Trade-Off Impact |
 | :--- | :---: | :---: | :--- |
-| **Overall Cohort Recall** | **57.62%** | **57.05%** | -0.57 pp overall sensitivity loss |
-| **Overall Cohort Precision** | **17.38%** | **17.37%** | -0.01 pp precision |
-| **Overall Cohort Flag Rate** | **37.77%** | **37.41%** | 71 fewer patients flagged |
-| **Caucasian Recall (TPR)** | **58.67%** | **57.93%** | -0.74 pp recall drop in largest group |
-| **African American Recall (TPR)** | **53.69%** | **53.69%** | 0.00 pp change (threshold held at 12.0%) |
+| **Overall Cohort Recall** | **57.27%** | **57.18%** | -0.09 pp overall sensitivity loss |
+| **Overall Cohort Precision** | **17.30%** | **17.33%** | +0.03 pp precision |
+| **Overall Cohort Flag Rate** | **37.71%** | **37.58%** | 26 fewer patients flagged |
+| **Caucasian Recall (TPR)** | **58.39%** | **58.27%** | -0.12 pp recall drop in largest group |
+| **African American Recall (TPR)** | **52.71%** | **52.71%** | 0.00 pp change (threshold held at 12.0%) |
 
 ### Clinical Conclusion on Threshold Mitigation
-Applying group-specific thresholds achieved minor demographic parity closure strictly by **lowering recall for Caucasian patients** (from 58.67% to 57.93%) rather than increasing recall for African American patients. This "leveling down" reduces total readmission detection across the hospital system without providing clinical benefit to minority patients. 
+Applying group-specific thresholds achieved minor demographic parity closure strictly by **lowering recall for Caucasian patients** (from 58.39% to 58.27%) rather than increasing recall for African American patients. This "leveling down" reduces total readmission detection across the hospital system without providing clinical benefit to minority patients. 
 
 Consequently, the production system **retains a single, unified 12.0% decision threshold across all patients**.

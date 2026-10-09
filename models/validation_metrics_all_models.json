@@ -13,9 +13,9 @@
     },
     {
         "Model": "XGBoost",
-        "Validation AUC-ROC": 0.6694,
-        "Validation PR-AUC": 0.219,
-        "Validation Brier Score": 0.0966
+        "Validation AUC-ROC": 0.6687,
+        "Validation PR-AUC": 0.2153,
+        "Validation Brier Score": 0.0967
     },
     {
         "Model": "LightGBM",
@@ -25,14 +25,14 @@
     },
     {
         "Model": "CatBoost",
-        "Validation AUC-ROC": 0.6714,
-        "Validation PR-AUC": 0.2197,
-        "Validation Brier Score": 0.0966
+        "Validation AUC-ROC": 0.6696,
+        "Validation PR-AUC": 0.2183,
+        "Validation Brier Score": 0.0967
     },
     {
         "Model": "Calibrated Ensemble",
-        "Validation AUC-ROC": 0.6707,
-        "Validation PR-AUC": 0.2194,
+        "Validation AUC-ROC": 0.6701,
+        "Validation PR-AUC": 0.2178,
         "Validation Brier Score": 0.0966
     }
 ]

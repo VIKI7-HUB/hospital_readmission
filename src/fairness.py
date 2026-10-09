@@ -291,13 +291,13 @@ def run_comprehensive_fairness_audit():
     imbalance_ratio = float((y_train == 0).sum() / (y_train == 1).sum())
     
     # A) Baseline Unweighted XGBoost
-    m_base = XGBClassifier(n_estimators=100, max_depth=5, learning_rate=0.05, random_state=42, n_jobs=-1, eval_metric='logloss')
+    m_base = XGBClassifier(n_estimators=100, max_depth=5, learning_rate=0.05, random_state=42, n_jobs=1, eval_metric='logloss')
     m_base.fit(X_train, y_train)
     p_val_b = m_base.predict_proba(X_val)[:, 1]
     p_test_b = m_base.predict_proba(X_test)[:, 1]
     
     # B) Class-Weighted XGBoost
-    m_weight = XGBClassifier(n_estimators=100, max_depth=5, learning_rate=0.05, scale_pos_weight=imbalance_ratio, random_state=42, n_jobs=-1, eval_metric='logloss')
+    m_weight = XGBClassifier(n_estimators=100, max_depth=5, learning_rate=0.05, scale_pos_weight=imbalance_ratio, random_state=42, n_jobs=1, eval_metric='logloss')
     m_weight.fit(X_train, y_train)
     p_val_w = m_weight.predict_proba(X_val)[:, 1]
     p_test_w = m_weight.predict_proba(X_test)[:, 1]
@@ -305,7 +305,7 @@ def run_comprehensive_fairness_audit():
     # C) Downsampled Majority Class on Training Data Only
     rus = RandomUnderSampler(random_state=42)
     X_tr_down, y_tr_down = rus.fit_resample(X_train, y_train)
-    m_down = XGBClassifier(n_estimators=100, max_depth=5, learning_rate=0.05, random_state=42, n_jobs=-1, eval_metric='logloss')
+    m_down = XGBClassifier(n_estimators=100, max_depth=5, learning_rate=0.05, random_state=42, n_jobs=1, eval_metric='logloss')
     m_down.fit(X_tr_down, y_tr_down)
     p_val_d = m_down.predict_proba(X_val)[:, 1]
     p_test_d = m_down.predict_proba(X_test)[:, 1]

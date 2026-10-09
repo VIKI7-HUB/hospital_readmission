@@ -2,31 +2,31 @@
     {
         "Risk Tier": "Low",
         "Score Range": "< 12%",
-        "Encounters (n)": 12365,
-        "Readmissions": 959,
-        "Observed Rate (%)": 7.76,
-        "CI 95 Lower (%)": 7.3,
-        "CI 95 Upper (%)": 8.24,
-        "CI 95 String": "[7.30%, 8.24%]"
+        "Encounters (n)": 12378,
+        "Readmissions": 967,
+        "Observed Rate (%)": 7.81,
+        "CI 95 Lower (%)": 7.35,
+        "CI 95 Upper (%)": 8.3,
+        "CI 95 String": "[7.35%, 8.30%]"
     },
     {
         "Risk Tier": "Elevated",
         "Score Range": "12% to 20%",
-        "Encounters (n)": 5755,
-        "Readmissions": 881,
-        "Observed Rate (%)": 15.31,
-        "CI 95 Lower (%)": 14.4,
-        "CI 95 Upper (%)": 16.26,
-        "CI 95 String": "[14.40%, 16.26%]"
+        "Encounters (n)": 5769,
+        "Readmissions": 879,
+        "Observed Rate (%)": 15.24,
+        "CI 95 Lower (%)": 14.33,
+        "CI 95 Upper (%)": 16.19,
+        "CI 95 String": "[14.33%, 16.19%]"
     },
     {
         "Risk Tier": "High",
         "Score Range": ">= 20%",
-        "Encounters (n)": 1750,
-        "Readmissions": 423,
-        "Observed Rate (%)": 24.17,
-        "CI 95 Lower (%)": 22.22,
-        "CI 95 Upper (%)": 26.23,
-        "CI 95 String": "[22.22%, 26.23%]"
+        "Encounters (n)": 1723,
+        "Readmissions": 417,
+        "Observed Rate (%)": 24.2,
+        "CI 95 Lower (%)": 22.24,
+        "CI 95 Upper (%)": 26.28,
+        "CI 95 String": "[22.24%, 26.28%]"
     }
 ]

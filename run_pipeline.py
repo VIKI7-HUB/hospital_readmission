@@ -53,6 +53,21 @@ def main():
     run_comprehensive_fairness_audit()
     print("[+] Generated: fairness_governance/mitigation_improvement_summary.json & subgroup CSV audits")
     
+    # 6. Model Report & Supplementary Artifacts
+    print("\n--- STEP 6: MODEL REPORT CHARTS & BENCHMARK ARTIFACTS ---")
+    import scripts.generate_model_report_artifacts as gmra
+    gmra.main()
+    
+    # 7. Validation Metrics, Fixed Flag Rates, & Tier Tables
+    print("\n--- STEP 7: VALIDATION METRICS, FIXED FLAG RATES & TIERS ---")
+    import scripts.generate_part1_and_part2_artifacts as gp12
+    gp12.main()
+    
+    # 8. Compile Unified Governance Artifacts
+    print("\n--- STEP 8: UNIFIED GOVERNANCE ARTIFACTS ASSEMBLY ---")
+    import scripts.compile_governance_full_artifacts as cgfa
+    cgfa.main()
+    
     print("\n==========================================================================")
     print("   ALL PIPELINE STAGES COMPLETED & ARTIFACTS VERIFIED!                   ")
     print("==========================================================================")

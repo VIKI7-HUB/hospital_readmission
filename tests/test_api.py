@@ -41,10 +41,10 @@ def test_worklist_default(client):
     assert len(data["results"]) == 25
     summary = data["summary"]
     assert summary["cohort_size"] == 500
-    assert summary["flagged"] == 189
-    assert summary["high_risk"] == 47
-    assert summary["elevated_risk"] == 142
-    assert summary["low_risk"] == 311
+    assert summary["flagged"] == 188
+    assert summary["high_risk"] == 45
+    assert summary["elevated_risk"] == 143
+    assert summary["low_risk"] == 312
     assert summary["polypharmacy"] == 395
     assert summary["readmissions"] == 54
 
@@ -53,7 +53,7 @@ def test_worklist_filters_and_pagination(client):
     res_flagged = client.get("/api/worklist", params={"tier": "flagged", "page_size": 200})
     assert res_flagged.status_code == 200
     data_flagged = res_flagged.json()
-    assert data_flagged["total"] == 189
+    assert data_flagged["total"] == 188
     for row in data_flagged["results"]:
         assert row["prob"] >= 0.12
 
@@ -61,7 +61,7 @@ def test_worklist_filters_and_pagination(client):
     res_high = client.get("/api/worklist", params={"tier": "high", "page_size": 100})
     assert res_high.status_code == 200
     data_high = res_high.json()
-    assert data_high["total"] == 47
+    assert data_high["total"] == 45
     for row in data_high["results"]:
         assert row["prob"] >= 0.20
 
@@ -69,7 +69,7 @@ def test_worklist_filters_and_pagination(client):
     res_elev = client.get("/api/worklist", params={"tier": "elevated", "page_size": 200})
     assert res_elev.status_code == 200
     data_elev = res_elev.json()
-    assert data_elev["total"] == 142
+    assert data_elev["total"] == 143
     for row in data_elev["results"]:
         assert 0.12 <= row["prob"] < 0.20
 
@@ -77,7 +77,7 @@ def test_worklist_filters_and_pagination(client):
     res_low = client.get("/api/worklist", params={"tier": "low", "page_size": 400})
     assert res_low.status_code == 200
     data_low = res_low.json()
-    assert data_low["total"] == 311
+    assert data_low["total"] == 312
     for row in data_low["results"]:
         assert row["prob"] < 0.12
 
