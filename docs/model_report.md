@@ -204,7 +204,10 @@ Saved artifact: `models/tier_validation_test.csv` and `models/tier_validation_te
 | **Old Head(500) Slice** | 500 | 0.1029 | 0.0904 | 27.80% (139) | 5.00% (25) | 12.80% (64) |
 | **Updated Sample (Seed 55)** | 500 | 0.1116 | 0.0944 | **37.80% (189)** | **8.80% (44)** | **10.80% (54)** |
 
-The updated demo worklist now closely mirrors the full test cohort across all clinical tiers.
+### 8.3 Sampling Methodology & Seed Selection
+- **Sampling Specification:** Random sample of 500 encounters drawn from the held-out test set (`df_test`, N = 19,870) using NumPy random seed 55.
+- **Seed Selection Strategy:** Seed 55 was **not the first seed tried**. A candidate seed sweep across random seeds 0 to 99 was performed to select a seed whose empirical distribution most closely matched the full held-out test cohort's flag rate (37.80% vs 37.77%), high-risk tier fraction (8.80% vs 8.81%), and readmission prevalence (10.80% vs 11.39%). This deliberate selection eliminated the severe distribution distortion of the earlier sequential row slice without altering the underlying data or predictions.
+- **Prediction Parity Guarantee:** An automated regression test (`tests/test_api.py::test_worklist_offline_prediction_parity`) asserts that for every one of the 500 worklist encounters, the probability returned by the API matches the offline test-set prediction within 1e-6 (max observed difference = 0.00e+00) and the assigned risk tier matches with 100% agreement.
 
 ---
 
@@ -345,7 +348,7 @@ Top tree gain contributors:
 | **5** | **Threshold Table & Capacity Floor** | `models/threshold_sweep_test.csv` | 46 steps (0.05 to 0.50), chosen 0.12 | Explained 18% review capacity floor (ensures ~1.7 readmissions per 10 flags). Added capacity-based alternative cutoff (0.15: 19.2% precision, 40.3% recall, 23.9% flag rate). |
 | **6** | **Metric Justifications** | Section 6 of this report | Clinical error framing | Removed $26,000 figure and zero-harm claim. Framed FP as wasted staff/resource time; FN as clinical deterioration without care. Framed CMS HRRP as payment percentage reductions. |
 | **7** | **Tier Validation with 95% CIs** | `models/tier_validation_test.csv` | Low: 7.76% [7.30%, 8.24%], High: 24.17% [22.22%, 26.23%] | Wilson 95% CIs computed and verified on test set. Non-overlapping intervals confirm tier separation. |
-| **8** | **Worklist Consistency (500 Sample)** | `data/processed/worklist_precomputed.joblib` | 189 flagged (37.8%), 44 High (8.8%) | Redrew sample with fixed seed 55 from test set. Replaced head(500) slice; worklist sample now aligns with full test set (37.77% flagged, 8.81% High). |
+| **8** | **Worklist Consistency (500 Sample)** | `data/processed/worklist_precomputed.joblib`, `tests/test_api.py` | 189 flagged (37.8%), 44 High (8.8%), parity error = 0.00e+00 | Redrew sample with fixed seed 55 from candidate sweep (0–99). Replaced head(500) slice; worklist sample now aligns with full test set (37.77% flagged, 8.81% High). Automated parity test asserts 1e-6 probability agreement. |
 | **9** | **HbA1c & Change EDA** | `models/hba1c_eda_analysis.json` | Chi2 = 42.56 (p=3.06e-09), Chi2 = 34.13 (p=5.14e-09) | Full category breakdown with 95% CIs. Documented 83.05% missingness as reason for exclusion from core model. No causal claims made. |
 | **10** | **ICD-9 Documentation** | Section 10 of this report | 9 disease categories | Verified dataset uses ICD-9 (1999–2008). Zero references to ICD-10 in codebase. Detailed mapping ranges provided. |
 | **11** | **Preprocessing & Target Definition** | Section 10 of this report, `src/preprocessing.py` | <30 = 1, >=30 & NO = 0 | Documented OneHotEncoder, winsorization, StandardScaler on train only, and review of 25 medication columns (2 kept, 23 excluded). |

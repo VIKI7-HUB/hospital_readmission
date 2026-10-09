@@ -361,7 +361,7 @@ def precompute_worklist_artifacts(max_encounters=500):
             'er': er_val,
             'a1c': a1c_raw,
             'diag': str(row.get('diag_1_group', 'Circulatory')),
-            'prob': round(p, 4),
+            'prob': float(p),
             'probability_pct': round(p * 100, 1),
             'tier': tier,
             'tier_color': color,

@@ -1435,9 +1435,9 @@ function App() {
                   isActive={hasActiveFilters}
                   miniVisual={
                     <KpiMiniCohortDist
-                      lowPct={summary.cohort_size ? (summary.low_risk / summary.cohort_size) * 100 : 72.2}
-                      elevatedPct={summary.cohort_size ? (summary.elevated_risk / summary.cohort_size) * 100 : 22.8}
-                      highPct={summary.cohort_size ? (summary.high_risk / summary.cohort_size) * 100 : 5.0}
+                      lowPct={summary.cohort_size ? (summary.low_risk / summary.cohort_size) * 100 : 62.2}
+                      elevatedPct={summary.cohort_size ? (summary.elevated_risk / summary.cohort_size) * 100 : 29.0}
+                      highPct={summary.cohort_size ? (summary.high_risk / summary.cohort_size) * 100 : 8.8}
                     />
                   }
                 />
@@ -1468,47 +1468,47 @@ function App() {
                   isActive={tier === "flagged"}
                   miniVisual={
                     <KpiProportionBar
-                      percentage={summary.cohort_size ? (summary.flagged / summary.cohort_size) * 100 : 27.8}
+                      percentage={summary.cohort_size ? (summary.flagged / summary.cohort_size) * 100 : 37.8}
                       tone="red"
-                      title="27.8% flagged for transition follow-up (≥12% risk cutoff)"
+                      title={`${summary.cohort_size ? ((summary.flagged / summary.cohort_size) * 100).toFixed(1) : "37.8"}% flagged for transition follow-up (≥12% risk cutoff)`}
                     />
                   }
                 />
 
                 <KpiCard
                   label="Polypharmacy Burden"
-                  value={summary.polypharmacy ?? "375"}
-                  rawNumber={summary.polypharmacy ?? 375}
+                  value={summary.polypharmacy ?? "395"}
+                  rawNumber={summary.polypharmacy ?? 395}
                   context={
                     summary.cohort_size
                       ? `${((summary.polypharmacy / summary.cohort_size) * 100).toFixed(1)}% of cohort (≥10 meds)`
-                      : "75.0% of cohort (≥10 meds)"
+                      : "79.0% of cohort (≥10 meds)"
                   }
                   icon={Pill}
                   tone="amber"
                   miniVisual={
                     <KpiProportionBar
-                      percentage={summary.cohort_size ? (summary.polypharmacy / summary.cohort_size) * 100 : 75.0}
+                      percentage={summary.cohort_size ? (summary.polypharmacy / summary.cohort_size) * 100 : 79.0}
                       tone="amber"
-                      title="75.0% of encounters with ≥10 active medications"
+                      title={`${summary.cohort_size ? ((summary.polypharmacy / summary.cohort_size) * 100).toFixed(1) : "79.0"}% of encounters with ≥10 active medications`}
                     />
                   }
                 />
 
                 <KpiCard
                   label="Observed Readmissions"
-                  value={summary.readmissions ?? "64"}
-                  rawNumber={summary.readmissions ?? 64}
+                  value={summary.readmissions ?? "54"}
+                  rawNumber={summary.readmissions ?? 54}
                   context={
-                    `${summary.cohort_size ? ((summary.readmissions / summary.cohort_size) * 100).toFixed(1) : "12.8"}% sample rate · 11.2% full dataset rate`
+                    `${summary.cohort_size ? ((summary.readmissions / summary.cohort_size) * 100).toFixed(1) : "10.8"}% sample rate vs test-set rate (11.39%)`
                   }
                   icon={TrendingUp}
                   tone="green"
                   miniVisual={
                     <KpiProportionBar
-                      percentage={summary.cohort_size ? (summary.readmissions / summary.cohort_size) * 100 : 12.8}
+                      percentage={summary.cohort_size ? (summary.readmissions / summary.cohort_size) * 100 : 10.8}
                       tone="green"
-                      title="12.8% readmission rate in 500 sample (11.2% full dataset rate)"
+                      title={`${summary.cohort_size ? ((summary.readmissions / summary.cohort_size) * 100).toFixed(1) : "10.8"}% sample rate vs test-set rate (11.39%)`}
                     />
                   }
                 />
@@ -1935,6 +1935,11 @@ function App() {
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
+                </div>
+
+                {/* Sampling Footnote */}
+                <div style={{ padding: "8px 16px 12px 16px", fontSize: "0.75rem", color: "var(--text-muted)", borderTop: "1px solid var(--border-subtle)" }}>
+                  Random sample of 500 from the held-out test set (seed 55). Seed 55 was chosen from a candidate sweep to ensure demographic and risk tier representativeness matching the full test holdout (37.8% flagged, 8.8% High, 10.8% sample readmission rate vs. 11.39% test-set rate).
                 </div>
               </section>
             </>

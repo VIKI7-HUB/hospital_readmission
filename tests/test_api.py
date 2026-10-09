@@ -214,3 +214,42 @@ def test_governance_endpoint(client):
     assert "LightGBM" in model_names
     assert "CatBoost" in model_names
     assert "Calibrated Ensemble" in model_names
+
+def test_worklist_offline_prediction_parity(client):
+    """
+    Automated parity test: For all 500 worklist encounters, probabilities returned
+    by the API must match the offline test-set predictions within 1e-6, and tiers
+    must match exactly.
+    """
+    import os, joblib
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    processed_dir = os.path.join(base_dir, "data", "processed")
+    models_dir = os.path.join(base_dir, "models")
+
+    res = client.get("/api/worklist", params={"page_size": 500})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["total"] == 500
+    results = data["results"]
+    assert len(results) == 500
+
+    split_data = joblib.load(os.path.join(processed_dir, "train_val_test_data.joblib"))
+    eval_artifacts = joblib.load(os.path.join(models_dir, "evaluation_artifacts.joblib"))
+
+    df_test = split_data["df_test"]
+    p_test = eval_artifacts["test_probs"]["Calibrated Ensemble"]
+    enc_to_offline_prob = dict(zip(df_test["encounter_id"], p_test))
+
+    for row in results:
+        raw_id = int(row["enc_id"].replace("ENC-", ""))
+        assert raw_id in enc_to_offline_prob, f"Encounter {raw_id} not found in offline test set"
+        offline_p = enc_to_offline_prob[raw_id]
+        api_p = row["prob"]
+
+        # Parity check: difference within 1e-6
+        assert abs(api_p - offline_p) < 1e-6, f"Parity mismatch for {row['enc_id']}: API={api_p}, Offline={offline_p}"
+
+        # Tier check
+        expected_tier = "High Risk" if offline_p >= 0.20 else ("Elevated Risk" if offline_p >= 0.12 else "Low Risk")
+        assert row["tier"] == expected_tier, f"Tier mismatch for {row['enc_id']}: API={row['tier']}, Expected={expected_tier}"
+
