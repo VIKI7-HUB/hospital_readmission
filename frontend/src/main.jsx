@@ -910,9 +910,11 @@ function App() {
     );
   }, [governance]);
 
-  const championAuc = championModel ? (Number(championModel["AUC-ROC"]) || 0.664).toFixed(3) : "0.664";
-  const championBrier = championModel ? (Number(championModel["Brier Score"]) || 0.097).toFixed(3) : "0.097";
-  const championCutoff = championModel?.Threshold != null ? `≥ ${(Number(championModel.Threshold) * 100).toFixed(1)}%` : "≥ 13.0%";
+  const championAuc = championModel ? (Number(championModel["AUC-ROC"]) || 0.653).toFixed(3) : "0.653";
+  const championBrier = championModel ? (Number(championModel["Brier Score"]) || 0.098).toFixed(3) : "0.098";
+  const championCutoff = (championModel?.["Decision Threshold"] ?? championModel?.Threshold) != null
+    ? `≥ ${(Number(championModel["Decision Threshold"] ?? championModel.Threshold) * 100).toFixed(1)}%`
+    : "≥ 12.0%";
 
   const sortedGovModels = useMemo(() => {
     const list = [...(governance?.models || [])];
@@ -1336,12 +1338,12 @@ function App() {
 
                 <KpiCard
                   label="High-Risk Flags"
-                  value={summary.high_risk ?? "37"}
-                  rawNumber={summary.high_risk ?? 37}
+                  value={summary.high_risk ?? "139"}
+                  rawNumber={summary.high_risk ?? 139}
                   context={
                     summary.cohort_size
-                      ? `${((summary.high_risk / summary.cohort_size) * 100).toFixed(1)}% of cohort (≥20% risk)`
-                      : "7.4% of cohort (≥20% risk)"
+                      ? `${((summary.high_risk / summary.cohort_size) * 100).toFixed(1)}% of cohort (≥12% risk)`
+                      : "27.8% of cohort (≥12% risk)"
                   }
                   icon={AlertTriangle}
                   tone="red"
@@ -1352,7 +1354,7 @@ function App() {
                       toast.info("Cleared high risk filter");
                     } else {
                       setTier("high");
-                      toast.info("Filtered worklist to High Risk (≥20%)");
+                      toast.info("Filtered worklist to High Risk (≥12%)");
                     }
                     setPage(1);
                   }}
@@ -1423,9 +1425,9 @@ function App() {
                           aria-label="Filter by risk tier"
                         >
                           <option value="all">All risk tiers</option>
-                          <option value="high">High risk (≥20%)</option>
-                          <option value="moderate">Moderate risk (12–20%)</option>
-                          <option value="low">Low risk (&lt;12%)</option>
+                          <option value="high">High risk (≥12%)</option>
+                          <option value="moderate">Moderate risk (8–12%)</option>
+                          <option value="low">Low risk (&lt;8%)</option>
                         </select>
                       </div>
 
@@ -2144,8 +2146,8 @@ function App() {
                   </div>
                   <div className="gov-meta-item">
                     <Users className="w-4 h-4 text-brand" />
-                    <span className="gov-meta-label">Validation Holdout:</span>
-                    <span className="gov-meta-value">{governance?.cohort_size || 500} Inpatient Encounters</span>
+                    <span className="gov-meta-label">Evaluation Cohort:</span>
+                    <span className="gov-meta-value">{Number(governance?.cohort_size || 19870).toLocaleString()} Inpatient Encounters</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -2156,7 +2158,7 @@ function App() {
                 </div>
                 <div className="gov-data-split-line">
                   <div>
-                    <strong>Data split:</strong> 79,473 encounters training (63,578 model fit, 15,895 grouped calibration fold) · 19,870 holdout test · 500 interactive demo encounters.
+                    <strong>Data split:</strong> 69,538 encounters training (70.0%) · 9,935 validation (10.0% calibration fold) · 19,870 holdout test (20.0%) · 500 interactive demo encounters.
                   </div>
                   <div className="text-muted text-xs">
                     <strong>Fairness thresholding disclosure:</strong> Demographic mitigation cutoffs were evaluated post-hoc on the test holdout rather than an isolated tuning split.
@@ -2185,7 +2187,7 @@ function App() {
                   </div>
                   <div className="gov-guide-item">
                     <strong>2. Calibration (Brier Score)</strong>
-                    <p>Brier score verifies probabilistic reliability. Isotonic calibration ensures a predicted 20% risk corresponds to an empirical 20% readmission rate across patient cohorts.</p>
+                    <p>Brier score verifies probabilistic reliability. Sigmoid Platt calibration ensures a predicted 12% risk corresponds to an empirical 12% readmission rate across patient cohorts.</p>
                   </div>
                   <div className="gov-guide-item">
                     <strong>3. Equity & Parity (Equalized Odds)</strong>
@@ -2209,7 +2211,7 @@ function App() {
                     <div className="panel-header-row">
                       <div className="panel-title-text">
                         <h2>Ensemble Architecture</h2>
-                        <p>Triple-gradient boosted decision trees with isotonic probability calibration.</p>
+                        <p>Triple-gradient boosted decision trees with sigmoid Platt probability calibration.</p>
                       </div>
                       <span className="status-badge-chip verified">
                         <Check className="w-3.5 h-3.5" />
@@ -2230,7 +2232,7 @@ function App() {
                         <dd className="ensemble-stat-dd tabular-nums">
                           <AnimatedNumber value={Number(championBrier)} format={(v) => v.toFixed(3)} />
                         </dd>
-                        <span className="ensemble-stat-sub">Isotonically aligned</span>
+                        <span className="ensemble-stat-sub">Sigmoid Platt aligned</span>
                       </div>
                       <div className="ensemble-stat-card">
                         <dt className="ensemble-stat-dt">Clinical Decision Cutoff</dt>
@@ -2326,7 +2328,7 @@ function App() {
                                 )}
                               </div>
                               <span className="model-threshold-sub">
-                                Cutoff: {m.Threshold != null ? prettyPercent(m.Threshold) : "13.0%"}
+                                Cutoff: {(m["Decision Threshold"] ?? m.Threshold) != null ? prettyPercent(m["Decision Threshold"] ?? m.Threshold) : "12.0%"}
                               </span>
                             </div>
 
@@ -2373,7 +2375,7 @@ function App() {
                     </div>
 
                     <div className="benchmark-candidate-note">
-                      <strong>Model selection note:</strong> Differences in AUC between candidates (0.651 to 0.664) are small. The ensemble was chosen mainly for calibration (Brier score 0.097) and variance reduction across validation splits rather than standalone discriminatory superiority.
+                      <strong>Model selection note:</strong> Differences in AUC between candidates (0.647 to 0.653 across single learners vs. ensemble) are small. The ensemble was chosen mainly for calibration (Brier score 0.098) and variance reduction across validation splits rather than standalone discriminatory superiority.
                     </div>
                   </motion.div>
                 </div>
@@ -2877,11 +2879,11 @@ function App() {
                 setPage(1);
                 setView("worklist");
                 setOpenPalette(false);
-                toast.info("Filtered worklist to High Risk (≥20%)");
+                toast.info("Filtered worklist to High Risk (≥12%)");
               }}
             >
               <AlertTriangle className="w-4 h-4 text-red-500" />
-              <span>Show High Risk Encounters (≥20%)</span>
+              <span>Show High Risk Encounters (≥12%)</span>
               <span className="cmdk-shortcut">H</span>
             </Command.Item>
             <Command.Item
@@ -2891,11 +2893,11 @@ function App() {
                 setPage(1);
                 setView("worklist");
                 setOpenPalette(false);
-                toast.info("Filtered worklist to Moderate Risk (12–20%)");
+                toast.info("Filtered worklist to Moderate Risk (8–12%)");
               }}
             >
               <AlertCircle className="w-4 h-4 text-amber-500" />
-              <span>Show Moderate Risk Encounters (12–20%)</span>
+              <span>Show Moderate Risk Encounters (8–12%)</span>
               <span className="cmdk-shortcut">M</span>
             </Command.Item>
             <Command.Item
@@ -3005,9 +3007,9 @@ function App() {
               <div className="p-3 bg-subtle border border-color rounded-control">
                 <strong className="block text-primary text-xs uppercase mb-1">Key Operating Thresholds</strong>
                 <ul className="text-xs space-y-1 pl-4 list-disc text-secondary">
-                  <li><strong>Low Risk (&lt;12%):</strong> Standard discharge summary and 30-day primary care appointment.</li>
-                  <li><strong>Moderate Risk (12–20%):</strong> Conditional discharge with 7–10 day follow-up and pharmacy consult.</li>
-                  <li><strong>High Risk (≥20%):</strong> Discharge delay or 48-hour telehealth outreach and multidisciplinary team review.</li>
+                  <li><strong>Low Risk (&lt;8%):</strong> Standard discharge summary and routine 30-day primary care appointment.</li>
+                  <li><strong>Moderate Risk (8–12%):</strong> Enhanced discharge planning with 7–10 day follow-up and pharmacy consult.</li>
+                  <li><strong>High Risk (≥12%):</strong> Multidisciplinary discharge care plan, 48-hour telehealth outreach, and pharmacy reconciliation.</li>
                 </ul>
               </div>
 
