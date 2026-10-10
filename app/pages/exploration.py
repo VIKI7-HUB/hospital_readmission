@@ -312,3 +312,45 @@ def render_filtered_charts(data: pd.DataFrame) -> None:
 
 
 render_filtered_charts(full_df)
+
+hba1c_path = ROOT / "artifacts" / "hba1c.json"
+if hba1c_path.exists():
+    st.header("11. HbA1c testing and readmission")
+    hba1c_data = load_json("hba1c.json")
+
+    crude_df = pd.DataFrame(hba1c_data["crude"])
+    fig11 = interval_chart(
+        crude_df,
+        "group",
+        "Readmission rate by HbA1c testing category",
+        x_title="Readmission rate",
+    )
+    figure(
+        fig11,
+        11,
+        "Crude readmission rates by HbA1c testing status with 95% Wilson intervals on training split.",
+    )
+
+    st.subheader("Adjusted odds ratios (cluster-robust)")
+    adj_df = pd.DataFrame(hba1c_data["adjusted"])
+    formatter = {"or": "{:.3f}", "lower": "{:.3f}", "upper": "{:.3f}", "p_value": "{:.4f}"}
+    st.dataframe(adj_df.style.format(formatter), hide_index=True, width="stretch")
+
+    for _, row in adj_df.iterrows():
+        grp = row["group"]
+        o = float(row["or"])
+        lo = float(row["lower"])
+        hi = float(row["upper"])
+        msg = (
+            f"Compared with patients not tested, the adjusted odds of readmission for {grp} "
+            f"are {o:.3f} (95% interval {lo:.3f} to {hi:.3f})."
+        )
+        if lo <= 1.0 <= hi:
+            msg += " The interval includes 1.0, indicating no statistically clear difference."
+        st.write(msg)
+
+    st.write(
+        "These are associations in observational data and do not show that testing causes the difference. "
+        "(Source question: Strack et al., 2014)."
+    )
+

@@ -209,7 +209,14 @@ def stage_odds_ratios() -> pd.DataFrame:
     return table
 
 
+def stage_hba1c() -> None:
+    from readmission.hba1c import run_hba1c
+
+    run_hba1c()
+
+
 def stage_fairness_audit() -> None:
+
     """Audit the champion's test predictions across age band, gender, and race."""
     from sklearn.metrics import roc_auc_score
 

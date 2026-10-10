@@ -19,6 +19,7 @@ from readmission.stages import (
     stage_fairness_audit,
     stage_fairness_mitigation,
     stage_features,
+    stage_hba1c,
     stage_lace,
     stage_odds_ratios,
     stage_score,
@@ -43,9 +44,11 @@ STAGES = [
     ("decision_curve", stage_decision_curve),
     ("explain", stage_explain_global),
     ("odds", stage_odds_ratios),
+    ("hba1c", stage_hba1c),
     ("fairness", stage_fairness_audit),
     ("mitigation", stage_fairness_mitigation),
 ]
+
 
 
 
