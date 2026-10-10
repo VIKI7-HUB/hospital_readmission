@@ -1,0 +1,34 @@
+{
+  "modifiable": [
+    "A1Cresult",
+    "change",
+    "discharge_group",
+    "insulin",
+    "n_meds_changed"
+  ],
+  "fixed": [
+    "admission_source",
+    "admission_type",
+    "age",
+    "age_mid",
+    "diabetesMed",
+    "diag_1_category",
+    "diag_2_category",
+    "diag_3_category",
+    "gender",
+    "max_glu_serum",
+    "medical_specialty",
+    "n_meds_active",
+    "num_lab_procedures",
+    "num_medications",
+    "num_procedures",
+    "number_diagnoses",
+    "number_emergency",
+    "number_inpatient",
+    "number_outpatient",
+    "payer_code",
+    "prior_visits_total",
+    "race",
+    "time_in_hospital"
+  ]
+}

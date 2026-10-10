@@ -2,15 +2,57 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
+from typing import Any
 
 import joblib
 import numpy as np
 import pandas as pd
 
 from readmission.features import MODEL_FEATURES
+from readmission.textgen import describe_risk
 
 ROOT = Path(__file__).resolve().parents[2]
+
+FEATURE_LABELS: dict[str, str] = {
+    "age": "Age band",
+    "age_mid": "Approximate age",
+    "gender": "Gender",
+    "race": "Race",
+    "time_in_hospital": "Days in hospital",
+    "num_lab_procedures": "Lab procedures",
+    "num_procedures": "Procedures",
+    "num_medications": "Medications count",
+    "number_diagnoses": "Number of diagnoses",
+    "number_outpatient": "Prior outpatient visits",
+    "number_emergency": "Prior emergency visits",
+    "number_inpatient": "Prior inpatient stays",
+    "prior_visits_total": "Total prior visits",
+    "admission_type": "Admission urgency",
+    "admission_source": "Admission source",
+    "discharge_group": "Discharge destination",
+    "diag_1_category": "Primary diagnosis",
+    "diag_2_category": "Secondary diagnosis",
+    "diag_3_category": "Tertiary diagnosis",
+    "A1Cresult": "HbA1c result",
+    "max_glu_serum": "Serum glucose result",
+    "insulin": "Insulin use",
+    "change": "Diabetes medication change",
+    "diabetesMed": "Diabetes medication prescribed",
+    "n_meds_changed": "Number of diabetes meds changed",
+    "n_meds_active": "Number of active diabetes meds",
+    "medical_specialty": "Admitting specialty",
+    "payer_code": "Payer category",
+}
+
+MODIFIABLE: set[str] = {
+    "discharge_group",
+    "insulin",
+    "change",
+    "n_meds_changed",
+    "A1Cresult",
+}
 
 
 def source_feature(column_name: str, source_features: list[str]) -> str:
@@ -105,3 +147,40 @@ def contributions_matrix(
             contrib_df[src] += raw_shap[:, j]
 
     return contrib_df, base_val, np.asarray(raw_margin, dtype=float)
+
+
+def explain_rows(frame: pd.DataFrame) -> dict[str, Any]:
+    """Explain multiple encounters using the champion model."""
+    from readmission.scoring import predict_raw
+
+    champion_info = json.loads((ROOT / "artifacts" / "champion.json").read_text(encoding="utf-8"))
+    champion_name = champion_info["model"]
+    contribs, base, margin = contributions_matrix(champion_name, frame)
+    p_raw = predict_raw(champion_name, frame)
+    feature_cols = [c for c in MODEL_FEATURES if c in frame.columns]
+    values = frame[feature_cols].copy()
+    return {
+        "contribs": contribs,
+        "base": float(np.mean(base)),
+        "margin": margin,
+        "p_raw": p_raw,
+        "values": values,
+    }
+
+
+def top_sentence(contribs_row: pd.Series, values_row: pd.Series) -> str:
+    """Build a plain-English risk explanation sentence for a single encounter."""
+    items = [
+        (feat, str(values_row[feat]), float(contribs_row[feat])) for feat in contribs_row.index
+    ]
+    return describe_risk(items, FEATURE_LABELS)
+
+
+def write_feature_tags() -> None:
+    """Write modifiable and fixed feature tags to artifacts/feature_tags.json."""
+    tags = {
+        "modifiable": sorted(list(MODIFIABLE)),
+        "fixed": sorted([f for f in MODEL_FEATURES if f not in MODIFIABLE]),
+    }
+    out_path = ROOT / "artifacts" / "feature_tags.json"
+    out_path.write_text(json.dumps(tags, indent=2) + "\n", encoding="utf-8")

@@ -37,3 +37,19 @@ def test_contributions_additivity():
     contribs, base, margin = contributions_matrix(champion, frame)
     max_error = np.abs(contribs.sum(axis=1) + base - margin).max()
     assert max_error < 1e-4, f"Additivity error {max_error} exceeds 1e-4 for {champion}"
+
+
+def test_explain_rows_sentence():
+    from readmission.explain import explain_rows, top_sentence
+
+    split = json.loads((ROOT / "artifacts" / "split.json").read_text(encoding="utf-8"))
+    test_ids = split["test"][:5]
+    frame = frame_for_encounters(test_ids)
+    res = explain_rows(frame)
+    assert len(res["contribs"]) == 5
+    assert len(res["values"]) == 5
+    for idx in range(len(frame)):
+        sentence = top_sentence(res["contribs"].iloc[idx], res["values"].iloc[idx])
+        assert sentence.startswith("Higher risk mainly because of") or sentence.startswith(
+            "No feature pushes"
+        ), f"Unexpected sentence format: {sentence}"
