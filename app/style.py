@@ -40,7 +40,7 @@ def setup(title: str) -> None:
 
 
 def figure(fig: go.Figure, number: int, caption: str) -> None:
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(f"Fig. {number}. {caption}")
 
 

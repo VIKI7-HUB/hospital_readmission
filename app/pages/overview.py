@@ -121,7 +121,7 @@ scorecard_df = pd.DataFrame(
     ]
 )
 
-st.dataframe(scorecard_df, hide_index=True, use_container_width=True)
+st.dataframe(scorecard_df, hide_index=True, width="stretch")
 
 st.write("---")
 st.subheader("Sections")
