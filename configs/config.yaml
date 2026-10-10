@@ -66,3 +66,6 @@ evaluation:
 explain:
   sample_size: 3000
   seed: 42
+fast:
+  row_fraction: 0.3
+  optuna_trials: 6

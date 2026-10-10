@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -41,12 +42,42 @@ def stage_features() -> None:
 
 
 def stage_train() -> None:
+    import os
+
     from readmission.models import train_all
 
-    train_all()
+    is_fast = os.environ.get("READMISSION_FAST") == "1"
+    train_all(fast=is_fast)
+
+
+def stage_score() -> None:
+    """Generate and save raw scores for validation and test splits."""
+    from readmission.model_registry import MODEL_REGISTRY
+    from readmission.scoring import frame_for_encounters, predict_raw, save_scores
+
+    split = json.loads((ROOT / "artifacts" / "split.json").read_text(encoding="utf-8"))
+    for model_name in MODEL_REGISTRY:
+        for split_name, ids in [("val", split["validation"]), ("test", split["test"])]:
+            frame = frame_for_encounters(ids)
+            p_raw = predict_raw(model_name, frame)
+            score_df = pd.DataFrame(
+                {
+                    "encounter_id": frame["encounter_id"].to_numpy(),
+                    "patient_nbr": frame["patient_nbr"].to_numpy(),
+                    "y_true": frame["y_true"].to_numpy(),
+                    "p_raw": p_raw,
+                }
+            )
+            save_scores(model_name, split_name, score_df)
 
 
 def stage_calibrate() -> None:
+    from readmission.calibrate import run_calibration
+
+    run_calibration()
+
+
+def stage_threshold() -> None:
     from readmission.calibrate import run_calibration
 
     run_calibration()
@@ -68,6 +99,8 @@ def stage_explain_global() -> None:
     test_ids = split["test"]
 
     sample_size = int(config.get("explain", {}).get("sample_size", 3000))
+    if os.environ.get("READMISSION_FAST") == "1":
+        sample_size = min(sample_size, 50)
     seed = int(config.get("explain", {}).get("seed", 42))
 
     clean_path = ROOT / config["paths"]["cleaned_data"]
