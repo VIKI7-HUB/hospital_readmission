@@ -190,41 +190,52 @@ def render_fairness_dashboard() -> None:
             comp_metrics = ["recall", "fpr", "equalized_odds_difference"]
             base_row = sub_mit[sub_mit["variant"] == "base"]
             mit_row = sub_mit[sub_mit["variant"] == "group_threshold"]
+            rew_row = sub_mit[sub_mit["variant"] == "reweighing"]
 
-            if not base_row.empty and not mit_row.empty:
-                b_vals = [base_row[m].iloc[0] for m in comp_metrics]
-                m_vals = [mit_row[m].iloc[0] for m in comp_metrics]
+            if not base_row.empty:
                 fig4.add_trace(
                     go.Bar(
                         x=["Recall", "FPR", "Equalized odds diff"],
-                        y=b_vals,
+                        y=[base_row[m].iloc[0] for m in comp_metrics],
                         name="Base model",
                         marker_color=GREY,
                     )
                 )
+            if not mit_row.empty:
                 fig4.add_trace(
                     go.Bar(
                         x=["Recall", "FPR", "Equalized odds diff"],
-                        y=m_vals,
+                        y=[mit_row[m].iloc[0] for m in comp_metrics],
                         name="Group threshold",
                         marker_color=TEAL,
                     )
                 )
-                fig4.update_layout(
-                    barmode="group",
-                    title="Base versus group-specific thresholding",
-                    yaxis=dict(tickformat=".1%"),
-                    height=360,
-                    legend=dict(orientation="h", y=-0.22),
+            if not rew_row.empty:
+                fig4.add_trace(
+                    go.Bar(
+                        x=["Recall", "FPR", "Equalized odds diff"],
+                        y=[rew_row[m].iloc[0] for m in comp_metrics],
+                        name="Reweighing",
+                        marker_color=RUST,
+                    )
                 )
-                figure(
-                    fig4,
-                    4,
-                    f"Performance and disparity comparison between base model and group-specific thresholds on {attribute}.",
-                )
+            fig4.update_layout(
+                barmode="group",
+                title="Fairness mitigation strategies",
+                yaxis=dict(tickformat=".1%"),
+                height=360,
+                legend=dict(orientation="h", y=-0.22),
+            )
+            figure(
+                fig4,
+                4,
+                f"Performance and disparity comparison across base, group-specific thresholding, and reweighing on {attribute}.",
+            )
 
     with col_m2:
         if not sub_mit.empty:
+            color_map = {"base": GREY, "group_threshold": TEAL, "reweighing": RUST}
+            marker_colors = [color_map.get(v, GREY) for v in sub_mit["variant"]]
             fig5 = go.Figure()
             fig5.add_trace(
                 go.Scatter(
@@ -233,7 +244,7 @@ def render_fairness_dashboard() -> None:
                     mode="markers+text",
                     text=sub_mit["variant"],
                     textposition="top center",
-                    marker=dict(size=12, color=[GREY, TEAL]),
+                    marker=dict(size=12, color=marker_colors),
                 )
             )
             fig5.update_layout(
@@ -247,17 +258,20 @@ def render_fairness_dashboard() -> None:
             figure(
                 fig5,
                 5,
-                f"Tradeoff between overall test recall and equalized odds disparity under group mitigation on {attribute}.",
+                f"Tradeoff between overall test recall and equalized odds disparity under mitigation variants on {attribute}.",
             )
 
     if not sub_mit.empty:
         base_sub = sub_mit[sub_mit["variant"] == "base"]
         mit_sub = sub_mit[sub_mit["variant"] == "group_threshold"]
+        rew_sub = sub_mit[sub_mit["variant"] == "reweighing"]
         if not base_sub.empty and not mit_sub.empty:
             b_tpr_diff = float(base_sub["tpr_difference"].iloc[0])
             m_tpr_diff = float(mit_sub["tpr_difference"].iloc[0])
             b_prec = float(base_sub["precision"].iloc[0])
             m_prec = float(mit_sub["precision"].iloc[0])
+            b_eq = float(base_sub["equalized_odds_difference"].iloc[0])
+            m_eq = float(mit_sub["equalized_odds_difference"].iloc[0])
 
             delta_tpr = (m_tpr_diff - b_tpr_diff) * 100
             delta_prec = (m_prec - b_prec) * 100
@@ -275,6 +289,15 @@ def render_fairness_dashboard() -> None:
                     f"{delta_prec:+.1f} percentage points."
                 )
             st.write(summary_sentence)
+
+            if not rew_sub.empty:
+                r_eq = float(rew_sub["equalized_odds_difference"].iloc[0])
+                r_prec = float(rew_sub["precision"].iloc[0])
+                st.write(
+                    f"Sample reweighing achieved equalized odds disparity of {r_eq:.1%} (precision {r_prec:.1%}), "
+                    f"compared with {b_eq:.1%} for base and {m_eq:.1%} for group thresholding."
+                )
+
 
     # 6. Limits
     st.header("6. Limits")

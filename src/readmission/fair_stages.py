@@ -9,6 +9,8 @@ from typing import Any
 import joblib
 import numpy as np
 import pandas as pd
+import yaml
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 
 from readmission.calibrate import apply_calibrator
@@ -19,8 +21,10 @@ from readmission.fair_stats import (
     gap_interval,
     group_table,
     group_thresholds,
+    reweighing_weights,
 )
-from readmission.features import build_fairness_attributes
+from readmission.features import MODEL_FEATURES, build_fairness_attributes
+from readmission.model_registry import MODEL_REGISTRY, FittedReadmissionModel
 from readmission.scoring import frame_for_encounters, predict_raw
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -99,13 +103,25 @@ def stage_fairness_audit() -> None:
 
 
 def stage_fairness_mitigation() -> pd.DataFrame:
-    """Compare base model against group-threshold equal opportunity mitigation."""
+    """Compare base model against group-threshold and reweighing fairness mitigations."""
+    with (ROOT / "configs" / "config.yaml").open(encoding="utf-8") as f:
+        config = yaml.safe_load(f)
+
     split = json.loads((ROOT / "artifacts" / "split.json").read_text(encoding="utf-8"))
+    train_full = frame_for_encounters(split["train"])
+    train_fair = build_fairness_attributes(train_full)
+    train_full["age_band"] = train_fair["age_band"].astype(str)
+
     val = frame_for_encounters(split["validation"])
     val_fair = build_fairness_attributes(val)
     val["age_band"] = val_fair["age_band"].astype(str)
 
-    champ = json.loads((ROOT / "artifacts" / "champion.json").read_text(encoding="utf-8"))["model"]
+    champ_data = json.loads((ROOT / "artifacts" / "champion.json").read_text(encoding="utf-8"))
+    champ = champ_data.get("champion") or champ_data.get("model")
+    best_params_all = json.loads((ROOT / "artifacts" / "best_params.json").read_text(encoding="utf-8"))
+    champ_params = best_params_all[champ].get("parameters", best_params_all[champ])
+    seed = int(config["models"]["seed"])
+
     calibrators = joblib.load(ROOT / "artifacts" / "calibrators.joblib")
     cal = calibrators[champ]
     val["p_cal"] = apply_calibrator(cal, predict_raw(champ, val))
@@ -117,17 +133,27 @@ def stage_fairness_mitigation() -> pd.DataFrame:
     test = pd.read_parquet(ROOT / "artifacts" / "test_predictions.parquet")
     if "p_cal" not in test.columns and "probability_calibrated" in test.columns:
         test["p_cal"] = test["probability_calibrated"]
+    test_feat = frame_for_encounters(split["test"])
+    feature_cols = [c for c in MODEL_FEATURES if c in train_full.columns]
+    for c in feature_cols:
+        test[c] = test_feat[c].to_numpy()
+
+    spec = MODEL_REGISTRY[champ]
+
 
     records: list[dict[str, Any]] = []
     thresholds_dict: dict[str, Any] = {}
 
     for attribute in ("age_band", "gender", "race"):
+        train_sub = train_full.copy()
         val_sub = val.copy()
         test_sub = test.copy()
         if attribute == "gender":
+            train_sub = train_sub[train_sub["gender"].isin(["Male", "Female"])]
             val_sub = val_sub[val_sub["gender"].isin(["Male", "Female"])]
             test_sub = test_sub[test_sub["gender"].isin(["Male", "Female"])]
         elif attribute == "race":
+            train_sub["race"] = train_sub["race"].fillna("Unknown")
             val_sub["race"] = val_sub["race"].fillna("Unknown")
             test_sub["race"] = test_sub["race"].fillna("Unknown")
 
@@ -136,9 +162,40 @@ def stage_fairness_mitigation() -> pd.DataFrame:
 
         base_flag = (test_sub["p_cal"].to_numpy() >= primary_t).astype(int)
         mit_flag = apply_group_thresholds(test_sub, attribute, thr, fallback=primary_t)
+
+        # Reweighed training variant
+        weights = reweighing_weights(train_sub[attribute], train_sub["y_true"])
+        prep = spec.preprocessor()
+        tr_vals = prep.fit_transform(train_sub[feature_cols])
+        est = spec.factory(champ_params, seed, train_sub["y_true"].astype(int), config, False)
+        est.fit(tr_vals, train_sub["y_true"].astype(int), sample_weight=weights)
+        rew_model = FittedReadmissionModel(est, prep, False)
+
+        val_raw = rew_model.predict_proba(val_sub[feature_cols])[:, 1]
+        test_raw = rew_model.predict_proba(test_sub[feature_cols])[:, 1]
+        cal_est = LogisticRegression(solver="lbfgs", max_iter=1000)
+        cal_est.fit(val_raw.reshape(-1, 1), val_sub["y_true"].astype(int))
+        val_cal = cal_est.predict_proba(val_raw.reshape(-1, 1))[:, 1]
+        test_cal = cal_est.predict_proba(test_raw.reshape(-1, 1))[:, 1]
+
+        candidates = np.round(np.arange(0.01, 0.80 + 1e-9, 0.005), 3)
+        cand_ok = [
+            c
+            for c in candidates
+            if ((val_cal >= c) & (val_sub["y_true"] == 1)).sum()
+            / (val_sub["y_true"] == 1).sum()
+            >= target_recall
+        ]
+        cand_t = float(max(cand_ok)) if cand_ok else primary_t
+        rew_flag = (test_cal >= cand_t).astype(int)
+
         y_test = test_sub["y_true"].to_numpy().astype(int)
 
-        for variant, flags in (("base", base_flag), ("group_threshold", mit_flag)):
+        for variant, flags in (
+            ("base", base_flag),
+            ("group_threshold", mit_flag),
+            ("reweighing", rew_flag),
+        ):
             tp = int(((flags == 1) & (y_test == 1)).sum())
             fp = int(((flags == 1) & (y_test == 0)).sum())
             fn = int(((flags == 0) & (y_test == 1)).sum())
@@ -188,3 +245,4 @@ def stage_fairness_mitigation() -> pd.DataFrame:
         json.dumps(thresholds_dict, indent=2) + "\n", encoding="utf-8"
     )
     return mitigation_df
+
