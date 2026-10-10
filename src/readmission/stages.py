@@ -122,3 +122,36 @@ def stage_explain_global() -> None:
 
     print("Top 10 features by SHAP importance:")
     print(importance_df.head(10).to_string(index=False))
+
+
+def stage_odds_ratios() -> pd.DataFrame:
+    """Compute and save odds ratios for the baseline model using the training split."""
+    from readmission.oddsratio import odds_table
+
+    split = json.loads((ROOT / "artifacts" / "split.json").read_text(encoding="utf-8"))
+    train_ids = split["train"]
+    train_frame = frame_for_encounters(train_ids)
+    y = train_frame["y_true"]
+    patient = train_frame["patient_nbr"]
+
+    table = odds_table(train_frame, y, patient)
+    out_path = ROOT / "artifacts" / "odds_ratios.csv"
+    table.to_csv(out_path, index=False)
+
+    table["abs_log_or"] = np.abs(np.log(table["odds_ratio"]))
+    top_10 = table.sort_values(by="abs_log_or", ascending=False).head(10)
+    print("Top 10 terms with largest absolute log odds ratio:")
+    print(
+        top_10[
+            [
+                "term",
+                "source_feature",
+                "odds_ratio",
+                "lower",
+                "upper",
+                "p_value",
+                "unit",
+            ]
+        ].to_string(index=False)
+    )
+    return table

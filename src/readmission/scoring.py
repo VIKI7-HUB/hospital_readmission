@@ -26,10 +26,9 @@ def frame_for_encounters(encounter_ids: list[int] | np.ndarray) -> pd.DataFrame:
     config = _config()
     clean_path = ROOT / config["paths"]["cleaned_data"]
     enc_list = [int(i) for i in encounter_ids]
-    clean_df = pd.read_parquet(
-        clean_path,
-        filters=[("encounter_id", "in", enc_list)],
-    )
+    enc_set = set(enc_list)
+    clean_df = pd.read_parquet(clean_path)
+    clean_df = clean_df[clean_df["encounter_id"].isin(enc_set)]
     if clean_df.empty:
         raise ValueError("No encounters found for the provided IDs.")
     clean_df = (
