@@ -242,3 +242,109 @@ def stage_fairness_audit() -> None:
             ["attribute", "group", "n", "positives", "tpr", "fpr", "roc_auc", "underpowered"]
         ].to_string(index=False)
     )
+
+
+def stage_fairness_mitigation() -> pd.DataFrame:
+    """Compare base model against group-threshold equal opportunity mitigation."""
+    import joblib
+
+    from readmission.calibrate import apply_calibrator
+    from readmission.fair_stats import (
+        MIN_POSITIVES,
+        apply_group_thresholds,
+        group_thresholds,
+    )
+    from readmission.features import build_fairness_attributes
+    from readmission.scoring import frame_for_encounters, predict_raw
+
+    split = json.loads((ROOT / "artifacts" / "split.json").read_text(encoding="utf-8"))
+    val = frame_for_encounters(split["validation"])
+    val_fair = build_fairness_attributes(val)
+    val["age_band"] = val_fair["age_band"].astype(str)
+
+    champ = json.loads((ROOT / "artifacts" / "champion.json").read_text(encoding="utf-8"))["model"]
+    calibrators = joblib.load(ROOT / "artifacts" / "calibrators.joblib")
+    cal = calibrators[champ]
+    val["p_cal"] = apply_calibrator(cal, predict_raw(champ, val))
+
+    th = json.loads((ROOT / "artifacts" / "threshold.json").read_text(encoding="utf-8"))
+    primary_t = float(th["primary"]["threshold"])
+    target_recall = float(th["primary"]["recall"])
+
+    test = pd.read_parquet(ROOT / "artifacts" / "test_predictions.parquet")
+    if "p_cal" not in test.columns and "probability_calibrated" in test.columns:
+        test["p_cal"] = test["probability_calibrated"]
+
+    records: list[dict[str, Any]] = []
+    thresholds_dict: dict[str, Any] = {}
+
+    for attribute in ("age_band", "gender", "race"):
+        val_sub = val.copy()
+        test_sub = test.copy()
+        if attribute == "gender":
+            val_sub = val_sub[val_sub["gender"].isin(["Male", "Female"])]
+            test_sub = test_sub[test_sub["gender"].isin(["Male", "Female"])]
+        elif attribute == "race":
+            val_sub["race"] = val_sub["race"].fillna("Unknown")
+            test_sub["race"] = test_sub["race"].fillna("Unknown")
+
+        thr = group_thresholds(val_sub, attribute, target_recall, fallback=primary_t)
+        thresholds_dict[attribute] = thr
+
+        base_flag = (test_sub["p_cal"].to_numpy() >= primary_t).astype(int)
+        mit_flag = apply_group_thresholds(test_sub, attribute, thr, fallback=primary_t)
+        y_test = test_sub["y_true"].to_numpy().astype(int)
+
+        for variant, flags in (("base", base_flag), ("group_threshold", mit_flag)):
+            tp = int(((flags == 1) & (y_test == 1)).sum())
+            fp = int(((flags == 1) & (y_test == 0)).sum())
+            fn = int(((flags == 0) & (y_test == 1)).sum())
+            tn = int(((flags == 0) & (y_test == 0)).sum())
+
+            rec = float(tp / (tp + fn)) if (tp + fn) else 0.0
+            prec = float(tp / (tp + fp)) if (tp + fp) else 0.0
+            fpr = float(fp / (fp + tn)) if (fp + tn) else 0.0
+            acc = float((tp + tn) / len(y_test))
+
+            tprs: list[float] = []
+            fprs: list[float] = []
+            for _, g in test_sub.groupby(attribute, observed=True):
+                idx = g.index
+                pos = int((g["y_true"] == 1).sum())
+                neg = int((g["y_true"] == 0).sum())
+                if pos < MIN_POSITIVES:
+                    continue
+                fl = flags[test_sub.index.get_indexer(idx)]
+                g_tp = int(((fl == 1) & (g["y_true"].to_numpy() == 1)).sum())
+                g_fp = int(((fl == 1) & (g["y_true"].to_numpy() == 0)).sum())
+                tprs.append(g_tp / pos if pos else 0.0)
+                fprs.append(g_fp / neg if neg else 0.0)
+
+            tpr_diff = float(max(tprs) - min(tprs)) if len(tprs) >= 2 else 0.0
+            fpr_diff = float(max(fprs) - min(fprs)) if len(fprs) >= 2 else 0.0
+            eq_odds = float(max(tpr_diff, fpr_diff))
+
+            records.append(
+                {
+                    "attribute": attribute,
+                    "variant": variant,
+                    "recall": rec,
+                    "precision": prec,
+                    "fpr": fpr,
+                    "accuracy": acc,
+                    "tpr_difference": tpr_diff,
+                    "fpr_difference": fpr_diff,
+                    "equalized_odds_difference": eq_odds,
+                }
+            )
+
+    mitigation_df = pd.DataFrame(records)
+    artifacts_dir = ROOT / "artifacts"
+    mitigation_df.to_csv(artifacts_dir / "fairness_mitigation.csv", index=False)
+    (artifacts_dir / "fairness_thresholds.json").write_text(
+        json.dumps(thresholds_dict, indent=2) + "\n", encoding="utf-8"
+    )
+
+    print("Fairness Mitigation Summary:")
+    print(mitigation_df.to_string(index=False))
+    return mitigation_df

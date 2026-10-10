@@ -42,3 +42,19 @@ def test_reweighing_makes_group_and_label_independent():
     w = F.reweighing_weights(g, yy)
     rate = {k: w[(g == k) & (yy == 1)].sum() / w[g == k].sum() for k in ("a", "b")}
     assert abs(rate["a"] - rate["b"]) < 1e-9 and abs(w.sum() - n) < 1e-6
+
+
+def test_mitigated_recall_within_five_percentage_points_of_base():
+    from pathlib import Path
+
+    import pandas as pd
+
+    root = Path(__file__).resolve().parents[1]
+    df = pd.read_csv(root / "artifacts" / "fairness_mitigation.csv")
+    for attr in df["attribute"].unique():
+        sub = df[df["attribute"] == attr].set_index("variant")
+        base_recall = float(sub.loc["base", "recall"])
+        mitigated_recall = float(sub.loc["group_threshold", "recall"])
+        assert abs(mitigated_recall - base_recall) <= 0.05, (
+            f"Recall difference {abs(mitigated_recall - base_recall):.4f} for {attr} exceeds 0.05"
+        )
