@@ -18,6 +18,10 @@
     "sonner": "^2.0.8"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "autoprefixer": "^10.6.1",
+    "postcss": "^8.5.29",
+    "tailwindcss": "^4.3.3",
     "vite": "^6.4.0"
   }
 }

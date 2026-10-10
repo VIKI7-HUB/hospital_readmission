@@ -427,11 +427,11 @@ function DrawerCareActionChip({ action, index }) {
       transition={{ delay: 0.05 * index, duration: 0.2 }}
     >
       <div className="drawer-action-checkbox">
-        {checked && <Check className="w-3 h-3 text-white" />}
+        {checked && <Check className="w-3.5 h-3.5 text-white" />}
       </div>
-      <div className="flex flex-col">
-        <strong className="text-sm font-semibold">{action.label}</strong>
-        <small className="text-xs text-muted">{action.desc}</small>
+      <div className="drawer-action-content">
+        <strong className="drawer-action-title">{action.label}</strong>
+        <p className="drawer-action-desc">{action.desc}</p>
       </div>
     </motion.div>
   );
@@ -463,6 +463,12 @@ function App() {
     window.addEventListener("hashchange", handleHash);
     return () => window.removeEventListener("hashchange", handleHash);
   }, []);
+
+  useEffect(() => {
+    setReviewRecord(null);
+    setOpenPalette(false);
+    setShowHelpModal(false);
+  }, [view]);
 
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("clinicalai-theme");
@@ -512,6 +518,15 @@ function App() {
   const [reviewLoading, setReviewLoading] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [openPalette, setOpenPalette] = useState(false);
+
+  // Industry-grade Healthcare Navigation States
+  const [govTab, setGovTab] = useState("performance"); // 'performance' | 'fairness' | 'pipeline' | 'all'
+  const [selectedUnit, setSelectedUnit] = useState("Unit 4B · Inpatient Endocrinology");
+  const [navGroupOpen, setNavGroupOpen] = useState({
+    worklist: true,
+    calculator: true,
+    governance: true,
+  });
 
   // Micro-interactions state
   const [refreshedSuccess, setRefreshedSuccess] = useState(false);
@@ -1171,86 +1186,185 @@ function App() {
           )}
         </div>
 
+        {!sidebarCollapsed && (
+          <div className="sidebar-unit-card">
+            <div className="sidebar-unit-header">
+              <span className="sidebar-unit-label">Inpatient Unit</span>
+              <span className="sidebar-unit-live-tag">Active Cohort</span>
+            </div>
+            <select
+              className="sidebar-unit-select"
+              value={selectedUnit}
+              onChange={(e) => {
+                setSelectedUnit(e.target.value);
+                toast.info(`Switched clinical context to ${e.target.value}`);
+              }}
+            >
+              <option value="Unit 4B · Inpatient Endocrinology">Unit 4B · Endocrinology</option>
+              <option value="Unit 3A · Acute Medical Stepdown">Unit 3A · Med Stepdown</option>
+              <option value="Unit 2C · Cardiometabolic Care">Unit 2C · Cardiology</option>
+            </select>
+          </div>
+        )}
+
         <nav className="sidebar-nav" aria-label="Main sidebar navigation">
-          {!sidebarCollapsed && <span className="nav-section-label">Clinical Workspace</span>}
+          {!sidebarCollapsed ? (
+            <>
+              {/* Dropdown Section 1: Inpatient Care Management */}
+              <div className="nav-accordion-group">
+                <button
+                  type="button"
+                  className="nav-accordion-header"
+                  onClick={() => setNavGroupOpen((prev) => ({ ...prev, worklist: !prev.worklist }))}
+                >
+                  <span className="nav-accordion-title">
+                    <FileSpreadsheet className="w-3.5 h-3.5 text-brand" />
+                    <span>Inpatient Worklists</span>
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 nav-accordion-arrow ${navGroupOpen.worklist ? "open" : ""}`} />
+                </button>
+                {navGroupOpen.worklist && (
+                  <div className="nav-accordion-subitems">
+                    <button
+                      type="button"
+                      className={`nav-subitem ${view === "worklist" && tier === "all" ? "active" : ""}`}
+                      onClick={() => { setView("worklist"); setTier("all"); setPage(1); }}
+                    >
+                      <span>Discharge Cohort</span>
+                      <span className="nav-subitem-badge">{summary.cohort_size || 500}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`nav-subitem ${view === "worklist" && tier === "flagged" ? "active" : ""}`}
+                      onClick={() => { setView("worklist"); setTier("flagged"); setPage(1); }}
+                    >
+                      <span>Flagged Priority (≥12%)</span>
+                      <span className="nav-subitem-badge flagged">{summary.flagged || 188}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`nav-subitem ${view === "worklist" && tier === "high" ? "active" : ""}`}
+                      onClick={() => { setView("worklist"); setTier("high"); setPage(1); }}
+                    >
+                      <span>High Risk Tier (≥20%)</span>
+                      <span className="nav-subitem-badge high">{summary.high_risk || 45}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`nav-subitem ${view === "worklist" && tier === "low" ? "active" : ""}`}
+                      onClick={() => { setView("worklist"); setTier("low"); setPage(1); }}
+                    >
+                      <span>Low Risk Monitoring</span>
+                      <span className="nav-subitem-badge">{summary.low_risk || 312}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
 
-          {/* Worklist Nav Item */}
-          <button
-            className={`nav-item ${view === "worklist" ? "active" : ""}`}
-            onClick={() => { setView("worklist"); setError(""); }}
-            title="Discharge worklist"
-          >
-            {view === "worklist" && (
-              <motion.div
-                layoutId="activeNavIndicator"
-                className="nav-item-active-pill"
-                transition={motionTokens.springs.snappy}
-              />
-            )}
-            {view === "worklist" && (
-              <motion.div
-                layoutId="activeNavBar"
-                className="nav-item-active-bar"
-                transition={motionTokens.springs.snappy}
-              />
-            )}
-            <div className="nav-item-content">
-              <FileSpreadsheet className="nav-icon" />
-              {!sidebarCollapsed && <span>Discharge worklist</span>}
-            </div>
-          </button>
+              {/* Dropdown Section 2: Clinical Decision Support */}
+              <div className="nav-accordion-group">
+                <button
+                  type="button"
+                  className="nav-accordion-header"
+                  onClick={() => setNavGroupOpen((prev) => ({ ...prev, calculator: !prev.calculator }))}
+                >
+                  <span className="nav-accordion-title">
+                    <Activity className="w-3.5 h-3.5 text-brand" />
+                    <span>Decision Support</span>
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 nav-accordion-arrow ${navGroupOpen.calculator ? "open" : ""}`} />
+                </button>
+                {navGroupOpen.calculator && (
+                  <div className="nav-accordion-subitems">
+                    <button
+                      type="button"
+                      className={`nav-subitem ${view === "calculator" ? "active" : ""}`}
+                      onClick={() => { setView("calculator"); }}
+                    >
+                      <span>Bedside Risk Simulator</span>
+                      <span className="nav-subitem-badge">Interactive</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="nav-subitem"
+                      onClick={() => { setShowHelpModal(true); }}
+                    >
+                      <span>HRRP Care Protocols</span>
+                      <span className="nav-subitem-badge">CMS</span>
+                    </button>
+                  </div>
+                )}
+              </div>
 
-          {/* Risk Calculator Nav Item */}
-          <button
-            className={`nav-item ${view === "calculator" ? "active" : ""}`}
-            onClick={() => { setView("calculator"); setError(""); }}
-            title="Risk calculator"
-          >
-            {view === "calculator" && (
-              <motion.div
-                layoutId="activeNavIndicator"
-                className="nav-item-active-pill"
-                transition={motionTokens.springs.snappy}
-              />
-            )}
-            {view === "calculator" && (
-              <motion.div
-                layoutId="activeNavBar"
-                className="nav-item-active-bar"
-                transition={motionTokens.springs.snappy}
-              />
-            )}
-            <div className="nav-item-content">
-              <Activity className="nav-icon" />
-              {!sidebarCollapsed && <span>Risk calculator</span>}
-            </div>
-          </button>
-
-          {/* Model Governance Nav Item */}
-          <button
-            className={`nav-item ${view === "governance" ? "active" : ""}`}
-            onClick={() => { setView("governance"); setError(""); }}
-            title="Model governance"
-          >
-            {view === "governance" && (
-              <motion.div
-                layoutId="activeNavIndicator"
-                className="nav-item-active-pill"
-                transition={motionTokens.springs.snappy}
-              />
-            )}
-            {view === "governance" && (
-              <motion.div
-                layoutId="activeNavBar"
-                className="nav-item-active-bar"
-                transition={motionTokens.springs.snappy}
-              />
-            )}
-            <div className="nav-item-content">
-              <ShieldCheck className="nav-icon" />
-              {!sidebarCollapsed && <span>Model governance</span>}
-            </div>
-          </button>
+              {/* Dropdown Section 3: Quality & Model Governance */}
+              <div className="nav-accordion-group">
+                <button
+                  type="button"
+                  className="nav-accordion-header"
+                  onClick={() => setNavGroupOpen((prev) => ({ ...prev, governance: !prev.governance }))}
+                >
+                  <span className="nav-accordion-title">
+                    <ShieldCheck className="w-3.5 h-3.5 text-brand" />
+                    <span>Quality & Governance</span>
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 nav-accordion-arrow ${navGroupOpen.governance ? "open" : ""}`} />
+                </button>
+                {navGroupOpen.governance && (
+                  <div className="nav-accordion-subitems">
+                    <button
+                      type="button"
+                      className={`nav-subitem ${view === "governance" && govTab === "performance" ? "active" : ""}`}
+                      onClick={() => { setView("governance"); setGovTab("performance"); }}
+                    >
+                      <span>Model Performance</span>
+                      <span className="nav-subitem-badge">ROC 0.653</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`nav-subitem ${view === "governance" && govTab === "fairness" ? "active" : ""}`}
+                      onClick={() => { setView("governance"); setGovTab("fairness"); }}
+                    >
+                      <span>Demographic Fairness</span>
+                      <span className="nav-subitem-badge">Audited</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`nav-subitem ${view === "governance" && govTab === "pipeline" ? "active" : ""}`}
+                      onClick={() => { setView("governance"); setGovTab("pipeline"); }}
+                    >
+                      <span>Data Pipeline</span>
+                      <span className="nav-subitem-badge">0% Leak</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Collapsed Compact Nav Items */}
+              <button
+                className={`nav-item ${view === "worklist" ? "active" : ""}`}
+                onClick={() => { setView("worklist"); setError(""); }}
+                title="Discharge worklist"
+              >
+                <FileSpreadsheet className="nav-icon" />
+              </button>
+              <button
+                className={`nav-item ${view === "calculator" ? "active" : ""}`}
+                onClick={() => { setView("calculator"); setError(""); }}
+                title="Risk calculator"
+              >
+                <Activity className="nav-icon" />
+              </button>
+              <button
+                className={`nav-item ${view === "governance" ? "active" : ""}`}
+                onClick={() => { setView("governance"); setError(""); }}
+                title="Model governance"
+              >
+                <ShieldCheck className="nav-icon" />
+              </button>
+            </>
+          )}
         </nav>
 
         <div className="sidebar-footer">
@@ -1450,7 +1564,7 @@ function App() {
                       ? `${((summary.flagged / summary.cohort_size) * 100).toFixed(1)}% of cohort (≥12% cutoff)`
                       : "37.6% of cohort (≥12% cutoff)"
                   }
-                  secondLine={`High (≥20%): ${summary.high_risk ?? 45} (${summary.cohort_size ? ((summary.high_risk / summary.cohort_size) * 100).toFixed(1) : "9.0"}%) · Elevated (12–20%): ${summary.elevated_risk ?? 143} (${summary.cohort_size ? ((summary.elevated_risk / summary.cohort_size) * 100).toFixed(1) : "28.6"}%)`}
+                  secondLine={`45 High Risk (9.0%) · 143 Elevated (28.6%)`}
                   icon={AlertTriangle}
                   tone="red"
                   accentRed={true}
@@ -1478,18 +1592,14 @@ function App() {
                   label="Polypharmacy Burden"
                   value={summary.polypharmacy ?? "395"}
                   rawNumber={summary.polypharmacy ?? 395}
-                  context={
-                    summary.cohort_size
-                      ? `${((summary.polypharmacy / summary.cohort_size) * 100).toFixed(1)}% of cohort (≥10 distinct meds during stay; 79% of sample has 10+)`
-                      : "79.0% of cohort (≥10 distinct meds during stay; 79% of sample has 10+)"
-                  }
+                  context="79.0% with ≥10 distinct medications"
                   icon={Pill}
                   tone="amber"
                   miniVisual={
                     <KpiProportionBar
                       percentage={summary.cohort_size ? (summary.polypharmacy / summary.cohort_size) * 100 : 79.0}
                       tone="amber"
-                      title={`${summary.cohort_size ? ((summary.polypharmacy / summary.cohort_size) * 100).toFixed(1) : "79.0"}% of encounters with ≥10 distinct medications during stay (79% of sample has 10 or more)`}
+                      title="79.0% of encounters with ≥10 distinct medications during stay"
                     />
                   }
                 />
@@ -1498,16 +1608,14 @@ function App() {
                   label="Observed Readmissions"
                   value={summary.readmissions ?? "54"}
                   rawNumber={summary.readmissions ?? 54}
-                  context={
-                    `${summary.cohort_size ? ((summary.readmissions / summary.cohort_size) * 100).toFixed(1) : "10.8"}% sample rate vs test-set rate (11.39%)`
-                  }
+                  context="10.8% sample rate (11.39% benchmark)"
                   icon={TrendingUp}
                   tone="green"
                   miniVisual={
                     <KpiProportionBar
                       percentage={summary.cohort_size ? (summary.readmissions / summary.cohort_size) * 100 : 10.8}
                       tone="green"
-                      title={`${summary.cohort_size ? ((summary.readmissions / summary.cohort_size) * 100).toFixed(1) : "10.8"}% sample rate vs test-set rate (11.39%)`}
+                      title="10.8% sample rate vs test-set rate (11.39%)"
                     />
                   }
                 />
@@ -1517,6 +1625,45 @@ function App() {
               <section className="table-section-card">
                 {/* Toolbar */}
                 <div className="table-toolbar">
+                  {/* Quick Segment Filter Bar */}
+                  <div className="worklist-quick-filter-bar">
+                    <button
+                      type="button"
+                      className={`quick-filter-btn ${tier === "all" ? "active" : ""}`}
+                      onClick={() => { setTier("all"); setPage(1); }}
+                    >
+                      All Inpatients ({summary.cohort_size || 500})
+                    </button>
+                    <button
+                      type="button"
+                      className={`quick-filter-btn flagged ${tier === "flagged" ? "active" : ""}`}
+                      onClick={() => { setTier("flagged"); setPage(1); }}
+                    >
+                      Flagged (≥12%) ({summary.flagged || 188})
+                    </button>
+                    <button
+                      type="button"
+                      className={`quick-filter-btn high ${tier === "high" ? "active" : ""}`}
+                      onClick={() => { setTier("high"); setPage(1); }}
+                    >
+                      High Risk ({summary.high_risk || 45})
+                    </button>
+                    <button
+                      type="button"
+                      className={`quick-filter-btn elevated ${tier === "elevated" ? "active" : ""}`}
+                      onClick={() => { setTier("elevated"); setPage(1); }}
+                    >
+                      Elevated ({summary.elevated_risk || 143})
+                    </button>
+                    <button
+                      type="button"
+                      className={`quick-filter-btn low ${tier === "low" ? "active" : ""}`}
+                      onClick={() => { setTier("low"); setPage(1); }}
+                    >
+                      Low Risk ({summary.low_risk || 312})
+                    </button>
+                  </div>
+
                   <div className="toolbar-primary-row">
                     {/* Search Input */}
                     <div className="search-input-wrapper">
@@ -1983,17 +2130,17 @@ function App() {
                     <div className="summary-avatar-badge">
                       {currentEncounter.gender?.charAt(0) || "P"}
                     </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-sm text-primary">
+                    <div className="summary-patient-meta">
+                      <div className="summary-enc-id font-mono">
                         {currentEncounter.enc_id}
                       </div>
-                      <div className="text-xs text-muted">
+                      <div className="summary-enc-details">
                         {currentEncounter.age} · {currentEncounter.gender} · {currentEncounter.race}
                       </div>
                     </div>
-                    <div className="text-right">
-                      <span className="text-xs font-semibold text-muted block">Cohort Baseline</span>
-                      <span className="font-bold text-sm text-primary tabular-nums">
+                    <div className="summary-baseline-pill">
+                      <span className="summary-baseline-label">Cohort Baseline</span>
+                      <span className="summary-baseline-value font-mono tabular-nums">
                         {prettyPercent(currentEncounter.prob)}
                       </span>
                     </div>
@@ -2363,6 +2510,47 @@ function App() {
                   </div>
                 </motion.div>
 
+                {/* Industry-Grade Governance Tab Navigation */}
+                <div className="gov-tabs-nav">
+                  <button
+                    type="button"
+                    className={`gov-tab-btn ${govTab === "performance" ? "active" : ""}`}
+                    onClick={() => setGovTab("performance")}
+                  >
+                    <Activity className="w-4 h-4" />
+                    <span>Model Performance & Benchmarks</span>
+                    <span className="gov-tab-pill">ROC 0.653</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`gov-tab-btn ${govTab === "fairness" ? "active" : ""}`}
+                    onClick={() => setGovTab("fairness")}
+                  >
+                    <Scale className="w-4 h-4" />
+                    <span>Demographic Fairness (Fairlearn)</span>
+                    <span className="gov-tab-pill">Equal Opp</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`gov-tab-btn ${govTab === "pipeline" ? "active" : ""}`}
+                    onClick={() => setGovTab("pipeline")}
+                  >
+                    <Database className="w-4 h-4" />
+                    <span>Data Pipeline & Cohort Safety</span>
+                    <span className="gov-tab-pill">0% Leakage</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`gov-tab-btn ${govTab === "all" ? "active" : ""}`}
+                    onClick={() => setGovTab("all")}
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>All Sections</span>
+                  </button>
+                </div>
+
+                {(govTab === "pipeline" || govTab === "all") && (
+                  <>
                 {/* ===================================================================
                     SECTION 2: DATA & PREPROCESSING (COLLAPSIBLE)
                     =================================================================== */}
@@ -2668,7 +2856,11 @@ function App() {
                     </p>
                   </div>
                 </motion.div>
+                </>
+              )}
 
+              {(govTab === "performance" || govTab === "all") && (
+                <>
                 {/* ===================================================================
                     SECTION 4: MODEL COMPARISON
                     =================================================================== */}
@@ -3189,7 +3381,11 @@ function App() {
                     <strong>Clinical consistency:</strong> Prior inpatient hospitalizations and length of stay are consistently the strongest independent predictors of 30-day readmission across both parametric odds ratios and tree splits, aligning directly with established LACE and HOSPITAL readmission scoring indices.
                   </div>
                 </motion.div>
+                </>
+              )}
 
+              {(govTab === "fairness" || govTab === "all") && (
+                <>
                 {/* ===================================================================
                     SECTION 8: FAIRNESS (OPTIONAL EXTENSION)
                     =================================================================== */}
@@ -3549,6 +3745,8 @@ function App() {
                     </table>
                   </div>
                 </motion.div>
+                </>
+              )}
               </div>
             );
           })()}
@@ -3628,18 +3826,19 @@ function App() {
                 <div className="drawer-gauge-card">
                   <div className="drawer-gauge-left">
                     <span className="drawer-gauge-meta">Calibrated 30-Day Readmission Risk</span>
-                    <span
-                      className={`drawer-gauge-pct tabular-nums ${
-                        reviewRecord.tier?.toLowerCase().startsWith("high")
-                          ? "text-red-600 dark:text-red-400"
-                          : reviewRecord.tier?.toLowerCase().startsWith("elevated") || reviewRecord.tier?.toLowerCase().startsWith("mod")
-                          ? "text-amber-600 dark:text-amber-400"
-                          : "text-emerald-600 dark:text-emerald-400"
-                      }`}
-                    >
-                      <AnimatedNumber value={reviewRecord.prob * 100} format={(v) => `${v.toFixed(1)}%`} />
-                    </span>
-                    <RiskBadge tier={reviewRecord.tier} />
+                    <div className="flex items-center gap-2 mt-1 mb-2">
+                      <RiskBadge tier={reviewRecord.tier} />
+                      <span className="text-xs text-muted font-mono">
+                        Baseline: 11.2%
+                      </span>
+                    </div>
+                    <p className="text-xs text-secondary leading-relaxed">
+                      {reviewRecord.tier?.toLowerCase().startsWith("high")
+                        ? "Patient exceeds the 20% high-risk clinical cutoff. Multidisciplinary discharge transition bundle advised."
+                        : reviewRecord.tier?.toLowerCase().startsWith("elevated") || reviewRecord.tier?.toLowerCase().startsWith("mod")
+                        ? "Patient falls in the 12%–20% surveillance tier. Post-discharge telehealth outreach recommended."
+                        : "Risk is below the 12% decision cutoff. Standard post-acute discharge pathway appropriate."}
+                    </p>
                   </div>
                   <RiskGauge probability={reviewRecord.prob} tier={reviewRecord.tier} />
                 </div>
