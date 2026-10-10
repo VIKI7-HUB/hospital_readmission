@@ -1,0 +1,27 @@
+{
+  "logistic_regression": {
+    "sigmoid_cv_brier": 0.0966773464618993,
+    "isotonic_cv_brier": 0.09729257154853209,
+    "selected": "sigmoid"
+  },
+  "random_forest": {
+    "sigmoid_cv_brier": 0.09641871377857313,
+    "isotonic_cv_brier": 0.09695144627421569,
+    "selected": "sigmoid"
+  },
+  "lightgbm": {
+    "sigmoid_cv_brier": 0.09643136856648957,
+    "isotonic_cv_brier": 0.09655751302035905,
+    "selected": "sigmoid"
+  },
+  "xgboost": {
+    "sigmoid_cv_brier": 0.10085258441694642,
+    "isotonic_cv_brier": 0.09759598589170874,
+    "selected": "isotonic"
+  },
+  "catboost": {
+    "sigmoid_cv_brier": 0.09772463683507368,
+    "isotonic_cv_brier": 0.09709276883206444,
+    "selected": "isotonic"
+  }
+}

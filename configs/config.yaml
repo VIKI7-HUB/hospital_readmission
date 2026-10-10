@@ -57,3 +57,9 @@ models:
       learning_rate: [0.01, 0.2]
       l2_leaf_reg: [1.0, 10.0]
       random_strength: [0.0, 2.0]
+evaluation:
+  recall_target: 0.60
+  false_negative_cost: 5
+  false_positive_cost: 1
+  high_risk_percentile: 90
+  calibration_folds: 5

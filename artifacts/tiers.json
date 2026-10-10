@@ -1,0 +1,8 @@
+{
+  "model": "random_forest",
+  "low_below": 0.1134043040022547,
+  "high_at_or_above": 0.1989755611284136,
+  "elevated_from": 0.1134043040022547,
+  "elevated_below": 0.1989755611284136,
+  "percentile": 90.0
+}

@@ -1,0 +1,13 @@
+{
+  "model": "random_forest",
+  "validation_average_precision": 0.2258615351595917,
+  "best_validation_average_precision": 0.22727161755443853,
+  "simpler_model_order": [
+    "logistic_regression",
+    "random_forest",
+    "lightgbm",
+    "xgboost",
+    "catboost"
+  ],
+  "reason": "Selected random_forest by the simpler-model rule within 0.005 of the best validation average precision."
+}

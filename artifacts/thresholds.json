@@ -1,0 +1,80 @@
+{
+  "recall_target": 0.6,
+  "cost_assumptions": {
+    "false_negative_cost": 5.0,
+    "false_positive_cost": 1.0,
+    "label": "Assumed relative misclassification costs."
+  },
+  "models": {
+    "logistic_regression": {
+      "operating": {
+        "threshold": 0.10843206959050115,
+        "precision": 0.17552916881775943,
+        "recall": 0.601237842617153,
+        "recall_target_met": true
+      },
+      "cost_optimal": {
+        "threshold": 0.16176662255283758,
+        "cost": 5009,
+        "false_positives": 1169,
+        "false_negatives": 768
+      }
+    },
+    "random_forest": {
+      "operating": {
+        "threshold": 0.1134043040022547,
+        "precision": 0.17859932309294455,
+        "recall": 0.6065428824049514,
+        "recall_target_met": true
+      },
+      "cost_optimal": {
+        "threshold": 0.17714305937393118,
+        "cost": 4978,
+        "false_positives": 1098,
+        "false_negatives": 776
+      }
+    },
+    "lightgbm": {
+      "operating": {
+        "threshold": 0.11465163670735933,
+        "precision": 0.17663891779396462,
+        "recall": 0.6003536693191865,
+        "recall_target_met": true
+      },
+      "cost_optimal": {
+        "threshold": 0.17239312760309788,
+        "cost": 4956,
+        "false_positives": 1291,
+        "false_negatives": 733
+      }
+    },
+    "xgboost": {
+      "operating": {
+        "threshold": 0.096201632942847,
+        "precision": 0.13779079225638524,
+        "recall": 0.748894783377542,
+        "recall_target_met": true
+      },
+      "cost_optimal": {
+        "threshold": 0.17216642754662842,
+        "cost": 5100,
+        "false_positives": 1125,
+        "false_negatives": 795
+      }
+    },
+    "catboost": {
+      "operating": {
+        "threshold": 0.12014453477868112,
+        "precision": 0.16787678767876787,
+        "recall": 0.6746242263483643,
+        "recall_target_met": true
+      },
+      "cost_optimal": {
+        "threshold": 0.16863406408094436,
+        "cost": 5072,
+        "false_positives": 1397,
+        "false_negatives": 735
+      }
+    }
+  }
+}

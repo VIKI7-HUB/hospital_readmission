@@ -199,7 +199,11 @@ def train_all(fast: bool = False) -> pd.DataFrame:
     config = _load_config()
     split = json.loads((ROOT / "artifacts" / "split.json").read_text(encoding="utf-8"))
     feature_config = json.loads(FEATURE_CONFIG_PATH.read_text(encoding="utf-8"))
-    frame = pd.read_parquet(ROOT / config["paths"]["cleaned_data"])
+    fitting_ids = split["train"] + split["validation"]
+    frame = pd.read_parquet(
+        ROOT / config["paths"]["cleaned_data"],
+        filters=[("encounter_id", "in", fitting_ids)],
+    )
     train = _rows_for_ids(frame, split["train"])
     valid = _rows_for_ids(frame, split["validation"])
     train_x = build_features(train, feature_config)
