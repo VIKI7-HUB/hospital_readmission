@@ -9,5 +9,6 @@
     "xgboost",
     "catboost"
   ],
-  "reason": "Selected random_forest by the simpler-model rule within 0.005 of the best validation average precision."
+  "reason": "Selected random_forest by the simpler-model rule within 0.005 of the best validation average precision.",
+  "champion": "random_forest"
 }

@@ -1,0 +1,15 @@
+note: "Illustrative suggestions for discussion. Not clinical guidance."
+tiers:
+  Low:
+    - "Standard discharge instructions and follow-up with the primary care clinician."
+  Elevated:
+    - "Schedule a follow-up visit within 14 days of discharge."
+    - "Confirm the patient has a current medication list and knows who to call with questions."
+  High:
+    - "Arrange a follow-up phone call within 2 days of discharge."
+    - "Schedule a follow-up visit within 7 days."
+    - "Ask a pharmacist to review the medication list before discharge."
+flags:
+  many_medications: "Many medications: review the list for duplicates and interactions."
+  repeat_admissions: "Two or more admissions in the past year: consider assigning a care coordinator."
+  long_stay: "Stay of a week or more: check mobility and home support before discharge."

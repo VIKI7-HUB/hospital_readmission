@@ -46,8 +46,25 @@ def _fit_calibrator(calibrator: Any, method: str, scores: np.ndarray, target: np
     return calibrator.fit(values, target)
 
 
-def apply_calibrator(calibrator: dict[str, Any], scores: np.ndarray) -> np.ndarray:
+class ModelCalibrator:
+    """Wrapper for calibrated probability predictions."""
+
+    def __init__(self, method: str, estimator: Any) -> None:
+        self.method = method
+        self.estimator = estimator
+
+    def predict(self, scores: np.ndarray) -> np.ndarray:
+        values = np.asarray(scores, dtype=float)
+        reshaped = values.reshape(-1, 1) if self.method == "sigmoid" else values
+        if self.method == "sigmoid":
+            return self.estimator.predict_proba(reshaped)[:, 1]
+        return np.asarray(self.estimator.predict(reshaped), dtype=float)
+
+
+def apply_calibrator(calibrator: dict[str, Any] | ModelCalibrator, scores: np.ndarray) -> np.ndarray:
     """Apply a fitted sigmoid or isotonic calibrator to model scores."""
+    if isinstance(calibrator, ModelCalibrator):
+        return calibrator.predict(scores)
     method = calibrator["method"]
     estimator = calibrator["estimator"]
     values = scores.reshape(-1, 1) if method == "sigmoid" else scores
