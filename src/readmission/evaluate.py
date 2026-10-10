@@ -160,7 +160,10 @@ def evaluate_test_set(
     predictions = pd.DataFrame(
         {
             "encounter_id": test["encounter_id"].to_numpy(),
+            "patient_nbr": test["patient_nbr"].to_numpy(),
             "y_true": target,
+            "p_raw": raw[champion_name],
+            "p_cal": champion_probability,
             "probability_raw": raw[champion_name],
             "probability_calibrated": champion_probability,
             "tier": _risk_tier(champion_probability, tiers),
@@ -169,15 +172,25 @@ def evaluate_test_set(
             "race": test["race"].astype(str).to_numpy(),
             "discharge_group": feature_frame["discharge_group"].astype(str).to_numpy(),
             "diag_1_category": feature_frame["diag_1_category"].astype(str).to_numpy(),
+            "diag_1_cat": feature_frame["diag_1_category"].astype(str).to_numpy(),
             "number_inpatient": feature_frame["number_inpatient"].to_numpy(),
         }
     )
     (ROOT / "artifacts").mkdir(exist_ok=True)
-    (ROOT / "artifacts" / "metrics.json").write_text(
+    m_path = ROOT / "artifacts" / "metrics.json"
+    if m_path.exists():
+        m_path.unlink()
+    m_path.write_text(
         json.dumps(metrics, indent=2, allow_nan=False) + "\n", encoding="utf-8"
     )
-    pd.DataFrame(comparison).to_csv(ROOT / "artifacts" / "model_comparison.csv", index=False)
-    predictions.to_parquet(ROOT / "artifacts" / "test_predictions.parquet", index=False)
+    c_path = ROOT / "artifacts" / "model_comparison.csv"
+    if c_path.exists():
+        c_path.unlink()
+    pd.DataFrame(comparison).to_csv(c_path, index=False)
+    p_path = ROOT / "artifacts" / "test_predictions.parquet"
+    if p_path.exists():
+        p_path.unlink()
+    predictions.to_parquet(p_path, index=False)
     return metrics, pd.DataFrame(comparison)
 
 

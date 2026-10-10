@@ -48,7 +48,8 @@ def run_decision_curve() -> pd.DataFrame:
     lace_p = lr.predict_proba(test_lace)[:, 1]
 
     test_preds = pd.read_parquet(ROOT / "artifacts" / "test_predictions.parquet")
-    champ_p = test_preds["p_cal"].to_numpy()
+    p_col = "p_cal" if "p_cal" in test_preds.columns else "probability_calibrated"
+    champ_p = test_preds[p_col].to_numpy()
 
     thresholds = np.round(np.arange(0.02, 0.40 + 1e-9, 0.01), 2)
     nb_champ = net_benefit(test_y, champ_p, thresholds)
@@ -63,5 +64,8 @@ def run_decision_curve() -> pd.DataFrame:
             "treat_none": nb_champ["treat_none"],
         }
     )
-    df_out.to_parquet(ROOT / "artifacts" / "decision_curve.parquet", index=False)
+    out_parquet = ROOT / "artifacts" / "decision_curve.parquet"
+    if out_parquet.exists():
+        out_parquet.unlink()
+    df_out.to_parquet(out_parquet, index=False)
     return df_out

@@ -60,8 +60,11 @@ def save_scores(model_name: str, split: str, df: pd.DataFrame) -> None:
     """Save score table to artifacts/scores/{model_name}__{split}.parquet."""
     out_dir = ROOT / "artifacts" / "scores"
     out_dir.mkdir(parents=True, exist_ok=True)
+    target_path = out_dir / f"{model_name}__{split}.parquet"
+    if target_path.exists():
+        target_path.unlink()
     df[["encounter_id", "patient_nbr", "y_true", "p_raw"]].to_parquet(
-        out_dir / f"{model_name}__{split}.parquet", index=False
+        target_path, index=False
     )
 
 
