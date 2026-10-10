@@ -25,8 +25,16 @@ fairness_mitigation = load_table("fairness_mitigation.csv")
 feature_evidence = load_table("feature_evidence.csv")
 
 clean_encounters = f"{dq['row_counts']['clean']:,}"
-patients = f"{dq['patients']:,}"
-readmit_share = f"{dq['positive_class_share']['clean']:.1%}"
+patients_val = (
+    dq["patients"].get("unique_patients", dq["patients"])
+    if isinstance(dq["patients"], dict)
+    else dq["patients"]
+)
+patients = f"{patients_val:,}"
+pos_share = dq["positive_class_share"]
+if isinstance(pos_share, dict):
+    pos_share = pos_share.get("clean", pos_share.get("raw", 0.0))
+readmit_share = f"{float(pos_share):.1%}"
 champion_name = champ["model"]
 
 stat_row(
