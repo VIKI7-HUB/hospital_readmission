@@ -89,6 +89,18 @@ def stage_evaluate() -> None:
     run_evaluation()
 
 
+def stage_bootstrap() -> None:
+    from readmission.bootstrap import run_bootstrap
+
+    run_bootstrap()
+
+
+def stage_lace() -> None:
+    from readmission.baselines import stage_lace
+
+    stage_lace()
+
+
 def stage_explain_global() -> None:
     """Compute global SHAP contributions for champion model on sample of test encounters."""
     config = _config()

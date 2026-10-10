@@ -15,7 +15,9 @@ def test_page_scoring_path_reproduces_stored_predictions():
         25, random_state=0
     )
     with (ROOT / "artifacts" / "champion.json").open(encoding="utf-8") as f:
-        champion = json.load(f)["champion"]
+        d = json.load(f)
+        champion = d.get("champion") or d.get("model")
+
     frame = frame_for_encounters(stored["encounter_id"].tolist())
     cal = joblib.load(ROOT / "artifacts" / "models" / "calibrators" / f"{champion}.joblib")
     got = pd.Series(

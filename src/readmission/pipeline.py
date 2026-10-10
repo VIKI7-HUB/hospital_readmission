@@ -10,6 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 from readmission.stages import (
+    stage_bootstrap,
     stage_calibrate,
     stage_data,
     stage_evaluate,
@@ -17,6 +18,7 @@ from readmission.stages import (
     stage_fairness_audit,
     stage_fairness_mitigation,
     stage_features,
+    stage_lace,
     stage_odds_ratios,
     stage_score,
     stage_split,
@@ -35,11 +37,14 @@ STAGES = [
     ("calibrate", stage_calibrate),
     ("threshold", stage_threshold),
     ("evaluate", stage_evaluate),
+    ("bootstrap", stage_bootstrap),
+    ("lace", stage_lace),
     ("explain", stage_explain_global),
     ("odds", stage_odds_ratios),
     ("fairness", stage_fairness_audit),
     ("mitigation", stage_fairness_mitigation),
 ]
+
 
 
 def readme_table(path: str = "artifacts/model_comparison.csv") -> str:

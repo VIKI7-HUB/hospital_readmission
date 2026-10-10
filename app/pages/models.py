@@ -7,6 +7,7 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT / "app")]
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+from charts import dot_whisker
 from loaders import load_json, load_table
 from style import GREY, OKABE_ITO, RUST, TEAL, figure, setup
 
@@ -67,6 +68,29 @@ st.dataframe(styled_table, hide_index=True, width="stretch")
 st.caption(
     "All models evaluated once on the held-out test split at the threshold chosen on validation data."
 )
+
+if (ROOT / "artifacts" / "lace.json").exists():
+    lace = load_json("lace.json")
+    lace_row = pd.DataFrame(
+        [
+            {
+                "model": "LACE-style (approximate)",
+                "threshold": f"{lace['cutoff']:.0f}",
+                "precision": f"{lace['precision']:.1%}",
+                "recall": f"{lace['recall']:.1%}",
+                "roc_auc": f"{lace['roc_auc']:.3f}",
+                "pr_auc": f"{lace['pr_auc']:.3f}",
+            }
+        ]
+    )
+    st.dataframe(lace_row, hide_index=True, width="stretch")
+    st.caption(lace["note"])
+    champ_auc = float(table_df[table_df["model"] == champion_name]["roc_auc"].iloc[0])
+    st.write(
+        f"The champion model ({champion_name}) achieves ROC-AUC {champ_auc:.3f}, outperforming the "
+        f"LACE-style clinical score ({lace['roc_auc']:.3f}) by {champ_auc - lace['roc_auc']:+.3f}."
+    )
+
 
 st.header("2. Why recall comes first")
 
@@ -285,3 +309,52 @@ st.write(
     f"{diff_ap:.4f}). {reason} Random forest was preferred as it achieves parity discrimination "
     "with fewer tuning dependencies and reliable out-of-bag variance reduction."
 )
+
+st.header("4. How certain is the ranking")
+
+boot_path = ROOT / "artifacts" / "bootstrap.csv"
+paired_path = ROOT / "artifacts" / "bootstrap_vs_baseline.csv"
+
+if boot_path.exists():
+    boot_df = load_table("bootstrap.csv")
+    roc_boot = boot_df[boot_df["metric"] == "roc_auc"].copy()
+    fig_roc_boot = dot_whisker(
+        roc_boot["model"],
+        roc_boot["mean"],
+        roc_boot["lower"],
+        roc_boot["upper"],
+        x_title="ROC-AUC",
+        fmt=".3f",
+        title="ROC-AUC with 95% bootstrap interval",
+    )
+    figure(fig_roc_boot, 5, "ROC-AUC 95% confidence intervals from patient-clustered bootstrap.")
+
+    pr_boot = boot_df[boot_df["metric"] == "pr_auc"].copy()
+    fig_pr_boot = dot_whisker(
+        pr_boot["model"],
+        pr_boot["mean"],
+        pr_boot["lower"],
+        pr_boot["upper"],
+        x_title="PR-AUC",
+        fmt=".3f",
+        title="PR-AUC with 95% bootstrap interval",
+    )
+    figure(fig_pr_boot, 6, "PR-AUC 95% confidence intervals from patient-clustered bootstrap.")
+
+if paired_path.exists():
+    paired_df = load_table("bootstrap_vs_baseline.csv")
+    pr_paired = paired_df[paired_df["metric"] == "pr_auc"].copy()
+    for _, row in pr_paired.iterrows():
+        m_name = row["model"]
+        d = float(row["mean_diff"])
+        lo = float(row["lower"])
+        hi = float(row["upper"])
+        share = float(row["share_better"])
+        msg = (
+            f"{m_name}: PR-AUC differs from logistic regression by {d:+.3f} "
+            f"(95% interval {lo:+.3f} to {hi:+.3f}); it is higher in {share:.0%} of resamples."
+        )
+        if lo <= 0 <= hi:
+            msg += " The difference is not clearly separated from zero."
+        st.write(msg)
+

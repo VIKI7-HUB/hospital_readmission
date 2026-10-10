@@ -1,0 +1,9 @@
+{
+  "roc_auc": 0.5842198372168353,
+  "pr_auc": 0.14404721062715958,
+  "cutoff": 7.0,
+  "flag_rate": 0.403311858264546,
+  "recall": 0.5139195757843571,
+  "precision": 0.145139148883065,
+  "note": "Approximate LACE: simplified Charlson mapping; emergency visits cover the previous year in this data, not six months."
+}
