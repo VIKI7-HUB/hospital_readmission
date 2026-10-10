@@ -1,4 +1,0 @@
-Risk Tier,Score Range,Encounters (n),Readmissions,Observed Rate (%),CI 95 Lower (%),CI 95 Upper (%),CI 95 String
-Low,< 12%,12378,967,7.81,7.35,8.3,"[7.35%, 8.30%]"
-Elevated,12% to 20%,5769,879,15.24,14.33,16.19,"[14.33%, 16.19%]"
-High,>= 20%,1723,417,24.2,22.24,26.28,"[22.24%, 26.28%]"

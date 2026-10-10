@@ -1,4 +1,0 @@
-subgroup,sample_size_n,readmitted_cases_k,is_small_sample,unmitigated_tpr_pct,unmitigated_fpr_pct,unmitigated_precision_pct,unmitigated_ci_95_str,mitigated_tpr_pct,mitigated_fpr_pct,mitigated_precision_pct,mitigated_ci_95_str,headline_eligible
-30-60 Years,6131,592,False,53.72,26.02,18.08,49.7%–57.7%,53.72,25.89,18.15,49.7%–57.7%,True
-60+ Years,13227,1605,False,58.13,40.07,16.69,55.7%–60.5%,58.01,39.93,16.71,55.6%–60.4%,True
-<30 Years,512,66,True,68.18,21.97,31.47,56.2%–78.2%,68.18,21.97,31.47,56.2%–78.2%,False

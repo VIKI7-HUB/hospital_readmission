@@ -1,42 +1,10 @@
-# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-node_modules/
-dist/
-*$py.class
-
-# Distribution / packaging
-build/
-dist/
-*.egg-info/
-
-# Virtual Environments
-venv/
-env/
-.venv/
-ENV/
-
-# Environment Variables & Keys
-.env
-.env.local
-supabase/.temp/
-
-# IDEs & Editors
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS Generated
-.DS_Store
-Thumbs.db
-
-# Logs & Temp files
-*.log
-catboost_info/
-scratch/
 .pytest_cache/
 .ruff_cache/
-*.zip
-*.tar.gz
-*.tmp
+.venv/
+venv/
+env/
+data/raw/
+.DS_Store
+.ipynb_checkpoints/

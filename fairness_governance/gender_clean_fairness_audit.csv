@@ -1,4 +1,0 @@
-subgroup,sample_size_n,readmitted_cases_k,is_small_sample,unmitigated_tpr_pct,unmitigated_fpr_pct,unmitigated_precision_pct,unmitigated_ci_95_str,mitigated_tpr_pct,mitigated_fpr_pct,mitigated_precision_pct,mitigated_ci_95_str,headline_eligible
-Female,10615,1238,False,58.8,36.45,17.56,56.0%–61.5%,58.72,36.32,17.59,56.0%–61.4%,True
-Male,9254,1025,False,55.41,33.75,16.98,52.4%–58.4%,55.32,33.61,17.01,52.3%–58.3%,True
-Other/Unknown,1,0,True,0.0,0.0,0.0,0.0%–0.0%,0.0,0.0,0.0,0.0%–0.0%,False

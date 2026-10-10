@@ -1,4 +1,0 @@
-Subgroup,Sample Size,Mitigated Threshold,Mitigated Selection Rate,Mitigated Recall (TPR),Mitigated Precision
-Female,10615,0.132,0.3375412152614225,0.5355411954765751,0.18504046888082612
-Male,9254,0.124,0.3293710827750162,0.5336585365853659,0.17946194225721784
-Other/Unknown,1,0.13,1.0,0.0,0.0

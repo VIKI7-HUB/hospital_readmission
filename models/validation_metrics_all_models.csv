@@ -1,7 +1,0 @@
-Model,Validation AUC-ROC,Validation PR-AUC,Validation Brier Score
-Logistic Regression,0.6645,0.2049,0.0973
-Random Forest,0.6664,0.2086,0.0971
-XGBoost,0.6687,0.2153,0.0967
-LightGBM,0.6679,0.2151,0.0967
-CatBoost,0.6696,0.2183,0.0967
-Calibrated Ensemble,0.6701,0.2178,0.0966

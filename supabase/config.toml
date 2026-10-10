@@ -1,4 +1,0 @@
-project_id = "hospital-readmission"
-
-[functions.clinicalai-api]
-verify_jwt = false
