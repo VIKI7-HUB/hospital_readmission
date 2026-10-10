@@ -24,6 +24,7 @@ from readmission.stages import (
     stage_lace,
     stage_odds_ratios,
     stage_score,
+    stage_sensitivity,
     stage_split,
     stage_threshold,
     stage_train,
@@ -47,9 +48,11 @@ STAGES = [
     ("odds", stage_odds_ratios),
     ("hba1c", stage_hba1c),
     ("blend", stage_blend),
+    ("sensitivity", stage_sensitivity),
     ("fairness", stage_fairness_audit),
     ("mitigation", stage_fairness_mitigation),
 ]
+
 
 
 

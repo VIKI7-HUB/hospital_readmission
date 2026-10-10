@@ -109,3 +109,87 @@ def waterfall_chart(
         yaxis=dict(autorange="reversed"),
     )
     return fig
+
+
+def roc_curves_chart(metrics: dict, champion_name: str) -> go.Figure:
+    """Build multi-model ROC curve figure."""
+    from style import OKABE_ITO
+
+    fig = go.Figure()
+    fig.add_shape(
+        type="line",
+        x0=0,
+        y0=0,
+        x1=1,
+        y1=1,
+        line=dict(dash="dot", color=GREY, width=1.2),
+    )
+    for idx, (m_name, m_data) in enumerate(metrics.items()):
+        roc = m_data["curves"]["roc"]
+        is_champ = m_name == champion_name
+        color = TEAL if is_champ else OKABE_ITO[idx % len(OKABE_ITO)]
+        fig.add_trace(
+            go.Scatter(
+                x=roc["false_positive_rate"],
+                y=roc["true_positive_rate"],
+                mode="lines",
+                name=f"{m_name} (AUC {m_data['roc_auc']:.3f})",
+                line=dict(color=color, width=3 if is_champ else 1.5),
+                customdata=roc["thresholds"],
+                hovertemplate=(
+                    f"<b>{m_name}</b><br>FPR: %{{x:.3f}}<br>TPR: %{{y:.3f}}"
+                    f"<br>Threshold: %{{customdata:.3f}}<extra></extra>"
+                ),
+            )
+        )
+    fig.update_layout(
+        title="Receiver Operating Characteristic (ROC)",
+        xaxis_title="False positive rate",
+        yaxis_title="True positive rate",
+        height=380,
+        legend=dict(orientation="h", y=-0.25),
+    )
+    return fig
+
+
+def pr_curves_chart(metrics: dict, champion_name: str, champ_row) -> go.Figure:
+    """Build multi-model Precision-Recall curve figure."""
+    from style import OKABE_ITO
+
+    fig = go.Figure()
+    pos_rate = float(champ_row["tp"] + champ_row["fn"]) / (
+        champ_row["tp"] + champ_row["fp"] + champ_row["tn"] + champ_row["fn"]
+    )
+    fig.add_hline(
+        y=pos_rate,
+        line=dict(dash="dot", color=GREY, width=1.2),
+        annotation_text="no skill",
+        annotation_position="bottom right",
+    )
+    for idx, (m_name, m_data) in enumerate(metrics.items()):
+        pr = m_data["curves"]["precision_recall"]
+        is_champ = m_name == champion_name
+        color = TEAL if is_champ else OKABE_ITO[idx % len(OKABE_ITO)]
+        fig.add_trace(
+            go.Scatter(
+                x=pr["recall"],
+                y=pr["precision"],
+                mode="lines",
+                name=f"{m_name} (PR-AUC {m_data['pr_auc']:.3f})",
+                line=dict(color=color, width=3 if is_champ else 1.5),
+                customdata=pr["thresholds"] + [pr["thresholds"][-1]],
+                hovertemplate=(
+                    f"<b>{m_name}</b><br>Recall: %{{x:.3f}}<br>Precision: %{{y:.3f}}"
+                    f"<br>Threshold: %{{customdata:.3f}}<extra></extra>"
+                ),
+            )
+        )
+    fig.update_layout(
+        title="Precision-Recall Curves",
+        xaxis_title="Recall",
+        yaxis_title="Precision",
+        height=380,
+        legend=dict(orientation="h", y=-0.25),
+    )
+    return fig
+

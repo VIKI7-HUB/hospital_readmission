@@ -1,0 +1,15 @@
+{
+  "model": "random_forest",
+  "n_train_total": 69538,
+  "n_train_first": 48968,
+  "n_test_total": 19868,
+  "n_test_first": 14068,
+  "first_encounters_only": {
+    "roc_auc": 0.6526887936951916,
+    "pr_auc": 0.1679109719994463
+  },
+  "all_encounters_champion": {
+    "roc_auc": 0.6516534704709885,
+    "pr_auc": 0.16930787253794688
+  }
+}

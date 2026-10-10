@@ -226,12 +226,18 @@ def stage_blend() -> None:
     run_blend()
 
 
-__all__ = [
+def stage_sensitivity() -> None:
+    from readmission.sensitivity import run_sensitivity
 
+    run_sensitivity()
+
+
+__all__ = [
     "stage_data",
     "stage_split",
     "stage_features",
     "stage_train",
+
     "stage_score",
     "stage_calibrate",
     "stage_threshold",
@@ -243,7 +249,9 @@ __all__ = [
     "stage_odds_ratios",
     "stage_hba1c",
     "stage_blend",
+    "stage_sensitivity",
     "stage_fairness_audit",
     "stage_fairness_mitigation",
 ]
+
 

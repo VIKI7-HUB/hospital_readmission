@@ -7,9 +7,9 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT / "app")]
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
-from charts import dot_whisker
+from charts import dot_whisker, pr_curves_chart, roc_curves_chart
 from loaders import load_json, load_table
-from style import GREY, OKABE_ITO, RUST, TEAL, figure, setup
+from style import GREY, RUST, TEAL, figure, setup
 
 setup("Models")
 
@@ -120,6 +120,29 @@ if (ROOT / "artifacts" / "blend.json").exists():
         "no per-feature explanation is available for a multi-model blend."
     )
 
+if (ROOT / "artifacts" / "sensitivity.json").exists():
+    sens = load_json("sensitivity.json")
+    sens_rows = [
+        {
+            "evaluation": "All-encounters champion on test first encounters",
+            "encounters": f"{sens['n_test_first']:,}",
+            "roc_auc": f"{sens['all_encounters_champion']['roc_auc']:.3f}",
+            "pr_auc": f"{sens['all_encounters_champion']['pr_auc']:.3f}",
+        },
+        {
+            "evaluation": "First-encounters-only model on test first encounters",
+            "encounters": f"{sens['n_test_first']:,}",
+            "roc_auc": f"{sens['first_encounters_only']['roc_auc']:.3f}",
+            "pr_auc": f"{sens['first_encounters_only']['pr_auc']:.3f}",
+        },
+    ]
+    st.write("**Sensitivity check: first encounter per patient**")
+    st.dataframe(pd.DataFrame(sens_rows), hide_index=True, width="stretch")
+    st.caption(
+        "Sensitivity analysis confirms model performance does not depend on patients with many "
+        "repeat encounters, who would otherwise be disproportionately over-represented."
+    )
+
 
 st.header("2. Why recall comes first")
 
@@ -155,84 +178,22 @@ st.write(p3)
 
 col_c1, col_c2 = st.columns(2)
 
-# Fig 1: ROC curves
 with col_c1:
-    fig_roc = go.Figure()
-    fig_roc.add_shape(
-        type="line",
-        x0=0,
-        y0=0,
-        x1=1,
-        y1=1,
-        line=dict(dash="dot", color=GREY, width=1.2),
-    )
-    for idx, (m_name, m_data) in enumerate(metrics.items()):
-        roc = m_data["curves"]["roc"]
-        is_champ = m_name == champion_name
-        color = TEAL if is_champ else OKABE_ITO[idx % len(OKABE_ITO)]
-        fig_roc.add_trace(
-            go.Scatter(
-                x=roc["false_positive_rate"],
-                y=roc["true_positive_rate"],
-                mode="lines",
-                name=f"{m_name} (AUC {m_data['roc_auc']:.3f})",
-                line=dict(color=color, width=3 if is_champ else 1.5),
-                customdata=roc["thresholds"],
-                hovertemplate=f"<b>{m_name}</b><br>FPR: %{{x:.3f}}<br>TPR: %{{y:.3f}}<br>Threshold: %{{customdata:.3f}}<extra></extra>",
-            )
-        )
-    fig_roc.update_layout(
-        title="Receiver Operating Characteristic (ROC)",
-        xaxis_title="False positive rate",
-        yaxis_title="True positive rate",
-        height=380,
-        legend=dict(orientation="h", y=-0.25),
-    )
+    fig_roc = roc_curves_chart(metrics, champion_name)
     figure(
         fig_roc,
         1,
         "ROC curves across all candidate models evaluated on held-out test data. Champion shown thicker.",
     )
 
-# Fig 2: Precision-Recall curves
 with col_c2:
-    fig_pr = go.Figure()
-    pos_rate = float(champ_row["tp"] + champ_row["fn"]) / (
-        champ_row["tp"] + champ_row["fp"] + champ_row["tn"] + champ_row["fn"]
-    )
-    fig_pr.add_hline(
-        y=pos_rate,
-        line=dict(dash="dot", color=GREY, width=1.2),
-        annotation_text="no skill",
-        annotation_position="bottom right",
-    )
-    for idx, (m_name, m_data) in enumerate(metrics.items()):
-        pr = m_data["curves"]["precision_recall"]
-        is_champ = m_name == champion_name
-        color = TEAL if is_champ else OKABE_ITO[idx % len(OKABE_ITO)]
-        fig_pr.add_trace(
-            go.Scatter(
-                x=pr["recall"],
-                y=pr["precision"],
-                mode="lines",
-                name=f"{m_name} (PR-AUC {m_data['pr_auc']:.3f})",
-                line=dict(color=color, width=3 if is_champ else 1.5),
-                customdata=pr["thresholds"] + [pr["thresholds"][-1]],
-                hovertemplate=f"<b>{m_name}</b><br>Recall: %{{x:.3f}}<br>Precision: %{{y:.3f}}<extra></extra>",
-            )
-        )
-    fig_pr.update_layout(
-        title="Precision-Recall curves",
-        xaxis_title="Recall",
-        yaxis_title="Precision",
-        height=380,
-        legend=dict(orientation="h", y=-0.25),
-    )
+    fig_pr = pr_curves_chart(metrics, champion_name, champ_row)
     figure(
         fig_pr,
         2,
         "Precision-recall curves across candidate models. Horizontal line marks test positive prevalence.",
     )
+
 
 col_d1, col_d2 = st.columns(2)
 
