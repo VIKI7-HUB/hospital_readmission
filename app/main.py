@@ -6,7 +6,7 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT / "app")]
 
 import streamlit as st
 
-st.set_page_config(page_title="Readmission risk", layout="wide")
+st.set_page_config(page_title="Readmission risk", layout="wide", initial_sidebar_state="collapsed")
 
 pages = [
     st.Page("pages/overview.py", title="Overview", default=True),
@@ -18,4 +18,4 @@ pages = [
     st.Page("pages/fairness.py", title="Fairness"),
     st.Page("pages/patient_risk.py", title="Patient risk"),
 ]
-st.navigation(pages).run()
+st.navigation(pages, position="top").run()

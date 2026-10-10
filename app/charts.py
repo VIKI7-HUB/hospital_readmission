@@ -13,7 +13,7 @@ def dot_whisker(
     x_title="",
     fmt=".0%",
     reference=None,
-    height=320,
+    height=460,
     title="",
     log_x=False,
 ):
@@ -26,10 +26,10 @@ def dot_whisker(
             y=[str(label) for label in labels],
             mode="markers",
             marker=dict(
-                size=9,
+                size=12,
                 color=TEAL,
                 symbol=["circle-open" if h else "circle" for h in hollow],
-                line=dict(width=1.5, color=TEAL),
+                line=dict(width=2, color=TEAL),
             ),
             error_x=dict(
                 type="data",
@@ -37,21 +37,21 @@ def dot_whisker(
                 array=[hi - v for v, hi in zip(values, highs, strict=False)],
                 arrayminus=[v - lo for v, lo in zip(values, lows, strict=False)],
                 color=GREY,
-                thickness=1.2,
+                thickness=2,
                 width=4,
             ),
             hovertemplate="%{y}<br>%{x:" + fmt + "}<extra></extra>",
         )
     )
     if reference is not None:
-        fig.add_vline(x=reference, line=dict(dash="dot", color=RUST, width=1.2))
+        fig.add_vline(x=reference, line=dict(dash="dot", color=RUST, width=2))
     fig.update_xaxes(tickformat=fmt, title=x_title, type="log" if log_x else "linear")
     fig.update_yaxes(autorange="reversed")
     fig.update_layout(title=title, height=height, showlegend=False)
     return fig
 
 
-def interval_chart(table, label_col, title, x_title="Readmitted within 30 days", height=320):
+def interval_chart(table, label_col, title, x_title="Readmitted within 30 days", height=460):
     """Readmission rate per level with Wilson intervals. table comes from eda.rate_table."""
     fig = dot_whisker(
         table[label_col],
@@ -75,7 +75,7 @@ def waterfall_chart(
     margin: float,
     contribs,
     labels_map: dict[str, str],
-    height: int = 400,
+    height: int = 460,
 ) -> go.Figure:
     """Waterfall plot breaking down encounter risk into baseline log-odds and feature adjustments."""
     abs_c = contribs.abs().sort_values(ascending=False)
@@ -146,7 +146,7 @@ def roc_curves_chart(metrics: dict, champion_name: str) -> go.Figure:
         title="Receiver Operating Characteristic (ROC)",
         xaxis_title="False positive rate",
         yaxis_title="True positive rate",
-        height=380,
+        height=460,
         legend=dict(orientation="h", y=-0.25),
     )
     return fig
@@ -188,7 +188,7 @@ def pr_curves_chart(metrics: dict, champion_name: str, champ_row) -> go.Figure:
         title="Precision-Recall Curves",
         xaxis_title="Recall",
         yaxis_title="Precision",
-        height=380,
+        height=460,
         legend=dict(orientation="h", y=-0.25),
     )
     return fig
