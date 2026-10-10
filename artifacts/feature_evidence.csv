@@ -1,0 +1,52 @@
+feature,type,percent_missing,number_of_levels,mutual_information,univariate_auc,max_readmission_rate,min_readmission_rate,decision,reason
+age,categorical,0.0,10,0.0006780700867113391,,0.12564393608661487,0.00980392156862745,kept,Preserves the source decade band without implying exact age.
+age_mid,numeric,0.0,10,0.002698339104043379,0.5233093885559479,,,kept,Provides an approximate numeric age for smooth risk trends.
+gender,categorical,0.0,2,1.0336032923857763e-05,,0.11523062139654068,0.11233397767662281,kept,Captures recorded gender differences in readmission risk.
+race,categorical,0.0,6,0.00016460663973652274,,0.11525410657823706,0.08071748878923767,kept,Supports risk estimation and subgroup fairness review.
+time_in_hospital,numeric,0.0,14,0.004272150210006043,0.5472572293744677,,,kept,Summarizes the encounter length at discharge.
+num_lab_procedures,numeric,0.0,117,0.0013559097868343084,0.5244568840323125,,,kept,Summarizes testing intensity during the encounter.
+num_procedures,numeric,0.0,7,0.001123814225309383,0.49504439990478966,,,kept,Summarizes procedures completed during the encounter.
+num_medications,numeric,0.0,75,0.0028270670354033633,0.5432486102463828,,,kept,Measures medication burden at discharge.
+number_diagnoses,numeric,0.0,16,0.005433830188554145,0.5429709566452279,,,kept,Measures documented diagnosis burden.
+number_outpatient,numeric,0.0,36,0.0028370370710035786,0.5189270777085011,,,kept,Captures recent outpatient utilization.
+number_emergency,numeric,0.0,25,0.002404800626586434,0.5321573489528674,,,kept,Captures recent emergency utilization.
+number_inpatient,numeric,0.0,21,0.012459748032602525,0.6069099649403903,,,kept,Captures recent inpatient utilization.
+prior_visits_total,numeric,0.0,42,0.01002788103557517,0.6032730724263636,,,kept,"Summarizes prior outpatient, emergency, and inpatient visits."
+admission_type,categorical,0.0,6,0.00014671227297006963,,0.14285714285714285,0.0,kept,Adds readable context about the admission urgency or type.
+admission_source,categorical,0.0,15,0.00029034344050841065,,0.16666666666666666,0.0,kept,Captures how the patient arrived at the hospital.
+discharge_group,categorical,0.0,5,0.0037684192428859564,,0.16353924119983565,0.0933358666223341,kept,Summarizes the destination or disposition at discharge.
+diag_1_category,categorical,0.0,9,0.00032236136534517443,,0.12603374131657294,0.09161624891961971,kept,Groups the primary diagnosis into a broad ICD-9 chapter.
+diag_2_category,categorical,0.0,9,0.0003288936079846004,,0.16266173752310537,0.10462641424890781,kept,Groups the secondary diagnosis into a broad ICD-9 chapter.
+diag_3_category,categorical,0.0,9,0.0004988607942560501,,0.16768558951965065,0.10580406031505349,kept,Groups the tertiary diagnosis into a broad ICD-9 chapter.
+A1Cresult,categorical,0.0,4,0.0001762283951967647,,0.11647003793981602,0.0985264374458249,kept,Captures the recorded glycated hemoglobin result or testing status.
+max_glu_serum,categorical,0.0,4,0.00010540349379304162,,0.15517241379310345,0.1131554598267781,kept,Captures the recorded serum glucose result or testing status.
+insulin,categorical,0.0,4,0.0009426566781777154,,0.1415207483809067,0.10175968442787144,kept,Captures insulin use and dose change at discharge.
+change,categorical,0.0,2,0.00015436820636158255,,0.11988620551037447,0.1086857173579935,kept,Indicates whether diabetes medication changed during the encounter.
+diabetesMed,categorical,0.0,2,0.00029415733825031987,,0.11803303135368899,0.09992449030958973,kept,Indicates whether diabetes medication was prescribed.
+n_meds_changed,numeric,0.0,4,0.0006457224583680254,0.5008791704903232,,,kept,Counts oral diabetes medicines changed up or down.
+n_meds_active,numeric,0.0,7,0.0025131971793195262,0.48530462287846493,,,kept,Counts oral diabetes medicines not recorded as No.
+medical_specialty,categorical,0.0,12,0.0006293323523011299,,0.15413533834586465,0.07011494252873564,kept,Retains common specialties while grouping rare levels.
+payer_code,categorical,0.0,5,0.0003120136631920775,,0.12193791755669682,0.09963869931754316,kept,Groups payer codes into broad coverage categories.
+age_band,categorical,0.0,4,0.00035497182792017246,,0.12531930879038317,0.10160541895567764,dropped,Retained separately for fairness reporting.
+metformin,categorical,0.0,4,0.0004090895062181755,,0.1326530612244898,0.08661417322834646,dropped,Summarized by n_meds_changed and n_meds_active.
+repaglinide,categorical,0.0,4,0.00010461297991116845,,0.20588235294117646,0.06666666666666667,dropped,Summarized by n_meds_changed and n_meds_active.
+nateglinide,categorical,0.0,4,4.584427034436903e-05,,0.125,0.0,dropped,Summarized by n_meds_changed and n_meds_active.
+chlorpropamide,categorical,0.0,4,1.616284463286258e-05,,0.11392878731182177,0.0,dropped,Summarized by n_meds_changed and n_meds_active.
+glimepiride,categorical,0.0,4,2.4705607593461087e-05,,0.13013698630136986,0.10467637039331062,dropped,Summarized by n_meds_changed and n_meds_active.
+acetohexamide,categorical,0.0,1,0.0,,0.11389456124708792,0.11389456124708792,dropped,Summarized by n_meds_changed and n_meds_active.
+glipizide,categorical,0.0,4,8.369026320121774e-05,,0.16535433070866143,0.11332158561288516,dropped,Summarized by n_meds_changed and n_meds_active.
+glyburide,categorical,0.0,4,4.361077442251258e-05,,0.11487952678700593,0.09774436090225563,dropped,Summarized by n_meds_changed and n_meds_active.
+tolbutamide,categorical,0.0,2,8.710716155107753e-07,,0.11389983603256336,0.08333333333333333,dropped,Summarized by n_meds_changed and n_meds_active.
+pioglitazone,categorical,0.0,4,7.833683370444405e-05,,0.1518987341772152,0.10039492828933694,dropped,Summarized by n_meds_changed and n_meds_active.
+rosiglitazone,categorical,0.0,4,2.3266531652171916e-05,,0.11433968639135042,0.06666666666666667,dropped,Summarized by n_meds_changed and n_meds_active.
+acarbose,categorical,0.0,3,2.0634059090878545e-05,,0.2,0.08056872037914692,dropped,Summarized by n_meds_changed and n_meds_active.
+miglitol,categorical,0.0,4,2.9671850619968282e-05,,0.5,0.0,dropped,Summarized by n_meds_changed and n_meds_active.
+troglitazone,categorical,0.0,2,3.477844589339649e-06,,0.11389783709157847,0.0,dropped,Summarized by n_meds_changed and n_meds_active.
+tolazamide,categorical,0.0,3,7.246269560168327e-06,,0.11391658394118578,0.0,dropped,Summarized by n_meds_changed and n_meds_active.
+examide,categorical,0.0,1,0.0,,0.11389456124708792,0.11389456124708792,dropped,Summarized by n_meds_changed and n_meds_active.
+citoglipton,categorical,0.0,1,0.0,,0.11389456124708792,0.11389456124708792,dropped,Summarized by n_meds_changed and n_meds_active.
+glyburide-metformin,categorical,0.0,4,1.2375339678945496e-05,,0.16666666666666666,0.0,dropped,Summarized by n_meds_changed and n_meds_active.
+glipizide-metformin,categorical,0.0,2,4.4123997398906275e-07,,0.1138981978224287,0.09090909090909091,dropped,Summarized by n_meds_changed and n_meds_active.
+glimepiride-pioglitazone,categorical,0.0,2,1.7389090046410248e-06,,0.1138961991457785,0.0,dropped,Summarized by n_meds_changed and n_meds_active.
+metformin-rosiglitazone,categorical,0.0,2,3.477844589339649e-06,,0.11389783709157847,0.0,dropped,Summarized by n_meds_changed and n_meds_active.
+metformin-pioglitazone,categorical,0.0,2,1.7389090046410248e-06,,0.1138961991457785,0.0,dropped,Summarized by n_meds_changed and n_meds_active.
