@@ -1,0 +1,324 @@
+{
+  "row_counts": {
+    "raw": 101766,
+    "clean": 99340
+  },
+  "rows_removed": {
+    "invalid_gender": 3,
+    "terminal_discharge": 2423,
+    "exact_duplicates": 0
+  },
+  "missing_percentages": {
+    "encounter_id": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "patient_nbr": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "race": {
+      "raw": 2.2336,
+      "clean": 0.0
+    },
+    "gender": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "age": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "weight": {
+      "raw": 96.8585,
+      "clean": null
+    },
+    "admission_type_id": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "discharge_disposition_id": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "admission_source_id": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "time_in_hospital": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "payer_code": {
+      "raw": 39.5574,
+      "clean": 0.0
+    },
+    "medical_specialty": {
+      "raw": 49.0822,
+      "clean": 0.0
+    },
+    "num_lab_procedures": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "num_procedures": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "num_medications": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "number_outpatient": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "number_emergency": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "number_inpatient": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "diag_1": {
+      "raw": 0.0206,
+      "clean": 0.0
+    },
+    "diag_2": {
+      "raw": 0.3518,
+      "clean": 0.0
+    },
+    "diag_3": {
+      "raw": 1.3983,
+      "clean": 0.0
+    },
+    "number_diagnoses": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "max_glu_serum": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "A1Cresult": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "metformin": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "repaglinide": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "nateglinide": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "chlorpropamide": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "glimepiride": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "acetohexamide": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "glipizide": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "glyburide": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "tolbutamide": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "pioglitazone": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "rosiglitazone": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "acarbose": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "miglitol": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "troglitazone": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "tolazamide": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "examide": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "citoglipton": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "insulin": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "glyburide-metformin": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "glipizide-metformin": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "glimepiride-pioglitazone": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "metformin-rosiglitazone": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "metformin-pioglitazone": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "change": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "diabetesMed": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "readmitted": {
+      "raw": 0.0,
+      "clean": 0.0
+    },
+    "readmit_30": {
+      "raw": null,
+      "clean": 0.0
+    }
+  },
+  "class_balance": {
+    "raw": {
+      "0": {
+        "count": 90409,
+        "percentage": 88.8401
+      },
+      "1": {
+        "count": 11357,
+        "percentage": 11.1599
+      }
+    },
+    "clean": {
+      "0": {
+        "count": 88026,
+        "percentage": 88.6108
+      },
+      "1": {
+        "count": 11314,
+        "percentage": 11.3892
+      }
+    }
+  },
+  "patients": {
+    "unique_patients": 69987,
+    "patients_with_multiple_encounters": 16341,
+    "share_with_multiple_encounters": 0.233486
+  },
+  "positive_class_share": 0.1138916851218039,
+  "numeric_outliers": {
+    "admission_type_id": {
+      "min": 1.0,
+      "p1": 1.0,
+      "p99": 6.0,
+      "max": 8.0,
+      "count_above_p99": 338
+    },
+    "discharge_disposition_id": {
+      "min": 1.0,
+      "p1": 1.0,
+      "p99": 25.0,
+      "max": 28.0,
+      "count_above_p99": 144
+    },
+    "admission_source_id": {
+      "min": 1.0,
+      "p1": 1.0,
+      "p99": 17.0,
+      "max": 25.0,
+      "count_above_p99": 173
+    },
+    "time_in_hospital": {
+      "min": 1.0,
+      "p1": 1.0,
+      "p99": 14.0,
+      "max": 14.0,
+      "count_above_p99": 0
+    },
+    "num_lab_procedures": {
+      "min": 1.0,
+      "p1": 1.0,
+      "p99": 84.0,
+      "max": 132.0,
+      "count_above_p99": 949
+    },
+    "num_procedures": {
+      "min": 0.0,
+      "p1": 0.0,
+      "p99": 6.0,
+      "max": 6.0,
+      "count_above_p99": 0
+    },
+    "num_medications": {
+      "min": 1.0,
+      "p1": 3.0,
+      "p99": 43.0,
+      "max": 81.0,
+      "count_above_p99": 928
+    },
+    "number_outpatient": {
+      "min": 0.0,
+      "p1": 0.0,
+      "p99": 5.0,
+      "max": 42.0,
+      "count_above_p99": 903
+    },
+    "number_emergency": {
+      "min": 0.0,
+      "p1": 0.0,
+      "p99": 3.0,
+      "max": 76.0,
+      "count_above_p99": 930
+    },
+    "number_inpatient": {
+      "min": 0.0,
+      "p1": 0.0,
+      "p99": 6.0,
+      "max": 21.0,
+      "count_above_p99": 704
+    },
+    "number_diagnoses": {
+      "min": 1.0,
+      "p1": 2.0,
+      "p99": 9.0,
+      "max": 16.0,
+      "count_above_p99": 109
+    }
+  }
+}
