@@ -1,0 +1,68 @@
+{
+  "logistic_regression": {
+    "parameters": {
+      "C": 0.01
+    },
+    "cv_average_precision": 0.20242664515286746,
+    "validation_roc_auc": 0.6664445938322007,
+    "validation_average_precision": 0.21509897245577123,
+    "training_time_seconds": 25.188
+  },
+  "random_forest": {
+    "parameters": {
+      "n_estimators": 208,
+      "max_depth": 30,
+      "min_samples_leaf": 17,
+      "max_features": "sqrt"
+    },
+    "cv_average_precision": 0.2118505949326098,
+    "validation_roc_auc": 0.6643011038456166,
+    "validation_average_precision": 0.2258615351595917,
+    "training_time_seconds": 80.186
+  },
+  "xgboost": {
+    "parameters": {
+      "n_estimators": 382,
+      "max_depth": 4,
+      "learning_rate": 0.024878734419814436,
+      "min_child_weight": 6,
+      "subsample": 0.7727780074568463,
+      "colsample_bytree": 0.7164916560792167,
+      "reg_lambda": 1.6738085788752133
+    },
+    "cv_average_precision": 0.21464803131293245,
+    "validation_roc_auc": 0.630626887204778,
+    "validation_average_precision": 0.19136737643369534,
+    "training_time_seconds": 53.324
+  },
+  "lightgbm": {
+    "parameters": {
+      "n_estimators": 504,
+      "num_leaves": 40,
+      "max_depth": 7,
+      "learning_rate": 0.023927528765580644,
+      "min_child_samples": 53,
+      "subsample": 0.6557975442608167,
+      "colsample_bytree": 0.7168578594140873,
+      "reg_lambda": 0.5404103854647329,
+      "subsample_freq": 1
+    },
+    "cv_average_precision": 0.21244511325672907,
+    "validation_roc_auc": 0.6664122521530067,
+    "validation_average_precision": 0.22727161755443853,
+    "training_time_seconds": 47.61
+  },
+  "catboost": {
+    "parameters": {
+      "iterations": 574,
+      "depth": 10,
+      "learning_rate": 0.08960785365368121,
+      "l2_leaf_reg": 3.968793330444372,
+      "random_strength": 0.31203728088487304
+    },
+    "cv_average_precision": 0.1773384406131359,
+    "validation_roc_auc": 0.6581841573380509,
+    "validation_average_precision": 0.21032244931533292,
+    "training_time_seconds": 653.514
+  }
+}
