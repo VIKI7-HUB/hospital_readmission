@@ -13,6 +13,7 @@ from readmission.stages import (
     stage_bootstrap,
     stage_calibrate,
     stage_data,
+    stage_decision_curve,
     stage_evaluate,
     stage_explain_global,
     stage_fairness_audit,
@@ -39,11 +40,13 @@ STAGES = [
     ("evaluate", stage_evaluate),
     ("bootstrap", stage_bootstrap),
     ("lace", stage_lace),
+    ("decision_curve", stage_decision_curve),
     ("explain", stage_explain_global),
     ("odds", stage_odds_ratios),
     ("fairness", stage_fairness_audit),
     ("mitigation", stage_fairness_mitigation),
 ]
+
 
 
 

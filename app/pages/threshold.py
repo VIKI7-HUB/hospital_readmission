@@ -278,3 +278,74 @@ def render_followup_capacity() -> None:
 
 
 render_followup_capacity()
+
+dc_path = ROOT / "artifacts" / "decision_curve.parquet"
+if dc_path.exists():
+    st.header("4. Net benefit")
+    dc = load_table("decision_curve.parquet")
+
+    fig5 = go.Figure()
+    fig5.add_trace(
+        go.Scatter(
+            x=dc["threshold"],
+            y=dc["champion"],
+            mode="lines",
+            name="Champion model",
+            line=dict(color=TEAL, width=2),
+        )
+    )
+    fig5.add_trace(
+        go.Scatter(
+            x=dc["threshold"],
+            y=dc["lace"],
+            mode="lines",
+            name="LACE-style baseline",
+            line=dict(color=RUST, width=1.8),
+        )
+    )
+    fig5.add_trace(
+        go.Scatter(
+            x=dc["threshold"],
+            y=dc["treat_all"],
+            mode="lines",
+            name="Treat all",
+            line=dict(color=GREY, width=1.2, dash="dot"),
+        )
+    )
+    fig5.add_trace(
+        go.Scatter(
+            x=dc["threshold"],
+            y=dc["treat_none"],
+            mode="lines",
+            name="Treat none",
+            line=dict(color=INK, width=1.2, dash="dot"),
+        )
+    )
+    fig5.update_layout(
+        title="Decision curve analysis (Net benefit)",
+        xaxis_title="Threshold probability",
+        yaxis_title="Net benefit",
+        height=380,
+        legend=dict(orientation="h", y=-0.22),
+    )
+    figure(
+        fig5,
+        5,
+        "Net benefit weighs true positives against false positives at each threshold probability. "
+        "A model is useful where its line is above both reference lines.",
+    )
+
+    best_mask = (
+        (dc["champion"] >= dc["lace"])
+        & (dc["champion"] >= dc["treat_all"])
+        & (dc["champion"] >= dc["treat_none"])
+    )
+    best_df = dc[best_mask]
+    if not best_df.empty:
+        t_min = float(best_df["threshold"].min())
+        t_max = float(best_df["threshold"].max())
+        st.write(
+            f"The champion model provides the highest net benefit across decision thresholds "
+            f"from {t_min:.2f} to {t_max:.2f}."
+        )
+

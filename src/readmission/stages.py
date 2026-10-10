@@ -101,6 +101,13 @@ def stage_lace() -> None:
     stage_lace()
 
 
+def stage_decision_curve() -> None:
+    from readmission.decision_curve import run_decision_curve
+
+    run_decision_curve()
+
+
+
 def stage_explain_global() -> None:
     """Compute global SHAP contributions for champion model on sample of test encounters."""
     config = _config()
