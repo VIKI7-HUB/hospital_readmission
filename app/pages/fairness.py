@@ -24,9 +24,7 @@ champion_json = load_json("champion.json")
 champ_name = champion_json["model"]
 champ_metrics = metrics_json[champ_name]
 overall_recall = float(champ_metrics["recall"])
-overall_fpr = float(champ_metrics["fp"]) / (
-    float(champ_metrics["fp"]) + float(champ_metrics["tn"])
-)
+overall_fpr = float(champ_metrics["fp"]) / (float(champ_metrics["fp"]) + float(champ_metrics["tn"]))
 operating_t = float(summary_json.get("threshold", champ_metrics["threshold"]))
 
 underpowered_set = set(audit_df[audit_df["positives"] < 100]["group"].tolist())
@@ -48,9 +46,7 @@ def render_fairness_dashboard() -> None:
     # 1. Group sizes
     st.header("1. Group sizes")
     display_sizes = sub_audit[["group", "n", "positives", "underpowered"]].copy()
-    display_sizes["underpowered"] = display_sizes["underpowered"].map(
-        {True: "Yes", False: "No"}
-    )
+    display_sizes["underpowered"] = display_sizes["underpowered"].map({True: "Yes", False: "No"})
     st.dataframe(display_sizes, hide_index=True, width="stretch")
 
     # 2. Who is found

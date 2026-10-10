@@ -41,7 +41,7 @@ Every claim made in the application UI, documentation, and executive presentatio
 | ID | File / Component | Root Cause | Remediation Applied | Commit Hash |
 | :--- | :--- | :--- | :--- | :---: |
 | **AUDIT-01** | `requirements.txt` | Missing dependencies: `imbalanced-learn` and `nbformat` were imported in `src/fairness.py` and `src/eda.py` but absent from `requirements.txt`, breaking clean virtualenv installs. | Added `imbalanced-learn>=0.10.0` and `nbformat>=5.9.0` to `requirements.txt`. | `52b9f08`, current |
-| **AUDIT-02** | `tests/test_leakage.py` | Missing formal assertions for encoder category fit, scaler means, resampling isolation, and validation-only tier derivations. | Added comprehensive assertions verifying `imputer.statistics_`, `scaler.mean_`, and `encoder.categories_` match training split; asserted validation-only tuning. | current |
+| **AUDIT-02** | `tests/test_leakage.py` | Missing formal assertions for encoder category fit, scaler means, resampling isolation, and validation-only tier derivations. | Added detailed assertions verifying `imputer.statistics_`, `scaler.mean_`, and `encoder.categories_` match training split; asserted validation-only tuning. | current |
 | **AUDIT-03** | `tests/test_api.py` | Worklist tier count assertions used stale values (44 High / 145 Elevated) instead of the regenerated test sample counts (47 High / 142 Elevated). | Aligned assertions to match exact saved artifact counts (`worklist_precomputed.joblib`: 47 High, 142 Elevated, 189 Flagged, 311 Low). | current |
 | **AUDIT-04** | `backend/main.py` | Stale uvicorn process running from previous turn without `--reload` omitted recent governance keys (`hba1c_validation_experiment`). | Terminated legacy server process and restarted with clean reload configuration. | current |
 | **AUDIT-05** | `app.py` | Legacy Streamlit file contained obsolete performance claims and lacked clear deprecation status. | Added prominent top-level module docstring marking it an archived research prototype; aligned sidebar numbers with audited benchmarks. | `52b9f08` |
@@ -131,13 +131,13 @@ tests/test_model_report_and_benchmark_artifacts_integrity PASSED         [100%]
 cd frontend; npm run build
 
 # Output:
-✓ 2375 modules transformed.
+- 2375 modules transformed.
 rendering chunks...
 computing gzip size...
-dist/index.html                   1.21 kB │ gzip:   0.64 kB
-dist/assets/index-BC-w6-2E.css   65.56 kB │ gzip:  11.17 kB
-dist/assets/index-BQoofief.js   510.18 kB │ gzip: 151.30 kB
-✓ built in 7.22s
+dist/index.html                   1.21 kB - gzip:   0.64 kB
+dist/assets/index-BC-w6-2E.css   65.56 kB - gzip:  11.17 kB
+dist/assets/index-BQoofief.js   510.18 kB - gzip: 151.30 kB
+- built in 7.22s
 ```
 
 ### 3.5 Security Audits (`npm audit` & `pip-audit`)
@@ -168,30 +168,30 @@ TESTING LIVE REST API ENDPOINTS (VALID & INVALID INPUTS)
 ================================================================================
 
 [1] Testing GET / and GET /api/health...
-  • GET /: 200 {'status': 'online', 'service': 'clinicalai-api', ...}
-  • GET /api/health: 200 {'status': 'ok', 'service': 'clinicalai-api', 'cohort_size': 500, 'model': 'calibrated ensemble'}
+  * GET /: 200 {'status': 'online', 'service': 'clinicalai-api', ...}
+  * GET /api/health: 200 {'status': 'ok', 'service': 'clinicalai-api', 'cohort_size': 500, 'model': 'calibrated ensemble'}
 
 [2] Testing GET /api/worklist (Valid)...
-  • GET /api/worklist (page 1, limit 10): total=500, returned=10
+  * GET /api/worklist (page 1, limit 10): total=500, returned=10
 
 [2b] Testing GET /api/worklist (Invalid Params)...
-  • GET /api/worklist (invalid params): status=422, clean response
+  * GET /api/worklist (invalid params): status=422, clean response
 
 [3] Testing GET /api/encounters/{enc_id}...
-  • GET /api/encounters/ENC-313808552: 200 OK
-  • GET /api/encounters/INVALID: 404 clean JSON: {'detail': 'Encounter not found in the demo cohort'}
+  * GET /api/encounters/ENC-313808552: 200 OK
+  * GET /api/encounters/INVALID: 404 clean JSON: {'detail': 'Encounter not found in the demo cohort'}
 
 [4] Testing GET /api/governance...
-  • GET /api/governance: 200 OK (model_version=v2.4.1-calibrated-ensemble)
+  * GET /api/governance: 200 OK (model_version=v2.4.1-calibrated-ensemble)
 
 [5] Testing GET /api/plots/{name}...
-  • GET /api/plots/roc_curve_all_models: 200 image/png (306618 bytes)
-  • GET /api/plots/invalid: 404 clean JSON: {'detail': 'Plot not found'}
+  * GET /api/plots/roc_curve_all_models: 200 image/png (306618 bytes)
+  * GET /api/plots/invalid: 404 clean JSON: {'detail': 'Plot not found'}
 
 [6] Testing POST /api/predict (Valid & Invalid)...
-  • POST /api/predict (Valid): 200 OK -> Risk: 0.1296, Tier: Elevated Risk
-  • POST /api/predict (Invalid fields): 422 clean JSON validation error: 7 errors reported
-  • POST /api/predict (Malformed JSON): 422 clean JSON: JSON decode error
+  * POST /api/predict (Valid): 200 OK -> Risk: 0.1296, Tier: Elevated Risk
+  * POST /api/predict (Invalid fields): 422 clean JSON validation error: 7 errors reported
+  * POST /api/predict (Malformed JSON): 422 clean JSON: JSON decode error
 
 ================================================================================
 ALL ENDPOINT CONTRACT AND ERROR HANDLING CHECKS PASSED WITH 0 TRACEBACKS!
@@ -200,26 +200,26 @@ ALL ENDPOINT CONTRACT AND ERROR HANDLING CHECKS PASSED WITH 0 TRACEBACKS!
 ================================================================================
 TESTING RISK CALCULATOR LIVE SCORING PARITY FOR 20 RANDOM TEST ROWS
 ================================================================================
-  • Row  1 (ENC-176735808): Offline=0.055337, Live=0.055337, Diff=0.00e+00
-  • Row  2 (ENC-25395342): Offline=0.037035, Live=0.037035, Diff=0.00e+00
-  • Row  3 (ENC-168645222): Offline=0.074046, Live=0.074046, Diff=0.00e+00
-  • Row  4 (ENC-173733150): Offline=0.089130, Live=0.089130, Diff=1.39e-17
-  • Row  5 (ENC-160841226): Offline=0.150224, Live=0.150224, Diff=0.00e+00
-  • Row  6 (ENC-426147668): Offline=0.132817, Live=0.132817, Diff=0.00e+00
-  • Row  7 (ENC-2398146): Offline=0.091560, Live=0.091560, Diff=0.00e+00
-  • Row  8 (ENC-180901200): Offline=0.110397, Live=0.110397, Diff=0.00e+00
-  • Row  9 (ENC-63118836): Offline=0.183035, Live=0.183035, Diff=0.00e+00
-  • Row 10 (ENC-139924614): Offline=0.047225, Live=0.047225, Diff=0.00e+00
-  • Row 11 (ENC-313808552): Offline=0.405246, Live=0.405246, Diff=0.00e+00
-  • Row 12 (ENC-171296748): Offline=0.036198, Live=0.036198, Diff=0.00e+00
-  • Row 13 (ENC-255461274): Offline=0.076245, Live=0.076245, Diff=0.00e+00
-  • Row 14 (ENC-150613308): Offline=0.060466, Live=0.060466, Diff=0.00e+00
-  • Row 15 (ENC-167969682): Offline=0.091814, Live=0.091814, Diff=0.00e+00
-  • Row 16 (ENC-111692922): Offline=0.061544, Live=0.061544, Diff=0.00e+00
-  • Row 17 (ENC-174692568): Offline=0.193721, Live=0.193721, Diff=0.00e+00
-  • Row 18 (ENC-178571538): Offline=0.191772, Live=0.191772, Diff=0.00e+00
-  • Row 19 (ENC-75203076): Offline=0.109245, Live=0.109245, Diff=0.00e+00
-  • Row 20 (ENC-137773674): Offline=0.064403, Live=0.064403, Diff=0.00e+00
+  * Row  1 (ENC-176735808): Offline=0.055337, Live=0.055337, Diff=0.00e+00
+  * Row  2 (ENC-25395342): Offline=0.037035, Live=0.037035, Diff=0.00e+00
+  * Row  3 (ENC-168645222): Offline=0.074046, Live=0.074046, Diff=0.00e+00
+  * Row  4 (ENC-173733150): Offline=0.089130, Live=0.089130, Diff=1.39e-17
+  * Row  5 (ENC-160841226): Offline=0.150224, Live=0.150224, Diff=0.00e+00
+  * Row  6 (ENC-426147668): Offline=0.132817, Live=0.132817, Diff=0.00e+00
+  * Row  7 (ENC-2398146): Offline=0.091560, Live=0.091560, Diff=0.00e+00
+  * Row  8 (ENC-180901200): Offline=0.110397, Live=0.110397, Diff=0.00e+00
+  * Row  9 (ENC-63118836): Offline=0.183035, Live=0.183035, Diff=0.00e+00
+  * Row 10 (ENC-139924614): Offline=0.047225, Live=0.047225, Diff=0.00e+00
+  * Row 11 (ENC-313808552): Offline=0.405246, Live=0.405246, Diff=0.00e+00
+  * Row 12 (ENC-171296748): Offline=0.036198, Live=0.036198, Diff=0.00e+00
+  * Row 13 (ENC-255461274): Offline=0.076245, Live=0.076245, Diff=0.00e+00
+  * Row 14 (ENC-150613308): Offline=0.060466, Live=0.060466, Diff=0.00e+00
+  * Row 15 (ENC-167969682): Offline=0.091814, Live=0.091814, Diff=0.00e+00
+  * Row 16 (ENC-111692922): Offline=0.061544, Live=0.061544, Diff=0.00e+00
+  * Row 17 (ENC-174692568): Offline=0.193721, Live=0.193721, Diff=0.00e+00
+  * Row 18 (ENC-178571538): Offline=0.191772, Live=0.191772, Diff=0.00e+00
+  * Row 19 (ENC-75203076): Offline=0.109245, Live=0.109245, Diff=0.00e+00
+  * Row 20 (ENC-137773674): Offline=0.064403, Live=0.064403, Diff=0.00e+00
 
 [+] 20/20 Test rows verified. Max observed probability difference: 1.39e-17 (< 1e-6)
 ================================================================================
@@ -238,18 +238,18 @@ STARTING RUN 2 OF run_pipeline.py TO VERIFY COMPLETE DETERMINISM
 [+] Pipeline Run 2 finished in: 45.78 seconds (Exit Code: 0)
 
 --- METRICS COMPARISON (RUN 1 vs RUN 2) ---
-  • Decision Threshold       : Max difference across models = 0.0
-  • AUC-ROC                  : Max difference across models = 0.0
-  • PR-AUC                   : Max difference across models = 0.0
-  • Accuracy                 : Max difference across models = 0.0
-  • Precision                : Max difference across models = 0.0
-  • Recall (Sensitivity)     : Max difference across models = 0.0
-  • F1-Score                 : Max difference across models = 0.0
-  • Brier Score              : Max difference across models = 0.0
-  • True Positives (TP)      : Max difference across models = 0
-  • False Positives (FP)     : Max difference across models = 0
-  • True Negatives (TN)      : Max difference across models = 0
-  • False Negatives (FN)     : Max difference across models = 0
+  * Decision Threshold       : Max difference across models = 0.0
+  * AUC-ROC                  : Max difference across models = 0.0
+  * PR-AUC                   : Max difference across models = 0.0
+  * Accuracy                 : Max difference across models = 0.0
+  * Precision                : Max difference across models = 0.0
+  * Recall (Sensitivity)     : Max difference across models = 0.0
+  * F1-Score                 : Max difference across models = 0.0
+  * Brier Score              : Max difference across models = 0.0
+  * True Positives (TP)      : Max difference across models = 0
+  * False Positives (FP)     : Max difference across models = 0
+  * True Negatives (TN)      : Max difference across models = 0
+  * False Negatives (FN)     : Max difference across models = 0
 
 ================================================================================
 [+] REPRODUCIBILITY CONFIRMED: 100% IDENTICAL METRICS ACROSS RUN 1 AND RUN 2!
@@ -264,63 +264,63 @@ STARTING RUN 2 OF run_pipeline.py TO VERIFY COMPLETE DETERMINISM
 
 # Output:
 ================================================================================
-STARTING COMPREHENSIVE BROWSER UI VERIFICATION (EDGE HEADLESS)
+STARTING DETAILED BROWSER UI VERIFICATION (EDGE HEADLESS)
 ================================================================================
 
 [STEP 1] Loading Application at http://localhost:5173/ ...
-  • Initial console SEVERE errors: 0
+  * Initial console SEVERE errors: 0
 
 [STEP 2] Auditing Worklist Page...
-  • Page Title: ClinicalAI | Readmission Research Demo
-  • KPI Grid loaded successfully
-  • Worklist Footnote: 'Random sample of 500 from the held-out test set (seed 55)...'
+  * Page Title: ClinicalAI | Readmission Research Demo
+  * KPI Grid loaded successfully
+  * Worklist Footnote: 'Random sample of 500 from the held-out test set (seed 55)...'
 
 [STEP 3] Testing Responsive Widths (1920 -> 1440 -> 1024 -> 768)...
-  • Width 1920px: Table visible and responsive
-  • Width 1440px: Table visible and responsive
-  • Width 1024px: Table visible and responsive
-  • Width 768px: Table visible and responsive
+  * Width 1920px: Table visible and responsive
+  * Width 1440px: Table visible and responsive
+  * Width 1024px: Table visible and responsive
+  * Width 768px: Table visible and responsive
 
 [STEP 4] Testing Dark Mode & Light Mode Toggling...
-  • Toggled Theme: dark
-  • Restored Theme: None
+  * Toggled Theme: dark
+  * Restored Theme: None
 
 [STEP 5] Navigating to Governance Page...
 
 [STEP 6] Auditing Section 1: Governance Header...
-  • Header verified (Demo build v2.4.1, 19,870 test encounters, 69,538 train, 9,935 val)
+  * Header verified (Demo build v2.4.1, 19,870 test encounters, 69,538 train, 9,935 val)
 
 [STEP 7] Auditing Section 2: Data & Preprocessing...
-  • Collapsible Section 2 expanded and audited (exclusions 2,423, missingness, ICD-9, med review present)
+  * Collapsible Section 2 expanded and audited (exclusions 2,423, missingness, ICD-9, med review present)
 
 [STEP 8] Auditing Section 3: HbA1c Glycemic Marker Finding...
-  • Section 3 validated (9.94% vs 11.68%, diff 1.75 pp, chi2 42.56, validation experiment table present)
+  * Section 3 validated (9.94% vs 11.68%, diff 1.75 pp, chi2 42.56, validation experiment table present)
 
 [STEP 9] Auditing Section 4: Model Comparison...
-  • Section 4 validated (model benchmarks, fixed flag rates, ROC & PR curve images present)
+  * Section 4 validated (model benchmarks, fixed flag rates, ROC & PR curve images present)
 
 [STEP 10] Auditing Section 5: Decision Threshold Trade-off...
-  • Section 5 slider and presets interactive test passed
+  * Section 5 slider and presets interactive test passed
 
 [STEP 11] Auditing Section 6: Risk Tier Validation...
-  • Section 6 validated (Low 7.81%, Elevated 15.24%, High 24.20% with Wilson CIs)
+  * Section 6 validated (Low 7.81%, Elevated 15.24%, High 24.20% with Wilson CIs)
 
 [STEP 12] Auditing Section 7: Explainability & Units...
-  • Section 7 validated (units, direction, and Rehab/SNF observational caveat present)
+  * Section 7 validated (units, direction, and Rehab/SNF observational caveat present)
 
 [STEP 13] Auditing Section 8: Demographic Fairness Audits...
-  • Section 8 validated (no misleading mitigated claims, analysis only disclosed, small-group warning active)
+  * Section 8 validated (no misleading mitigated claims, analysis only disclosed, small-group warning active)
 
 [STEP 14] Auditing Section 9: Intended Use & Limitations...
-  • Section 9 validated (HIPAA wording verified, real sample sizes, data years 1999-2008, limitations clear)
+  * Section 9 validated (HIPAA wording verified, real sample sizes, data years 1999-2008, limitations clear)
 
 [STEP 15] Auditing Section 10: Mentor Requirements Checklist...
-  • Section 10 validated (14/14 items displayed with Done status)
+  * Section 10 validated (14/14 items displayed with Done status)
 
 [STEP 16] Testing Responsive Widths on Governance Page (1920 -> 1024 -> 768)...
-  • Width 1920px: Governance page responsive and clean
-  • Width 1024px: Governance page responsive and clean
-  • Width 768px: Governance page responsive and clean
+  * Width 1920px: Governance page responsive and clean
+  * Width 1024px: Governance page responsive and clean
+  * Width 768px: Governance page responsive and clean
 
 [FINAL STEP] Total SEVERE console errors during entire run: 0
 

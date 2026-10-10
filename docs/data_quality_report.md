@@ -1,7 +1,7 @@
 # Data Quality & Preprocessing Rationale Report
 
 > **Project 6B:** AI-Based Predictive Analytics for Clinical Decision-Making (Hospital Readmission Risk Prediction)  
-> **Dataset:** UCI Diabetes 130-US Hospitals (1999–2008), ~101,766 inpatient encounters across multiple US health systems.  
+> **Dataset:** UCI Diabetes 130-US Hospitals (1999-2008), ~101,766 inpatient encounters across multiple US health systems.  
 > **Target:** 30-Day Inpatient Readmission (`readmitted == '<30'`).  
 > **Compliance:** Fulfills **KPI 5: Documented data-quality handling: missing values, outliers, and feature-selection decisions.**
 
@@ -22,7 +22,7 @@ In the raw UCI diabetic dataset, missing values were recorded primarily as the s
 
 | Column | Data Type | Missing Count | Missing % | Action Taken | Clinical & Analytical Justification |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `weight` | Categorical | 98,569 | 96.86% | **Dropped** | Over 96% missingness across participating hospitals. Imputing would introduce severe artificial noise; weight tracking was inconsistently documented during 1999–2008. |
+| `weight` | Categorical | 98,569 | 96.86% | **Dropped** | Over 96% missingness across participating hospitals. Imputing would introduce severe artificial noise; weight tracking was inconsistently documented during 1999-2008. |
 | `medical_specialty` | Categorical | 49,949 | 49.08% | **Imputed as 'Missing'** | Represents the admitting physician's specialty. The absence of documentation is clinically informative (often indicating general admission or urgent triage). Retained as an explicit categorical level. |
 | `payer_code` | Categorical | 40,256 | 39.56% | **Imputed as 'Missing'** | Health insurance classification (Medicare, Medicaid, Private, Self-Pay). Missingness correlates with self-pay/uninsured status or administrative variations; preserved as a distinct category. |
 | `race` | Categorical | 2,273 | 2.23% | **Imputed as 'Other/Missing'** | Critical demographic feature for algorithmic fairness auditing. Rather than dropping encounters (which would introduce selection bias), encounters are grouped under `'Other/Missing'`. |
@@ -49,7 +49,7 @@ Rather than truncating records (which would discard critical high-risk patients)
 | `number_inpatient` | 0 | 21 | **6.0** | 6.0 | Differentiates frequent admissions from extreme recording anomalies while retaining high-risk signal. |
 | `number_emergency` | 0 | 76 | **4.0** | 4.0 | Captures high acute emergency utilization without allowing extreme outliers (76 visits) to dominate loss functions. |
 | `number_outpatient` | 0 | 42 | **5.0** | 5.0 | Normalizes outpatient frequency; values above 5 represent continuous chronic care. |
-| `total_visits` | 0 | 90 | **10.0** | 10.0 | Composite utilization cap preventing extreme leverage points. |
+| `total_visits` | 0 | 90 | **10.0** | 10.0 | Composite utilization cap preventing extreme influential points. |
 
 ---
 
@@ -59,7 +59,7 @@ Rather than truncating records (which would discard critical high-risk patients)
 | :--- | :--- | :--- |
 | `total_visits` | `number_outpatient + number_emergency + number_inpatient` | Quantifies total patient interaction with the healthcare system in the preceding 12 months. Primary proxy for overall health frailty. |
 | `high_prior_utilization` | Binary indicator: `(number_inpatient > 0) OR (number_emergency > 0)` | Captures whether the patient has acute prior medical crises versus scheduled elective care. |
-| `polypharmacy` | Binary indicator: `num_medications >= 10` | Standard clinical geriatrics threshold. Diabetic patients taking ≥10 concurrent medications exhibit significantly elevated rates of adverse drug reactions, drug-drug interactions, and readmissions. |
+| `polypharmacy` | Binary indicator: `num_medications >= 10` | Standard clinical geriatrics threshold. Diabetic patients taking >=10 concurrent medications exhibit significantly elevated rates of adverse drug reactions, drug-drug interactions, and readmissions. |
 | `num_med_changes` | Sum of all medications with dosage status `'Up'` or `'Down'` | Titration marker. Distinct medication modifications during hospital stay reflect glycemic instability or acute therapeutic adjustment, elevating post-discharge vulnerability (79% of the sample has 10 or more distinct medications administered during stay). |
 | `num_active_meds` | Sum of all medications with status `'Steady'`, `'Up'`, or `'Down'` | Directly measures diabetic treatment regimen complexity across 23 antidiabetic agents. |
 | `lab_intensity_per_day` | `num_lab_procedures / (time_in_hospital + 0.1)` | Measures clinical acuity. A patient receiving 50 lab tests over 2 days (25/day) is in acute crisis compared to a patient receiving 50 tests over 10 days (5/day). |

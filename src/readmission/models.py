@@ -68,9 +68,7 @@ def _cross_validated_average_precision(
 ) -> float:
     spec = MODEL_REGISTRY[name]
     scores: list[float] = []
-    for fold, (train_positions, valid_positions) in enumerate(
-        _grouped_folds(x, y, groups, seed)
-    ):
+    for fold, (train_positions, valid_positions) in enumerate(_grouped_folds(x, y, groups, seed)):
         train_x, valid_x = x.iloc[train_positions], x.iloc[valid_positions]
         train_y, valid_y = y.iloc[train_positions], y.iloc[valid_positions]
         train_values, valid_values, categories = _prepare_fold(spec, train_x, valid_x)
@@ -103,9 +101,7 @@ def _tune_model(
     if name == "logistic_regression":
         values = tuning["logistic_c"]
         scores = [
-            _cross_validated_average_precision(
-                name, {"C": value}, x, y, groups, seed, config
-            )
+            _cross_validated_average_precision(name, {"C": value}, x, y, groups, seed, config)
             for value in values
         ]
         best_index = int(np.argmax(scores))
@@ -119,18 +115,14 @@ def _tune_model(
     study = optuna.create_study(direction="maximize", sampler=sampler, pruner=pruner)
     mode = "fast" if fast else "normal"
     trial_count = (
-        int(tuning["trials"][mode])
-        if fast
-        else int(tuning["trials"]["normal"][spec.trials_key])
+        int(tuning["trials"][mode]) if fast else int(tuning["trials"]["normal"][spec.trials_key])
     )
     timeout = int(tuning["timeout_seconds"][mode])
 
     def objective(trial: optuna.Trial) -> float:
         params = spec.search(trial, config)
         trial.set_user_attr("model_parameters", params)
-        return _cross_validated_average_precision(
-            name, params, x, y, groups, seed, config, trial
-        )
+        return _cross_validated_average_precision(name, params, x, y, groups, seed, config, trial)
 
     study.optimize(
         objective,
@@ -220,9 +212,7 @@ def train_all(fast: bool = False) -> pd.DataFrame:
     for name in MODEL_REGISTRY:
         started = time.perf_counter()
         params, cv_ap = _tune_model(name, train_x, train_y, groups, config, fast)
-        model = _fit_validation_model(
-            name, params, train_x, train_y, valid_x, valid_y, config
-        )
+        model = _fit_validation_model(name, params, train_x, train_y, valid_x, valid_y, config)
         probabilities = model.predict_proba(valid_x)[:, 1]
         elapsed = time.perf_counter() - started
         joblib.dump(model, model_dir / f"{name}.joblib", compress=3)
@@ -230,18 +220,14 @@ def train_all(fast: bool = False) -> pd.DataFrame:
             "parameters": params,
             "cv_average_precision": cv_ap,
             "validation_roc_auc": float(roc_auc_score(valid_y, probabilities)),
-            "validation_average_precision": float(
-                average_precision_score(valid_y, probabilities)
-            ),
+            "validation_average_precision": float(average_precision_score(valid_y, probabilities)),
             "training_time_seconds": round(elapsed, 3),
         }
         records.append(
             {
                 "model": name,
                 "validation_roc_auc": best_params[name]["validation_roc_auc"],
-                "validation_average_precision": best_params[name][
-                    "validation_average_precision"
-                ],
+                "validation_average_precision": best_params[name]["validation_average_precision"],
                 "training_time_seconds": best_params[name]["training_time_seconds"],
             }
         )

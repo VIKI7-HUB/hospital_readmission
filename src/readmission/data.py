@@ -111,9 +111,7 @@ def clean(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, int]]:
     removed["exact_duplicates"] = int(duplicate.sum())
     cleaned = cleaned.loc[~duplicate].copy()
 
-    cleaned[config["dataset"]["target_column"]] = (
-        cleaned["readmitted"].eq("<30").astype("int8")
-    )
+    cleaned[config["dataset"]["target_column"]] = cleaned["readmitted"].eq("<30").astype("int8")
     cleaned = cleaned.drop(columns=["weight"])
     cleaned["payer_code"] = cleaned["payer_code"].fillna("Missing")
     cleaned["medical_specialty"] = cleaned["medical_specialty"].fillna("Missing")
@@ -142,8 +140,7 @@ def _class_balance(frame: pd.DataFrame, target: str) -> dict[str, dict[str, floa
 
 def _missing_percentages(frame: pd.DataFrame) -> dict[str, float]:
     return {
-        column: round(float(percent), 4)
-        for column, percent in frame.isna().mean().mul(100).items()
+        column: round(float(percent), 4) for column, percent in frame.isna().mean().mul(100).items()
     }
 
 

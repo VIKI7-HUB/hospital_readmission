@@ -1,6 +1,6 @@
-# Hospital Readmission Risk Prediction — Implementation Plan
+# Hospital Readmission Risk Prediction -- Implementation Plan
 
-> **Project 6B** — AI-Based Predictive Analytics for Clinical Decision-Making
+> **Project 6B** -- AI-Based Predictive Analytics for Clinical Decision-Making
 > **Workspace:** `c:\Users\vivek\OneDrive\Attachments\Desktop\Miniproject`
 > **Backup (DO NOT TOUCH):** `D:\hackfest_backup`
 
@@ -10,17 +10,17 @@
 
 | # | Requirement | Status | Current Gap |
 |---|-------------|--------|-------------|
-| 1 | UCI Diabetes 130-US dataset (~100k encounters) | Done | — |
-| 2 | Binary readmission target | Done | — |
+| 1 | UCI Diabetes 130-US dataset (~100k encounters) | Done | -- |
+| 2 | Binary readmission target | Done | -- |
 | 3 | Missing-value handling with documented rationale | Partial | Rationale is in code comments but not surfaced as a standalone documented artifact |
-| 4 | Outlier handling with documented rationale | Partial | Same — Winsorization at 99th percentile is coded but not documented separately |
+| 4 | Outlier handling with documented rationale | Partial | Same -- Winsorization at 99th percentile is coded but not documented separately |
 | 5 | Encoding & feature engineering with documented rationale | Partial | Encoding works; rationale needs a formal write-up |
 | 6 | >= 3 model types with rationale | Done | LR, RF, XGBoost trained and saved |
 | 7 | Common evaluation across models | Done | model_comparison_results.csv exists |
 | 8 | Bias analysis across age, gender, race | Done | fairness_governance/ CSVs exist |
 | 9 | Appropriate fairness metrics with justification | Partial | DPR & Equalized Odds computed; **justification for metric choice** not documented |
-| 10 | Stretch — fairness-aware models compared against base | Done | Group-threshold mitigation with mitigated CSVs |
-| 11 | Application — risk scoring for discharge readiness / readmission | Partial | Streamlit app exists but looks like a report, not a premium product |
+| 10 | Stretch -- fairness-aware models compared against base | Done | Group-threshold mitigation with mitigated CSVs |
+| 11 | Application -- risk scoring for discharge readiness / readmission | Partial | Streamlit app exists but looks like a report, not a premium product |
 | 12 | Guide discharge planning, follow-up, resource allocation | Partial | Basic resource allocation logic exists; UX is not production-grade |
 | **KPI 1** | Accuracy, precision, recall (with metric-choice justification) + AUC | Partial | Numbers computed; **justification of why recall matters most** not documented |
 | **KPI 2** | Comparison across >= 3 model types with rationale for chosen model | Partial | Comparison table exists; **rationale paragraph for choosing XGBoost** not documented |
@@ -34,30 +34,30 @@
 
 ```
 Miniproject/
-├── data/
-│   ├── raw/               # UCI dataset (diabetic_data.csv)
-│   └── processed/         # Cleaned CSV, preprocessor, train/test splits
-├── models/                # Trained .joblib models + evaluation artifacts
-├── fairness_governance/   # Bias audit CSVs + audit results joblib
-├── src/
-│   ├── __init__.py
-│   ├── download_data.py   # Step 1: Data acquisition
-│   ├── preprocessing.py   # Step 2: Cleaning + feature engineering
-│   ├── models.py          # Step 3: Training + evaluation
-│   ├── fairness.py        # Step 4: Fairness audit + mitigation
-│   └── explainability.py  # Patient-level risk scoring
-├── docs/                  # NEW — KPI documentation & rationale write-ups
-├── run_pipeline.py        # Master orchestrator
-├── app.py                 # Streamlit frontend (to be rebuilt as premium app)
-├── requirements.txt
-└── README.md
+--- data/
+-   --- raw/               # UCI dataset (diabetic_data.csv)
+-   --- processed/         # Cleaned CSV, preprocessor, train/test splits
+--- models/                # Trained .joblib models + evaluation artifacts
+--- fairness_governance/   # Bias audit CSVs + audit results joblib
+--- src/
+-   --- __init__.py
+-   --- download_data.py   # Step 1: Data acquisition
+-   --- preprocessing.py   # Step 2: Cleaning + feature engineering
+-   --- models.py          # Step 3: Training + evaluation
+-   --- fairness.py        # Step 4: Fairness audit + mitigation
+-   --- explainability.py  # Patient-level risk scoring
+--- docs/                  # NEW -- KPI documentation & rationale write-ups
+--- run_pipeline.py        # Master orchestrator
+--- app.py                 # Streamlit frontend (to be rebuilt as premium app)
+--- requirements.txt
+--- README.md
 ```
 
 ---
 
-## Phase 1 — Documentation & KPI Compliance
+## Phase 1 -- Documentation & KPI Compliance
 
-**Goal:** Fill every documentation gap the specification demands. No code logic changes — only write-ups.
+**Goal:** Fill every documentation gap the specification demands. No code logic changes -- only write-ups.
 
 ### 1.1 Create `docs/data_quality_report.md`
 
@@ -66,8 +66,8 @@ Miniproject/
 | Section | Content |
 |---------|---------|
 | Missing Values | Table of every column, its % missing, and the decision (drop, impute, or categorise as "Missing") with clinical rationale |
-| Outliers | Explain 99th-percentile Winsorization on `number_outpatient`, `number_emergency`, `number_inpatient`, `total_visits` — why 99th, why only these columns |
-| Feature Engineering | `total_visits`, `high_prior_utilization`, `polypharmacy`, `num_med_changes`, `num_active_meds`, `lab_intensity_per_day`, ICD-9 category mapping — rationale for each |
+| Outliers | Explain 99th-percentile Winsorization on `number_outpatient`, `number_emergency`, `number_inpatient`, `total_visits` -- why 99th, why only these columns |
+| Feature Engineering | `total_visits`, `high_prior_utilization`, `polypharmacy`, `num_med_changes`, `num_active_meds`, `lab_intensity_per_day`, ICD-9 category mapping -- rationale for each |
 | Feature Selection / Exclusion | Why `encounter_id`, `patient_nbr`, `weight` (~97% missing), `examide`/`citoglipton` (constant), `payer_code`, `medical_specialty` were dropped or handled |
 
 **Files to create:**
@@ -81,7 +81,7 @@ Miniproject/
 
 | Section | Content |
 |---------|---------|
-| Why These 3 Models | LR = interpretable baseline; RF = non-linear bagging; XGBoost = gradient-boosted ensemble — covers spectrum from simple to complex |
+| Why These 3 Models | LR = interpretable baseline; RF = non-linear bagging; XGBoost = gradient-boosted ensemble -- covers spectrum from simple to complex |
 | Metric Choice Justification | Clinical argument: **Recall** is prioritised because missing a high-risk patient (False Negative) is far more dangerous than a false alarm (False Positive). AUC gives threshold-independent ranking. Accuracy is misleading on 89/11 imbalanced data. |
 | Head-to-head Comparison Table | Reproduce `model_comparison_results.csv` with commentary |
 | Why XGBoost Was Chosen | Best AUC (0.6896), best Recall (59.45%), handles class imbalance via `scale_pos_weight`, and supports feature importance natively |
@@ -122,16 +122,16 @@ Test 1.1: Confirm docs/data_quality_report.md exists and contains sections for m
 Test 1.2: Confirm docs/model_selection_rationale.md exists and contains metric justification + model comparison table + XGBoost rationale.
 Test 1.3: Confirm docs/fairness_justification.md exists and contains DPR/EOdds justification + base vs mitigated comparison.
 Test 1.4: Confirm README.md links to all three docs.
-Test 1.5: Run `python run_pipeline.py` — exit code 0 (no regressions).
+Test 1.5: Run `python run_pipeline.py` -- exit code 0 (no regressions).
 ```
 
 ---
 
-## Phase 2 — Backend Hardening & Pipeline Improvements
+## Phase 2 -- Backend Hardening & Pipeline Improvements
 
-**Goal:** Strengthen the backend so every spec requirement is bulletproof. Code logic improvements only — no UI changes.
+**Goal:** Strengthen the backend so every spec requirement is bulletproof. Code logic improvements only -- no UI changes.
 
-### 2.1 Enhance `src/preprocessing.py` — Add Logging & Rationale Annotations
+### 2.1 Enhance `src/preprocessing.py` -- Add Logging & Rationale Annotations
 
 - Add detailed docstrings with clinical rationale for every engineering step
 - Add a `generate_data_quality_summary()` function that programmatically produces a JSON summary of:
@@ -146,17 +146,17 @@ Test 1.5: Run `python run_pipeline.py` — exit code 0 (no regressions).
 **Files to create:**
 - `data/processed/data_quality_summary.json` (generated at runtime)
 
-### 2.2 Enhance `src/models.py` — Richer Evaluation Artifacts
+### 2.2 Enhance `src/models.py` -- Richer Evaluation Artifacts
 
 - Add ROC curve data (fpr, tpr arrays per model) saved to evaluation artifacts
 - Add precision-recall curve data per model
-- Add calibration check (Brier score already exists — ensure it is saved to the CSV)
+- Add calibration check (Brier score already exists -- ensure it is saved to the CSV)
 - Generate `models/model_rationale_summary.json` with programmatic model selection reasoning
 
 **Files to modify:**
 - `src/models.py` (MODIFY)
 
-### 2.3 Enhance `src/fairness.py` — Before/After Improvement Metrics
+### 2.3 Enhance `src/fairness.py` -- Before/After Improvement Metrics
 
 - After mitigation, compute **improvement deltas** (DPR improvement, TPR disparity reduction)
 - Save a `fairness_governance/mitigation_improvement_summary.json` with clear before/after numbers
@@ -180,7 +180,7 @@ Test 1.5: Run `python run_pipeline.py` — exit code 0 (no regressions).
 ### Phase 2 Verification
 
 ```
-Test 2.1: Run `python run_pipeline.py` — exit code 0.
+Test 2.1: Run `python run_pipeline.py` -- exit code 0.
 Test 2.2: Confirm data/processed/data_quality_summary.json exists and is valid JSON.
 Test 2.3: Confirm models/model_comparison_results.csv has all metrics (AUC, Recall, Precision, Accuracy, F1, Brier).
 Test 2.4: Confirm fairness_governance/mitigation_improvement_summary.json exists with before/after deltas.
@@ -189,7 +189,7 @@ Test 2.5: Confirm models/evaluation_artifacts.joblib contains ROC curve data and
 
 ---
 
-## Phase 3 — Premium Application Rebuild
+## Phase 3 -- Premium Application Rebuild
 
 **Goal:** Completely rebuild `app.py` as a premium, production-grade clinical application that doctors and patients can actually use. **No report feel. No emojis. No raw data tables. Backend stays invisible.**
 
@@ -210,7 +210,7 @@ Test 2.5: Confirm models/evaluation_artifacts.joblib contains ROC curve data and
 
 #### View 1: Discharge Worklist (Primary Screen)
 
-- **Summary bar:** 4 animated KPI cards (Total Encounters, High Risk Count, Avg Risk Score, Readmission Rate) — using custom HTML/CSS, not `st.metric`
+- **Summary bar:** 4 animated KPI cards (Total Encounters, High Risk Count, Avg Risk Score, Readmission Rate) -- using custom HTML/CSS, not `st.metric`
 - **Patient queue:** Rendered as individual glassmorphism cards (not a DataFrame), each showing:
   - Encounter ID, Age, Gender, Stay Duration
   - Animated risk gauge (SVG arc or Plotly gauge)
@@ -223,16 +223,16 @@ Test 2.5: Confirm models/evaluation_artifacts.joblib contains ROC curve data and
 #### View 2: Individual Risk Assessment (Calculator)
 
 - **Patient selector:** Dropdown to load a real UCI encounter OR manual input form
-- **Live prediction:** On parameter change, immediately re-runs through preprocessor → XGBoost → displays result
+- **Live prediction:** On parameter change, immediately re-runs through preprocessor -> XGBoost -> displays result
 - **Risk gauge:** Large animated SVG/Plotly gauge showing probability
 - **Intervention panel:** Styled intervention cards (not bullet lists) based on `explainability.py`
 - **Discharge action:** "Approve Discharge Plan" button that confirms resource orders
 
-#### View 3: Model Performance Summary (For clinical admins only — hidden behind a sidebar toggle)
+#### View 3: Model Performance Summary (For clinical admins only -- hidden behind a sidebar toggle)
 
 - **Comparison chart:** Plotly grouped bar chart of AUC/Recall/Precision across 3 models
 - **Selected model badge:** Visual indicator of why XGBoost was chosen
-- **This view is optional** — toggle-able from sidebar, not the default
+- **This view is optional** -- toggle-able from sidebar, not the default
 
 ### 3.3 CSS/Animation Requirements
 
@@ -254,27 +254,27 @@ Test 2.5: Confirm models/evaluation_artifacts.joblib contains ROC curve data and
 ### 3.4 File Changes
 
 **Files to modify:**
-- `app.py` — Complete rewrite (keep imports + data loading, rewrite all rendering)
+- `app.py` -- Complete rewrite (keep imports + data loading, rewrite all rendering)
 
 **Files to modify (if needed):**
-- `src/explainability.py` — May need to add a `get_top_risk_factors_for_display()` function returning simplified factor names suitable for the UI
+- `src/explainability.py` -- May need to add a `get_top_risk_factors_for_display()` function returning simplified factor names suitable for the UI
 
 ### Phase 3 Verification
 
 ```
-Test 3.1: Run `streamlit run app.py --server.headless true` — app launches without errors.
-Test 3.2: Visual inspection — no emojis visible anywhere.
-Test 3.3: Visual inspection — no raw DataFrame/table dump visible on any default view.
-Test 3.4: Visual inspection — CSS animations are present (fade-in on cards, pulse on risk badges).
-Test 3.5: Visual inspection — font is Plus Jakarta Sans throughout.
-Test 3.6: Functional test — selecting a patient from the worklist shows real XGBoost risk score.
-Test 3.7: Functional test — adjusting sliders in the calculator recalculates the risk score in real time.
-Test 3.8: Functional test — all data comes from real UCI test set (verify encounter IDs match test split indices).
+Test 3.1: Run `streamlit run app.py --server.headless true` -- app launches without errors.
+Test 3.2: Visual inspection -- no emojis visible anywhere.
+Test 3.3: Visual inspection -- no raw DataFrame/table dump visible on any default view.
+Test 3.4: Visual inspection -- CSS animations are present (fade-in on cards, pulse on risk badges).
+Test 3.5: Visual inspection -- font is Plus Jakarta Sans throughout.
+Test 3.6: Functional test -- selecting a patient from the worklist shows real XGBoost risk score.
+Test 3.7: Functional test -- adjusting sliders in the calculator recalculates the risk score in real time.
+Test 3.8: Functional test -- all data comes from real UCI test set (verify encounter IDs match test split indices).
 ```
 
 ---
 
-## Phase 4 — Integration, Cleanup & Final Verification
+## Phase 4 -- Integration, Cleanup & Final Verification
 
 **Goal:** End-to-end validation that every specification requirement and KPI is met.
 
@@ -389,7 +389,7 @@ Test 4.7: App displays real data from UCI dataset with premium UI.
 
 | Layer | Requirement | Deliverable | Phase |
 |-------|-------------|-------------|-------|
-| **Data Layer** | pandas/scikit-learn — missing-value, outlier, encoding, feature engineering with documented rationale | `src/preprocessing.py` + `docs/data_quality_report.md` | Phase 1 + 2 |
+| **Data Layer** | pandas/scikit-learn -- missing-value, outlier, encoding, feature engineering with documented rationale | `src/preprocessing.py` + `docs/data_quality_report.md` | Phase 1 + 2 |
 | **Modeling/AI** | >= 3 model types (LR, RF, XGBoost) compared on common evaluation | `src/models.py` + `docs/model_selection_rationale.md` | Phase 1 + 2 |
 | **Fairness/Governance** | Bias analysis (age, gender, race), fairness metrics, stretch mitigation | `src/fairness.py` + `docs/fairness_justification.md` | Phase 1 + 2 |
 | **Application** | Risk scoring for discharge readiness/readmission, discharge planning, follow-up, resource allocation | `app.py` (premium rebuild) | Phase 3 |

@@ -45,9 +45,7 @@ def _select_holdout(
     share: float,
     seed: int,
 ) -> tuple[np.ndarray, np.ndarray]:
-    splitter = StratifiedGroupKFold(
-        n_splits=_fold_count(share), shuffle=True, random_state=seed
-    )
+    splitter = StratifiedGroupKFold(n_splits=_fold_count(share), shuffle=True, random_state=seed)
     labels = frame[target].to_numpy()
     groups = frame[groups_column].to_numpy()
     desired_rows = len(frame) * share
@@ -197,9 +195,7 @@ def main() -> None:
     split_path = ROOT / "artifacts" / "split.json"
     caps_path = ROOT / "artifacts" / "caps.json"
     split_path.parent.mkdir(parents=True, exist_ok=True)
-    split_path.write_text(
-        json.dumps({"seed": seed, **splits}, indent=2) + "\n", encoding="utf-8"
-    )
+    split_path.write_text(json.dumps({"seed": seed, **splits}, indent=2) + "\n", encoding="utf-8")
 
     train_df = frame.loc[train_index]
     caps = fit_caps(train_df, UTILIZATION_COLUMNS)

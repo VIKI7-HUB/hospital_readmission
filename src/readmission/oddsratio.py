@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def odds_table(train_frame: pd.DataFrame, y: pd.Series, patient: pd.Series) -> pd.DataFrame:
-    """Fit cluster-robust logistic regression and return formatted odds ratios table."""
+    """Fit cluster-adjusted logistic regression and return formatted odds ratios table."""
     caps_path = ROOT / "artifacts" / "caps.json"
     caps: dict[str, float] = (
         json.loads(caps_path.read_text(encoding="utf-8")) if caps_path.exists() else {}
@@ -91,14 +91,10 @@ def odds_table(train_frame: pd.DataFrame, y: pd.Series, patient: pd.Series) -> p
         lower_raw = conf.loc[term, 0]
         upper_raw = conf.loc[term, 1]
         lower = (
-            float(np.exp(lower_raw))
-            if np.isfinite(lower_raw) and lower_raw < 100
-            else float("nan")
+            float(np.exp(lower_raw)) if np.isfinite(lower_raw) and lower_raw < 100 else float("nan")
         )
         upper = (
-            float(np.exp(upper_raw))
-            if np.isfinite(upper_raw) and upper_raw < 100
-            else float("nan")
+            float(np.exp(upper_raw)) if np.isfinite(upper_raw) and upper_raw < 100 else float("nan")
         )
         pval = float(pvals[term]) if np.isfinite(pvals[term]) else float("nan")
 

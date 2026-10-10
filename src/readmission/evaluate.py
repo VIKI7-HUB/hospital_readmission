@@ -37,9 +37,7 @@ def _config() -> dict[str, Any]:
         return yaml.safe_load(file)
 
 
-def _metrics(
-    target: np.ndarray, probabilities: np.ndarray, threshold: float
-) -> dict[str, Any]:
+def _metrics(target: np.ndarray, probabilities: np.ndarray, threshold: float) -> dict[str, Any]:
     predicted = probabilities >= threshold
     tn, fp, fn, tp = confusion_matrix(target, predicted, labels=[0, 1]).ravel()
     return {
@@ -68,9 +66,7 @@ def _points(values: np.ndarray) -> list[float | None]:
 def _curves(target: np.ndarray, probabilities: np.ndarray) -> dict[str, Any]:
     fpr, tpr, roc_thresholds = roc_curve(target, probabilities)
     precision, recall, pr_thresholds = precision_recall_curve(target, probabilities)
-    observed, predicted = calibration_curve(
-        target, probabilities, n_bins=10, strategy="uniform"
-    )
+    observed, predicted = calibration_curve(target, probabilities, n_bins=10, strategy="uniform")
     return {
         "roc": {
             "false_positive_rate": _points(fpr),
@@ -180,9 +176,7 @@ def evaluate_test_set(
     (ROOT / "artifacts" / "metrics.json").write_text(
         json.dumps(metrics, indent=2, allow_nan=False) + "\n", encoding="utf-8"
     )
-    pd.DataFrame(comparison).to_csv(
-        ROOT / "artifacts" / "model_comparison.csv", index=False
-    )
+    pd.DataFrame(comparison).to_csv(ROOT / "artifacts" / "model_comparison.csv", index=False)
     predictions.to_parquet(ROOT / "artifacts" / "test_predictions.parquet", index=False)
     return metrics, pd.DataFrame(comparison)
 
@@ -196,9 +190,9 @@ def run_evaluation() -> pd.DataFrame:
         (ROOT / "artifacts" / "feature_config.json").read_text(encoding="utf-8")
     )
     champion = json.loads((ROOT / "artifacts" / "champion.json").read_text(encoding="utf-8"))
-    thresholds = json.loads(
-        (ROOT / "artifacts" / "thresholds.json").read_text(encoding="utf-8")
-    )["models"]
+    thresholds = json.loads((ROOT / "artifacts" / "thresholds.json").read_text(encoding="utf-8"))[
+        "models"
+    ]
     tiers = json.loads((ROOT / "artifacts" / "tiers.json").read_text(encoding="utf-8"))
     models = {
         name: joblib.load(ROOT / "artifacts" / "models" / f"{name}.joblib")

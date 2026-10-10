@@ -61,7 +61,9 @@ class ModelCalibrator:
         return np.asarray(self.estimator.predict(reshaped), dtype=float)
 
 
-def apply_calibrator(calibrator: dict[str, Any] | ModelCalibrator, scores: np.ndarray) -> np.ndarray:
+def apply_calibrator(
+    calibrator: dict[str, Any] | ModelCalibrator, scores: np.ndarray
+) -> np.ndarray:
     """Apply a fitted sigmoid or isotonic calibrator to model scores."""
     if isinstance(calibrator, ModelCalibrator):
         return calibrator.predict(scores)
@@ -138,9 +140,7 @@ def select_operating_threshold(
         tn, fp, fn, tp = confusion_matrix(labels, predicted, labels=[0, 1]).ravel()
         recall = float(tp / (tp + fn)) if tp + fn else 0.0
         precision = float(tp / (tp + fp)) if tp + fp else 0.0
-        candidates.append(
-            {"threshold": float(threshold), "precision": precision, "recall": recall}
-        )
+        candidates.append({"threshold": float(threshold), "precision": precision, "recall": recall})
     feasible = [row for row in candidates if row["recall"] >= recall_target]
     if feasible:
         selected = max(feasible, key=lambda row: (row["precision"], row["threshold"]))
@@ -165,9 +165,7 @@ def select_cost_threshold(
     scores = np.asarray(probabilities, dtype=float)
     if labels.shape != scores.shape or not np.isfinite(scores).all():
         raise ValueError("Threshold labels and probabilities must align and be finite.")
-    candidates = np.unique(
-        np.concatenate(([0.0], scores, [np.nextafter(scores.max(), np.inf)]))
-    )
+    candidates = np.unique(np.concatenate(([0.0], scores, [np.nextafter(scores.max(), np.inf)])))
     choices: list[dict[str, float | int]] = []
     for threshold in candidates:
         predicted = scores >= threshold
@@ -242,12 +240,9 @@ def run_calibration() -> dict[str, Any]:
         name: apply_calibrator(calibration[name], scores)
         for name, scores in raw_probabilities.items()
     }
-    best_params = json.loads(
-        (ROOT / "artifacts" / "best_params.json").read_text(encoding="utf-8")
-    )
+    best_params = json.loads((ROOT / "artifacts" / "best_params.json").read_text(encoding="utf-8"))
     validation_ap = {
-        name: float(best_params[name]["validation_average_precision"])
-        for name in MODEL_ORDER
+        name: float(best_params[name]["validation_average_precision"]) for name in MODEL_ORDER
     }
     champion = choose_champion(validation_ap)
     evaluation_config = config["evaluation"]
@@ -258,18 +253,12 @@ def run_calibration() -> dict[str, Any]:
     for name in MODEL_ORDER:
         probabilities = calibrated[name]
         thresholds[name] = {
-            "operating": select_operating_threshold(
-                target, probabilities, recall_target
-            ),
-            "cost_optimal": select_cost_threshold(
-                target, probabilities, fn_cost, fp_cost
-            ),
+            "operating": select_operating_threshold(target, probabilities, recall_target),
+            "cost_optimal": select_cost_threshold(target, probabilities, fn_cost, fp_cost),
         }
     champion_scores = calibrated[champion["model"]]
     operating = float(thresholds[champion["model"]]["operating"]["threshold"])
-    high = float(
-        np.percentile(champion_scores, float(evaluation_config["high_risk_percentile"]))
-    )
+    high = float(np.percentile(champion_scores, float(evaluation_config["high_risk_percentile"])))
     tiers = {
         "model": champion["model"],
         "low_below": operating,

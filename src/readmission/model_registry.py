@@ -75,9 +75,7 @@ def _xgboost_factory(
         **params,
         eval_metric=_xgboost_average_precision,
         early_stopping_rounds=(
-            int(config["models"]["early_stopping_rounds"])
-            if early_stopping
-            else None
+            int(config["models"]["early_stopping_rounds"]) if early_stopping else None
         ),
         n_jobs=int(config["models"]["n_jobs"]),
         objective="binary:logistic",
@@ -131,21 +129,13 @@ def _forest_search(trial: optuna.Trial, config: dict[str, Any]) -> dict[str, Any
     unlimited = trial.suggest_categorical("unlimited_depth", [True, False])
     return {
         "n_estimators": trial.suggest_int("n_estimators", *ranges["n_estimators"]),
-        "max_depth": (
-            None if unlimited else trial.suggest_int("max_depth", *ranges["max_depth"])
-        ),
-        "min_samples_leaf": trial.suggest_int(
-            "min_samples_leaf", *ranges["min_samples_leaf"]
-        ),
-        "max_features": trial.suggest_categorical(
-            "max_features", ranges["max_features"]
-        ),
+        "max_depth": (None if unlimited else trial.suggest_int("max_depth", *ranges["max_depth"])),
+        "min_samples_leaf": trial.suggest_int("min_samples_leaf", *ranges["min_samples_leaf"]),
+        "max_features": trial.suggest_categorical("max_features", ranges["max_features"]),
     }
 
 
-def _boosted_search(
-    name: str, trial: optuna.Trial, config: dict[str, Any]
-) -> dict[str, Any]:
+def _boosted_search(name: str, trial: optuna.Trial, config: dict[str, Any]) -> dict[str, Any]:
     ranges = config["models"]["search"][name]
     params: dict[str, Any] = {}
     for key, bounds in ranges.items():
@@ -222,9 +212,7 @@ def lightgbm_average_precision(
 
 def catboost_frame(frame: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
     values = frame.copy()
-    categorical = [
-        name for name in values if not pd.api.types.is_numeric_dtype(values[name])
-    ]
+    categorical = [name for name in values if not pd.api.types.is_numeric_dtype(values[name])]
     for name in categorical:
         values[name] = values[name].fillna("Unknown").astype(object)
     for name in values.columns.difference(categorical):

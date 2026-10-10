@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import plotly.graph_objects as go
-from style import GREY, RUST, TEAL
+from style import GREY, INK, RUST, TEAL
 
 
 def dot_whisker(
@@ -66,5 +66,46 @@ def interval_chart(table, label_col, title, x_title="Readmitted within 30 days",
         customdata=table[["n", "positives"]].to_numpy(),
         hovertemplate="%{y}<br>rate %{x:.1%}<br>n = %{customdata[0]:,}, "
         "readmitted = %{customdata[1]:,}<extra></extra>",
+    )
+    return fig
+
+
+def waterfall_chart(
+    base: float,
+    margin: float,
+    contribs,
+    labels_map: dict[str, str],
+    height: int = 400,
+) -> go.Figure:
+    """Waterfall plot breaking down encounter risk into baseline log-odds and feature adjustments."""
+    abs_c = contribs.abs().sort_values(ascending=False)
+    top8_feats = abs_c.head(8).index.tolist()
+    other_sum = float(contribs.drop(index=top8_feats).sum())
+
+    wf_names = (
+        ["Average patient"]
+        + [labels_map.get(f, f) for f in top8_feats]
+        + ["Other features", "This patient"]
+    )
+    wf_values = [base] + [float(contribs[f]) for f in top8_feats] + [other_sum, margin]
+    wf_measures = ["absolute"] + ["relative"] * (len(top8_feats) + 1) + ["total"]
+
+    fig = go.Figure(
+        go.Waterfall(
+            orientation="h",
+            measure=wf_measures,
+            y=wf_names,
+            x=wf_values,
+            connector=dict(line=dict(color=GREY, width=1)),
+            decreasing=dict(marker=dict(color=TEAL)),
+            increasing=dict(marker=dict(color=RUST)),
+            totals=dict(marker=dict(color=INK)),
+        )
+    )
+    fig.update_layout(
+        title="Top TreeSHAP contributions to encounter log-odds",
+        xaxis_title="Contribution to log-odds",
+        height=height,
+        yaxis=dict(autorange="reversed"),
     )
     return fig

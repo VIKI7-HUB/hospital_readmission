@@ -71,6 +71,6 @@ In previous iterations with random unstratified 80/20 splits, models scored an a
 
 The **Calibrated Soft-Voting Ensemble** was selected as the production decision support engine based on four clinical criteria:
 1. **Top Discriminative Power:** Achieved the highest AUC-ROC (0.6531) and competitive PR-AUC (0.1987) on unseen patients.
-2. **Robust Multi-Paradigm Generalization:** Blending histogram-based gradient trees (LightGBM), depth-wise gradient trees (XGBoost), and symmetric oblivious trees (CatBoost) minimizes single-model inductive variance.
+2. **Reliable Multi-Paradigm Generalization:** Blending histogram-based gradient trees (LightGBM), depth-wise gradient trees (XGBoost), and symmetric oblivious trees (CatBoost) minimizes single-model inductive variance.
 3. **Calibrated Posterior Probabilities:** Platt scaling ensures that risk probabilities accurately reflect real-world event frequencies (Brier score 0.0976, matching CatBoost), preventing false alarm fatigue among discharge coordinators.
 4. **Actionable Clinical Recall:** At the validation-selected threshold tau = 0.120, the ensemble captures **57.27% of all 30-day readmissions** (1,296 / 2,263) while maintaining a clinical precision of 17.30% acceptable for nurse coordinator follow-up calls.

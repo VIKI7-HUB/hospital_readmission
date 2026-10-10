@@ -125,7 +125,9 @@ feature_options = imp["feature"].tolist()
 selected_f = st.selectbox(
     "Select feature to inspect dependence",
     feature_options,
-    format_func=lambda x: f"{FEATURE_LABELS.get(x, x)} ({'modifiable' if x in MODIFIABLE else 'fixed'})",
+    format_func=lambda x: (
+        f"{FEATURE_LABELS.get(x, x)} ({'modifiable' if x in MODIFIABLE else 'fixed'})"
+    ),
 )
 
 raw_s = pd.to_numeric(raw_df[selected_f], errors="coerce")
@@ -201,9 +203,7 @@ figure(
 )
 
 table_odds = top20_odds[["term", "odds_ratio", "lower", "upper", "unit"]].copy()
-table_odds["interval"] = table_odds.apply(
-    lambda r: f"[{r['lower']:.2f}, {r['upper']:.2f}]", axis=1
-)
+table_odds["interval"] = table_odds.apply(lambda r: f"[{r['lower']:.2f}, {r['upper']:.2f}]", axis=1)
 table_odds["odds_ratio"] = table_odds["odds_ratio"].apply(lambda v: f"{v:.2f}")
 st.dataframe(
     table_odds[["term", "odds_ratio", "interval", "unit"]],

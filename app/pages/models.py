@@ -143,9 +143,9 @@ with col_c1:
 # Fig 2: Precision-Recall curves
 with col_c2:
     fig_pr = go.Figure()
-    pos_rate = float(
-        champ_row["tp"] + champ_row["fn"]
-    ) / (champ_row["tp"] + champ_row["fp"] + champ_row["tn"] + champ_row["fn"])
+    pos_rate = float(champ_row["tp"] + champ_row["fn"]) / (
+        champ_row["tp"] + champ_row["fp"] + champ_row["tn"] + champ_row["fn"]
+    )
     fig_pr.add_hline(
         y=pos_rate,
         line=dict(dash="dot", color=GREY, width=1.2),
@@ -283,5 +283,5 @@ st.write(
     f"hierarchy, the model was chosen because its validation PR-AUC ({val_ap:.4f}) is within "
     f"0.005 of the top-scoring gradient boosting architecture ({best_ap:.4f}, a difference of "
     f"{diff_ap:.4f}). {reason} Random forest was preferred as it achieves parity discrimination "
-    "with fewer tuning dependencies and robust out-of-bag variance reduction."
+    "with fewer tuning dependencies and reliable out-of-bag variance reduction."
 )

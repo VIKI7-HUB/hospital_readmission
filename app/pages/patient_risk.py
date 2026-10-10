@@ -8,6 +8,7 @@ import joblib
 import plotly.graph_objects as go
 import streamlit as st
 import yaml
+from charts import waterfall_chart
 from loaders import load_json, load_table
 from style import GREY, INK, RUST, TEAL, figure, setup, stat_row
 
@@ -281,43 +282,13 @@ with col_right:
         "Calibrated readmission risk of current encounter compared against held-out test cohort distribution.",
     )
 
-    # Fig 2: Waterfall contribution
     explain_res = explain.explain_rows(patient_frame)
     base_contrib = explain_res["base"]
     margin_contrib = float(explain_res["margin"][0])
     c_series = explain_res["contribs"].iloc[0]
     v_series = explain_res["values"].iloc[0]
 
-    abs_c = c_series.abs().sort_values(ascending=False)
-    top8_feats = abs_c.head(8).index.tolist()
-    other_sum = float(c_series.drop(index=top8_feats).sum())
-
-    wf_names = (
-        ["Average patient"]
-        + [FEATURE_LABELS.get(f, f) for f in top8_feats]
-        + ["Other features", "This patient"]
-    )
-    wf_values = [base_contrib] + [float(c_series[f]) for f in top8_feats] + [other_sum, margin_contrib]
-    wf_measures = ["absolute"] + ["relative"] * (len(top8_feats) + 1) + ["total"]
-
-    fig2 = go.Figure(
-        go.Waterfall(
-            orientation="h",
-            measure=wf_measures,
-            y=wf_names,
-            x=wf_values,
-            connector=dict(line=dict(color=GREY, width=1)),
-            decreasing=dict(marker=dict(color=TEAL)),
-            increasing=dict(marker=dict(color=RUST)),
-            totals=dict(marker=dict(color=INK)),
-        )
-    )
-    fig2.update_layout(
-        title="Top TreeSHAP contributions to encounter log-odds",
-        xaxis_title="Contribution to log-odds",
-        height=400,
-        yaxis=dict(autorange="reversed"),
-    )
+    fig2 = waterfall_chart(base_contrib, margin_contrib, c_series, FEATURE_LABELS)
     figure(
         fig2,
         2,
@@ -401,7 +372,6 @@ tier_suggestions = care_actions.get("tiers", {}).get(patient_tier, [])
 for item in tier_suggestions:
     st.write(f"- {item}")
 
-# Evaluate flags in Python per Prompt H14
 applicable_flags = []
 if int(patient_frame["num_medications"].iloc[0]) >= 15:
     applicable_flags.append(care_actions["flags"]["many_medications"])

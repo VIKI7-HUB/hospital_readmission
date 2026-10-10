@@ -76,7 +76,9 @@ fig_missing.update_layout(
     xaxis_title="Percent missing in raw data (%)",
     yaxis_title="Feature",
 )
-figure(fig_missing, 1, "Missing percentage in raw clinical encounter records and imputation policy.")
+figure(
+    fig_missing, 1, "Missing percentage in raw clinical encounter records and imputation policy."
+)
 
 st.header("3. Outliers")
 capped_cols = list(caps.keys())
@@ -117,7 +119,11 @@ fig_outliers.update_layout(
     height=560,
     legend=dict(orientation="h", y=-0.15),
 )
-figure(fig_outliers, 2, "Outlier distribution before and after 99th percentile capping across numerical features.")
+figure(
+    fig_outliers,
+    2,
+    "Outlier distribution before and after 99th percentile capping across numerical features.",
+)
 
 st.header("4. Feature selection")
 decision_filter = st.selectbox("Filter by decision", ["all", "kept", "dropped"])

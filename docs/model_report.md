@@ -1,7 +1,7 @@
 # Clinical Readmission Risk Model Governance & Performance Report
 
 > **Project:** AI-Based Predictive Analytics for Clinical Decision-Making (30-Day Hospital Readmission Risk)  
-> **Dataset:** UCI Diabetes 130-US Hospitals (1999–2008), 99,343 clean inpatient encounters across 69,990 unique patients  
+> **Dataset:** UCI Diabetes 130-US Hospitals (1999-2008), 99,343 clean inpatient encounters across 69,990 unique patients  
 > **Data Partitioning:** Leak-Free Patient-Grouped Stratified Split (StratifiedGroupKFold on patient_nbr):  
 > - **Train Split:** N = 69,538 encounters (70.0%), 48,973 unique patients  
 > - **Validation Split:** N = 9,935 encounters (10.0%), 6,979 unique patients  
@@ -23,7 +23,7 @@ To prevent circular reasoning, optimistic performance inflation, and data leakag
 | **2** | **Final Model Selection** | **Calibrated Soft-Voting Ensemble** (blending tuned XGBoost 35%, LightGBM 35%, CatBoost 30% with Platt scaling). | **Validation Split** (N = 9,935). | **CLEAN** *(Remediated)* | Historical documentation cited post-hoc test AUC without split discipline. Champion selection was re-grounded strictly on validation Brier score calibration (0.0966, tied for top with CatBoost and XGBoost), validation AUC (0.6707), validation PR-AUC (0.2194), and multi-learner blending. |
 | **3** | **Probability Calibration** | Platt Scaling (Sigmoid Logistic Regression mapping raw predictions to posterior probabilities). | Fitted strictly on **Validation Split** (N = 9,935, X_val, y_val). | **CLEAN** | Calibrator parameters fit strictly on validation split; zero test-set exposure during fitting. |
 | **4** | **Classification Threshold** | Unified operating threshold tau = 0.120 (12.0%) for champion model; candidate-specific thresholds: LR (0.120), RF (0.130), XGB (0.120), LGB (0.120), CAT (0.120). | **Validation Split** (N = 9,935). | **CLEAN** | Selected via validation sweep maximizing Recall (60.78% on validation) subject to an operational Precision floor >= 18.0% (validation precision 18.23%). Test split evaluated once post-hoc. |
-| **5** | **Risk Tier Cutoffs** | Three tiers: **Low Risk** (<12.0%), **Elevated Risk** (12.0%–20.0%), **High Risk** (>= 20.0%). | **Validation Split** (N = 9,935). | **CLEAN** | Low/Elevated boundary is the validation decision threshold (12.0%); High boundary is the 91.2nd validation percentile (~2x population readmission risk). Test set used only for one-time empirical rate reporting. |
+| **5** | **Risk Tier Cutoffs** | Three tiers: **Low Risk** (<12.0%), **Elevated Risk** (12.0%-20.0%), **High Risk** (>= 20.0%). | **Validation Split** (N = 9,935). | **CLEAN** | Low/Elevated boundary is the validation decision threshold (12.0%); High boundary is the 91.2nd validation percentile (~2x population readmission risk). Test set used only for one-time empirical rate reporting. |
 | **6** | **Fairness / Mitigation Cutoffs** | Group-specific threshold mitigation: Caucasian cutoff tuned to tau_Caucasian = 0.121 on validation to match AA validation TPR (60.87%) at tau = 0.120. Deployed clinical policy retains unified single 12.0% cutoff. | **Validation Split** (N = 9,935). | **CLEAN** *(Remediated)* | Historical code tested mitigation cutoffs post-hoc on test. Remediation fits thresholds on validation only, then evaluates on test once with bootstrap 95% CIs. Mitigated cutoffs are labeled "Analysis only, not deployed". |
 
 Saved artifacts: `models/test_set_audit.csv` and `models/test_set_audit.json`.
@@ -179,7 +179,7 @@ Empirical test set readmission rates by validated risk tier:
 | Risk Tier | Score Range | Encounters (n) | Readmissions | Observed Readmission Rate | 95% CI (Wilson Interval) | Clinical Workflow Action |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
 | **Low Risk** | < 12.0% | 12,378 | 967 | **7.81%** | **[7.35%, 8.30%]** | Routine discharge summary, standard outpatient primary care follow-up within 30 days. |
-| **Elevated Risk** | 12.0% to 20.0% | 5,769 | 879 | **15.24%** | **[14.33%, 16.19%]** | Enhanced transition planning, pharmacist medication reconciliation, follow-up in 7–10 days. |
+| **Elevated Risk** | 12.0% to 20.0% | 5,769 | 879 | **15.24%** | **[14.33%, 16.19%]** | Enhanced transition planning, pharmacist medication reconciliation, follow-up in 7-10 days. |
 | **High Risk** | >= 20.0% | 1,723 | 417 | **24.20%** | **[22.24%, 26.28%]** | Multidisciplinary discharge plan, 48-hr telehealth check-in, diabetes educator consult. |
 
 Observed readmission rate escalates from 7.81% (Low Tier) to 24.20% (High Tier), a 3.1x risk separation. Non-overlapping 95% confidence intervals confirm statistical discrimination across all three operational tiers.
@@ -226,7 +226,7 @@ To examine the relationship between glycemic testing and 30-day readmission, the
 - **Statistical Association:** A chi-square test of independence between `A1Cresult` category and 30-day readmission yielded **Chi2 = 42.56, dof = 3, p = 3.06e-09**.
 - **Medication Change Flag:** A chi-square test between `change` and readmission yielded **Chi2 = 34.13, dof = 1, p = 5.14e-09**.
 - **Observational Findings:** Encounters where HbA1c was measured (regardless of whether the result was normal or elevated) demonstrated lower readmission rates (~9.8% to 10.2%) than encounters where HbA1c was not tested (11.68%).
-- **Causal Disclaimer:** This represents an empirical observational association only. No causal claims are made; patients receiving HbA1c testing may have received more comprehensive clinical management overall.
+- **Causal Disclaimer:** This represents an empirical observational association only. No causal claims are made; patients receiving HbA1c testing may have received more detailed clinical management overall.
 - **Why A1Cresult is Excluded from Model Features:** The column exhibits an **83.05% unmeasured rate** (82,509 / 99,343 encounters had no test ordered). Testing frequency reflected hospital department ordering habits rather than standardized clinical protocol. Glycemic management is captured without missingness by the `medication_change` flag and `insulin` regimen.
 
 Saved artifact: `models/hba1c_eda_analysis.json` and `models/hba1c_eda_analysis.csv`.
@@ -255,15 +255,15 @@ Saved artifact: `models/hba1c_eda_analysis.json` and `models/hba1c_eda_analysis.
 ## 10. Diagnosis Grouping (ICD-9) & Feature Engineering
 
 ### 10.1 ICD-9 Categorization
-Because the dataset spans 1999–2008, all diagnostic entries use **ICD-9-CM** classification (not ICD-10). High-cardinality ICD-9 codes in `diag_1` were mapped into 9 standard clinical categories:
-- **Circulatory:** ICD-9 390–459, 785
-- **Respiratory:** ICD-9 460–519, 786
-- **Digestive:** ICD-9 520–579, 787
+Because the dataset spans 1999-2008, all diagnostic entries use **ICD-9-CM** classification (not ICD-10). High-cardinality ICD-9 codes in `diag_1` were mapped into 9 standard clinical categories:
+- **Circulatory:** ICD-9 390-459, 785
+- **Respiratory:** ICD-9 460-519, 786
+- **Digestive:** ICD-9 520-579, 787
 - **Diabetes:** ICD-9 250.xx
-- **Injury / Poisoning:** ICD-9 800–999
-- **Musculoskeletal:** ICD-9 710–739
-- **Genitourinary:** ICD-9 580–629, 788
-- **Neoplasms:** ICD-9 140–239
+- **Injury / Poisoning:** ICD-9 800-999
+- **Musculoskeletal:** ICD-9 710-739
+- **Genitourinary:** ICD-9 580-629, 788
+- **Neoplasms:** ICD-9 140-239
 - **Other / External:** V and E codes, and all remaining classifications.
 
 ### 10.2 Numeric Feature Transformations
@@ -351,9 +351,9 @@ Top tree gain contributors:
 | **5** | **Threshold Table & Capacity Floor** | `models/threshold_sweep_test.csv` | 46 steps (0.05 to 0.50), chosen 0.12 | Explained 18% review capacity floor (ensures ~1.7 readmissions per 10 flags). Added capacity-based alternative cutoff (0.15: 19.2% precision, 40.3% recall, 23.9% flag rate). |
 | **6** | **Metric Justifications** | Section 6 of this report | Clinical error framing | Removed $26,000 figure and zero-harm claim. Framed FP as wasted staff/resource time; FN as clinical deterioration without care. Framed CMS HRRP as payment percentage reductions. |
 | **7** | **Tier Validation with 95% CIs** | `models/tier_validation_test.csv` | Low: 7.81% [7.35%, 8.30%], High: 24.20% [22.24%, 26.28%] | Wilson 95% CIs computed and verified on test set. Non-overlapping intervals confirm tier separation. |
-| **8** | **Worklist Consistency (500 Sample)** | `data/processed/worklist_precomputed.joblib`, `tests/test_api.py` | 188 flagged (37.6%), 45 High (9.0%), parity error = 0.00e+00 | Redrew sample with fixed seed 55 from candidate sweep (0–99). Replaced head(500) slice; worklist sample now aligns with full test set (37.77% flagged, 8.81% High). Automated parity test asserts 1e-6 probability agreement. |
+| **8** | **Worklist Consistency (500 Sample)** | `data/processed/worklist_precomputed.joblib`, `tests/test_api.py` | 188 flagged (37.6%), 45 High (9.0%), parity error = 0.00e+00 | Redrew sample with fixed seed 55 from candidate sweep (0-99). Replaced head(500) slice; worklist sample now aligns with full test set (37.77% flagged, 8.81% High). Automated parity test asserts 1e-6 probability agreement. |
 | **9** | **HbA1c & Change EDA** | `models/hba1c_eda_analysis.json` | Chi2 = 42.56 (p=3.06e-09), Chi2 = 34.13 (p=5.14e-09) | Full category breakdown with 95% CIs. Documented 83.05% missingness as reason for exclusion from core model. No causal claims made. |
-| **10** | **ICD-9 Documentation** | Section 10 of this report | 9 disease categories | Verified dataset uses ICD-9 (1999–2008). Zero references to ICD-10 in codebase. Detailed mapping ranges provided. |
+| **10** | **ICD-9 Documentation** | Section 10 of this report | 9 disease categories | Verified dataset uses ICD-9 (1999-2008). Zero references to ICD-10 in codebase. Detailed mapping ranges provided. |
 | **11** | **Preprocessing & Target Definition** | Section 10 of this report, `src/preprocessing.py` | <30 = 1, >=30 & NO = 0 | Documented OneHotEncoder, winsorization, StandardScaler on train only, and review of 25 medication columns (2 kept, 23 excluded). |
 | **12** | **Demographic Fairness Audit** | `fairness_governance/mitigation_improvement_summary.json` | Race, Gender, Age with 95% bootstrap CIs | Removed "mitigated" claims from deployed system. Group-specific thresholds clearly marked "analysis only, not deployed". Documented small subgroup limitations. |
 | **13** | **Explainability & Top Drivers** | `models/explainability_feature_importance.json` | Odds ratios & feature gain | Detailed table with coefficients, odds ratios, directions, and plain-language interpretations. |

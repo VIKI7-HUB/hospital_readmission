@@ -57,20 +57,18 @@ def load_prepared_data() -> pd.DataFrame:
     src_map = cfg["admission_source"]
     src_labels = df["admission_source_id"].astype(str).map(src_map).fillna("Other")
     df["admission_source_group"] = src_labels.apply(
-        lambda s: "Emergency Room"
-        if "Emergency" in s
-        else ("Referral" if "Referral" in s else ("Transfer" if "Transfer" in s else "Other"))
+        lambda s: (
+            "Emergency Room"
+            if "Emergency" in s
+            else ("Referral" if "Referral" in s else ("Transfer" if "Transfer" in s else "Other"))
+        )
     )
 
     df["primary_diagnosis_category"] = (
         df["diag_1"].apply(_diagnosis_category).astype(str).str.capitalize()
     )
-    df["inpatient_disp"] = df["number_inpatient"].apply(
-        lambda v: "5+" if v >= 5 else str(int(v))
-    )
-    df["emergency_disp"] = df["number_emergency"].apply(
-        lambda v: "5+" if v >= 5 else str(int(v))
-    )
+    df["inpatient_disp"] = df["number_inpatient"].apply(lambda v: "5+" if v >= 5 else str(int(v)))
+    df["emergency_disp"] = df["number_emergency"].apply(lambda v: "5+" if v >= 5 else str(int(v)))
     return df
 
 
@@ -261,9 +259,8 @@ def render_filtered_charts(data: pd.DataFrame) -> None:
     )
 
     # Fig 9: Treemap of primary diagnosis category
-    t_tree = (
-        eda.rate_table(df, "primary_diagnosis_category")
-        .rename(columns={"n": "encounters", "rate": "readmission rate"})
+    t_tree = eda.rate_table(df, "primary_diagnosis_category").rename(
+        columns={"n": "encounters", "rate": "readmission rate"}
     )
     fig9 = px.treemap(
         t_tree,

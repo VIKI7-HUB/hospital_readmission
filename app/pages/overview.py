@@ -89,7 +89,9 @@ m_missing = sum(
     for v in dq["missing_percentages"].values()
     if isinstance(v, dict) and v.get("raw") and v["raw"] > 0
 )
-kpi5 = f"{k_kept} features kept, {d_dropped} dropped; {m_missing} columns with missing values handled"
+kpi5 = (
+    f"{k_kept} features kept, {d_dropped} dropped; {m_missing} columns with missing values handled"
+)
 
 scorecard_df = pd.DataFrame(
     [
@@ -127,12 +129,15 @@ st.write("---")
 st.subheader("Sections")
 
 col1, col2 = st.columns(2)
-with col1:
-    st.page_link("pages/data_quality.py", label="Data quality")
-    st.page_link("pages/exploration.py", label="Exploration")
-    st.page_link("pages/models.py", label="Models")
-    st.page_link("pages/threshold.py", label="Threshold and capacity")
-with col2:
-    st.page_link("pages/explainability.py", label="Explainability")
-    st.page_link("pages/fairness.py", label="Fairness")
-    st.page_link("pages/patient_risk.py", label="Patient risk")
+try:
+    with col1:
+        st.page_link("pages/data_quality.py", label="Data quality")
+        st.page_link("pages/exploration.py", label="Exploration")
+        st.page_link("pages/models.py", label="Models")
+        st.page_link("pages/threshold.py", label="Threshold and capacity")
+    with col2:
+        st.page_link("pages/explainability.py", label="Explainability")
+        st.page_link("pages/fairness.py", label="Fairness")
+        st.page_link("pages/patient_risk.py", label="Patient risk")
+except Exception:
+    pass
