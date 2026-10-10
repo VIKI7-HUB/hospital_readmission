@@ -1,0 +1,24 @@
+{
+  "threshold": 0.1134043040022547,
+  "age_band": {
+    "tpr_difference": 0.20405825173916636,
+    "fpr_difference": 0.255065668870013,
+    "equalized_odds_difference": 0.255065668870013,
+    "demographic_parity_difference": 0.24122927678209272,
+    "selection_rate_ratio": 0.5436495527010087
+  },
+  "gender": {
+    "tpr_difference": 0.05164696151413417,
+    "fpr_difference": 0.03983137781074653,
+    "equalized_odds_difference": 0.05164696151413417,
+    "demographic_parity_difference": 0.04057658213935217,
+    "selection_rate_ratio": 0.9003387085644915
+  },
+  "race": {
+    "tpr_difference": 0.0340529350076344,
+    "fpr_difference": 0.0011053951125463146,
+    "equalized_odds_difference": 0.0340529350076344,
+    "demographic_parity_difference": 0.0033899631808728126,
+    "selection_rate_ratio": 0.991415710467233
+  }
+}

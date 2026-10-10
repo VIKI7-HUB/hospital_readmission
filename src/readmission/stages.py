@@ -155,3 +155,90 @@ def stage_odds_ratios() -> pd.DataFrame:
         ].to_string(index=False)
     )
     return table
+
+
+def stage_fairness_audit() -> None:
+    """Audit the champion's test predictions across age band, gender, and race."""
+    from sklearn.metrics import roc_auc_score
+
+    from readmission.fair_stats import (
+        disparity_summary,
+        gap_interval,
+        group_table,
+    )
+
+    pred_path = ROOT / "artifacts" / "test_predictions.parquet"
+    df = pd.read_parquet(pred_path)
+    if "p_cal" not in df.columns and "probability_calibrated" in df.columns:
+        df["p_cal"] = df["probability_calibrated"]
+    if "patient_nbr" not in df.columns:
+        clean_df = pd.read_parquet(
+            ROOT / "artifacts" / "clean.parquet",
+            columns=["encounter_id", "patient_nbr"],
+        )
+        df = df.merge(clean_df, on="encounter_id", how="left")
+
+    th_path = ROOT / "artifacts" / "threshold.json"
+    if th_path.exists():
+        t = float(json.loads(th_path.read_text(encoding="utf-8"))["primary"]["threshold"])
+    else:
+        th_all = json.loads((ROOT / "artifacts" / "thresholds.json").read_text(encoding="utf-8"))
+        champ = json.loads((ROOT / "artifacts" / "champion.json").read_text(encoding="utf-8"))[
+            "model"
+        ]
+        t = float(th_all["models"][champ]["operating"]["threshold"])
+
+    all_tables: list[pd.DataFrame] = []
+    all_gaps: list[dict[str, Any]] = []
+    summary: dict[str, Any] = {"threshold": t}
+
+    for attribute in ("age_band", "gender", "race"):
+        sub_df = df.copy()
+        if attribute == "gender":
+            sub_df = sub_df[sub_df["gender"].isin(["Male", "Female"])]
+        elif attribute == "race":
+            sub_df["race"] = sub_df["race"].fillna("Unknown")
+
+        table = group_table(sub_df, attribute, t)
+        table["attribute"] = attribute
+
+        roc_aucs: list[float] = []
+        for _, row in table.iterrows():
+            grp_data = sub_df[sub_df[attribute] == row["group"]]
+            y_grp = grp_data["y_true"].to_numpy().astype(int)
+            if len(np.unique(y_grp)) == 2:
+                score = float(roc_auc_score(y_grp, grp_data["p_cal"].to_numpy()))
+            else:
+                score = float("nan")
+            roc_aucs.append(score)
+        table["roc_auc"] = roc_aucs
+        all_tables.append(table)
+
+        reference = table.iloc[0]["group"]
+        for _, row in table.iterrows():
+            grp = row["group"]
+            if grp == reference or row["underpowered"]:
+                continue
+            for kind in ("tpr", "fpr"):
+                gap_row = gap_interval(sub_df, attribute, grp, reference, t, kind=kind, n_boot=1000)
+                gap_row["attribute"] = attribute
+                all_gaps.append(gap_row)
+
+        summary[attribute] = disparity_summary(table)
+
+    stacked_table = pd.concat(all_tables, ignore_index=True)
+    gaps_table = pd.DataFrame(all_gaps)
+
+    artifacts_dir = ROOT / "artifacts"
+    stacked_table.to_csv(artifacts_dir / "fairness_audit.csv", index=False)
+    gaps_table.to_csv(artifacts_dir / "fairness_gaps.csv", index=False)
+    (artifacts_dir / "fairness_summary.json").write_text(
+        json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+    )
+
+    print("Fairness Audit Summary (TPR and FPR per group):")
+    print(
+        stacked_table[
+            ["attribute", "group", "n", "positives", "tpr", "fpr", "roc_auc", "underpowered"]
+        ].to_string(index=False)
+    )

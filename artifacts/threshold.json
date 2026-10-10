@@ -1,0 +1,18 @@
+{
+  "model": "random_forest",
+  "recall_target": 0.6,
+  "primary": {
+    "threshold": 0.1134043040022547,
+    "precision": 0.17859932309294455,
+    "recall": 0.6065428824049514,
+    "recall_target_met": true
+  },
+  "cost_optimal": {
+    "threshold": 0.17714305937393118,
+    "cost": 4978,
+    "false_positives": 1098,
+    "false_negatives": 776
+  },
+  "cost_fn": 5.0,
+  "cost_fp": 1.0
+}
