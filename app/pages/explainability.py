@@ -9,7 +9,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 from charts import dot_whisker
-from loaders import load_table
+from loaders import load_json, load_table
 from style import GREY, TEAL, figure, setup
 
 from readmission.explain import FEATURE_LABELS, MODIFIABLE
@@ -219,3 +219,43 @@ st.write(
     "Odds ratios from the logistic model describe population-level relative associations per unit change "
     "after accounting for within-patient correlation."
 )
+
+tags_path = ROOT / "artifacts" / "feature_tags.json"
+if tags_path.exists():
+    st.header("5. Modifiable versus fixed signal")
+    tags = load_json("feature_tags.json")
+    mod_set = set(tags.get("modifiable", []))
+    total_shap = float(imp["mean_abs_shap"].sum())
+    mod_shap = float(imp[imp["feature"].isin(mod_set)]["mean_abs_shap"].sum())
+    fixed_shap = total_shap - mod_shap
+
+    mod_share = mod_shap / total_shap
+    fixed_share = fixed_shap / total_shap
+
+    fig5 = go.Figure(
+        go.Bar(
+            y=["Fixed features", "Modifiable features"],
+            x=[fixed_share, mod_share],
+            orientation="h",
+            marker_color=[GREY, TEAL],
+            text=[f"{fixed_share:.1%}", f"{mod_share:.1%}"],
+            textposition="auto",
+        )
+    )
+    fig5.update_layout(
+        title="Share of TreeSHAP signal by feature mutability",
+        xaxis_title="Share of total mean absolute SHAP",
+        xaxis=dict(tickformat=".0%", range=[0, 1]),
+        height=240,
+    )
+    figure(
+        fig5,
+        5,
+        f"{mod_share:.0%} of the model's TreeSHAP signal comes from modifiable features that can change at discharge.",
+    )
+    st.caption(
+        "Modifiable features include medications, discharge disposition, and HbA1c testing results. "
+        "Fixed features reflect baseline clinical history and non-actionable demographics. "
+        "These represent observational attribution shares and do not indicate causal effects."
+    )
+
