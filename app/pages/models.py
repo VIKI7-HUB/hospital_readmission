@@ -91,8 +91,38 @@ if (ROOT / "artifacts" / "lace.json").exists():
         f"LACE-style clinical score ({lace['roc_auc']:.3f}) by {champ_auc - lace['roc_auc']:+.3f}."
     )
 
+if (ROOT / "artifacts" / "blend.json").exists():
+    blend = load_json("blend.json")
+    b_test = blend["test"]
+    blend_row = pd.DataFrame(
+        [
+            {
+                "model": "Blend of all models (comparison only)",
+                "threshold": f"{blend['threshold']:.2f}",
+                "precision": f"{b_test['precision']:.1%}",
+                "recall": f"{b_test['recall']:.1%}",
+                "roc_auc": f"{b_test['roc_auc']:.3f}",
+                "pr_auc": f"{b_test['pr_auc']:.3f}",
+            }
+        ]
+    )
+    st.dataframe(blend_row, hide_index=True, width="stretch")
+    champ_pr = float(table_df[table_df["model"] == champion_name]["pr_auc"].iloc[0])
+    blend_pr = float(b_test["pr_auc"])
+    comp_str = (
+        f"is slightly above the champion's ({blend_pr:.4f} vs {champ_pr:.4f})"
+        if blend_pr > champ_pr
+        else f"does not exceed the champion's ({blend_pr:.4f} vs {champ_pr:.4f})"
+    )
+    st.write(
+        f"The 5-model logistic blend test PR-AUC {comp_str}. The champion ({champion_name}) "
+        "was kept because it can be directly explained with feature contributions, whereas "
+        "no per-feature explanation is available for a multi-model blend."
+    )
+
 
 st.header("2. Why recall comes first")
+
 
 p1 = (
     "For an acute-care inpatient hospital, a false negative represents a patient discharged "

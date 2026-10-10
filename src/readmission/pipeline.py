@@ -10,6 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 from readmission.stages import (
+    stage_blend,
     stage_bootstrap,
     stage_calibrate,
     stage_data,
@@ -45,9 +46,11 @@ STAGES = [
     ("explain", stage_explain_global),
     ("odds", stage_odds_ratios),
     ("hba1c", stage_hba1c),
+    ("blend", stage_blend),
     ("fairness", stage_fairness_audit),
     ("mitigation", stage_fairness_mitigation),
 ]
+
 
 
 

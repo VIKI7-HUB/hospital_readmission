@@ -1,0 +1,16 @@
+{
+  "val_pr_auc_oof": 0.22647031436132253,
+  "threshold": 0.11,
+  "test": {
+    "roc_auc": 0.6699704054569119,
+    "pr_auc": 0.22296661753403835,
+    "recall": 0.6102518780380026,
+    "precision": 0.1748765353931873,
+    "accuracy": 0.627642440104691,
+    "f1": 0.2718503937007874,
+    "f2": 0.4073986665879993,
+    "flag_rate": 0.39747332393799073
+  },
+  "eligible_for_champion": false,
+  "reason": "no per-feature explanation is available for a blend"
+}
