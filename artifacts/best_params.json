@@ -6,7 +6,7 @@
     "cv_average_precision": 0.20242664515286746,
     "validation_roc_auc": 0.6664445938322007,
     "validation_average_precision": 0.21509897245577123,
-    "training_time_seconds": 25.188
+    "training_time_seconds": 25.648
   },
   "random_forest": {
     "parameters": {
@@ -18,7 +18,7 @@
     "cv_average_precision": 0.2118505949326098,
     "validation_roc_auc": 0.6643011038456166,
     "validation_average_precision": 0.2258615351595917,
-    "training_time_seconds": 80.186
+    "training_time_seconds": 78.412
   },
   "xgboost": {
     "parameters": {
@@ -33,7 +33,7 @@
     "cv_average_precision": 0.21464803131293245,
     "validation_roc_auc": 0.630626887204778,
     "validation_average_precision": 0.19136737643369534,
-    "training_time_seconds": 53.324
+    "training_time_seconds": 66.449
   },
   "lightgbm": {
     "parameters": {
@@ -50,7 +50,7 @@
     "cv_average_precision": 0.21244511325672907,
     "validation_roc_auc": 0.6664122521530067,
     "validation_average_precision": 0.22727161755443853,
-    "training_time_seconds": 47.61
+    "training_time_seconds": 54.379
   },
   "catboost": {
     "parameters": {
@@ -63,6 +63,6 @@
     "cv_average_precision": 0.1773384406131359,
     "validation_roc_auc": 0.6581841573380509,
     "validation_average_precision": 0.21032244931533292,
-    "training_time_seconds": 653.514
+    "training_time_seconds": 332.465
   }
 }
