@@ -63,3 +63,6 @@ evaluation:
   false_positive_cost: 1
   high_risk_percentile: 90
   calibration_folds: 5
+explain:
+  sample_size: 3000
+  seed: 42
