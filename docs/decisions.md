@@ -29,3 +29,8 @@
 
 10. Subgroup thresholds for analysis only: Group-specific classification thresholds were computed as an exploratory fairness reference.
     Alternative rejected: Deploying group-varying decision cutoffs in clinical production, which requires collecting and utilizing protected demographic attributes at the point of care.
+
+11. Prior encounters ordering: Encounter ID order is assumed to follow chronological time for calculating prior encounter counts; this was not verified against admission dates because the dataset records none.
+
+12. Extra feature engineering ablation: Additional interaction and utilization features (comorbidity_count, has_circulatory, has_renal, has_neoplasm, inpatient_x_home, labs_per_day, meds_per_day, prior_encounters_in_data) were evaluated behind the features.extra switch. Base validation PR-AUC was 0.22053 vs 0.21646 with extra features (delta: -0.00407, failing the required +0.002 improvement threshold), so features.extra is retained as false.
+    Alternative rejected: Retaining extra engineered features that degrade out-of-fold generalization performance.

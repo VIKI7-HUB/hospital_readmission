@@ -333,9 +333,67 @@ def build_features(df: pd.DataFrame, feature_config: dict[str, Any]) -> pd.DataF
     )
     features["payer_code"] = _payer_group(df["payer_code"])
 
-    if tuple(features.columns) != MODEL_FEATURES:
+    extra = feature_config.get("extra", False) or _project_config().get("features", {}).get(
+        "extra", False
+    )
+    if extra:
+        diag_cats = features[["diag_1_category", "diag_2_category", "diag_3_category"]]
+        features["comorbidity_count"] = diag_cats.apply(
+            lambda r: len({x for x in r if x not in {"other", "Unknown"}}), axis=1
+        )
+        features["has_circulatory"] = (diag_cats == "circulatory").any(axis=1).astype(int)
+        features["has_renal"] = diag_cats.isin(["renal", "genitourinary"]).any(axis=1).astype(int)
+        features["has_neoplasm"] = (
+            diag_cats.isin(["neoplasms", "neoplasm"]).any(axis=1).astype(int)
+        )
+        features["inpatient_x_home"] = (
+            features["number_inpatient"] * (features["discharge_group"] == "home").astype(int)
+        )
+        features["labs_per_day"] = (
+            features["num_lab_procedures"] / features["time_in_hospital"].clip(lower=1)
+        )
+        features["meds_per_day"] = (
+            features["num_medications"] / features["time_in_hospital"].clip(lower=1)
+        )
+        clean_path = ROOT / "artifacts" / "clean.parquet"
+        if clean_path.exists() and "encounter_id" in df.columns:
+            clean_df = pd.read_parquet(clean_path, columns=["encounter_id", "patient_nbr"])
+            prior_counts = prior_encounter_count(clean_df)
+            prior_map = pd.Series(
+                prior_counts.to_numpy(), index=clean_df["encounter_id"].to_numpy()
+            )
+            features["prior_encounters_in_data"] = (
+                df["encounter_id"].map(prior_map).fillna(0).astype(int)
+            )
+        elif "patient_nbr" in df.columns and "encounter_id" in df.columns:
+            features["prior_encounters_in_data"] = prior_encounter_count(df).astype(int)
+        else:
+            features["prior_encounters_in_data"] = 0
+
+    expected = (
+        MODEL_FEATURES
+        if not extra
+        else MODEL_FEATURES
+        + (
+            "comorbidity_count",
+            "has_circulatory",
+            "has_renal",
+            "has_neoplasm",
+            "inpatient_x_home",
+            "labs_per_day",
+            "meds_per_day",
+            "prior_encounters_in_data",
+        )
+    )
+    if tuple(features.columns) != expected:
         raise AssertionError("Built model feature columns do not match the declared feature list.")
     return features
+
+
+def prior_encounter_count(df: pd.DataFrame) -> pd.Series:
+    """Return number of earlier encounters for each patient."""
+    order = df.sort_values(["patient_nbr", "encounter_id"])
+    return order.groupby("patient_nbr").cumcount().reindex(df.index)
 
 
 __all__ = [
@@ -346,6 +404,7 @@ __all__ = [
     "build_fairness_attributes",
     "build_features",
     "fit_feature_config",
+    "prior_encounter_count",
     "selection_evidence",
 ]
 
