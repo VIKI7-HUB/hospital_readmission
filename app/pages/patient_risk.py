@@ -20,8 +20,11 @@ setup("Patient risk")
 champion_info = load_json("champion.json")
 champion_name = champion_info.get("champion", champion_info.get("model", "random_forest"))
 tiers = load_json("tiers.json")
-tags = load_json("feature_tags.json")
-test_preds = load_table("test_predictions.parquet")
+test_preds = load_table("test_predictions.parquet").copy()
+if "p_cal" not in test_preds.columns and "probability_calibrated" in test_preds.columns:
+    test_preds["p_cal"] = test_preds["probability_calibrated"]
+elif "probability_calibrated" not in test_preds.columns and "p_cal" in test_preds.columns:
+    test_preds["probability_calibrated"] = test_preds["p_cal"]
 val_scores = load_table(f"scores/{champion_name}__val.parquet")
 clean_data = load_table(
     "clean.parquet",
@@ -262,7 +265,7 @@ with col_right:
         x=p_cal,
         line=dict(dash="solid", color=TEAL, width=2.5),
         annotation_text=f"This patient ({p_cal:.1%})",
-        annotation_position="top center",
+        annotation_position="top",
     )
     fig1.update_layout(
         title="Patient risk within test cohort distribution",
